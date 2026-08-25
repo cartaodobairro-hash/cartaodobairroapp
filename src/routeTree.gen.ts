@@ -26,6 +26,7 @@ import { Route as AuthenticatedAppExplorarRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAppFavoritosRouteImport } from './routes/_authenticated/app.favoritos'
 import { Route as AuthenticatedParceiroIndexRouteImport } from './routes/_authenticated/parceiro.index'
 import { Route as AuthenticatedParceiroBeneficiosRouteImport } from './routes/_authenticated/parceiro.beneficios'
+import { Route as AuthenticatedParceiroValidarRouteImport } from './routes/_authenticated/parceiro.validar'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -115,6 +116,12 @@ const AuthenticatedParceiroBeneficiosRoute =
     path: '/beneficios',
     getParentRoute: () => AuthenticatedParceiroRoute,
   } as any)
+const AuthenticatedParceiroValidarRoute =
+  AuthenticatedParceiroValidarRouteImport.update({
+    id: '/validar',
+    path: '/validar',
+    getParentRoute: () => AuthenticatedParceiroRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
+  '/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/parceiro/': typeof AuthenticatedParceiroIndexRoute
 }
@@ -147,6 +155,7 @@ export interface FileRoutesByTo {
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
+  '/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/parceiro': typeof AuthenticatedParceiroIndexRoute
 }
@@ -167,6 +176,7 @@ export interface FileRoutesById {
   '/_authenticated/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/_authenticated/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/_authenticated/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
+  '/_authenticated/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/parceiro/': typeof AuthenticatedParceiroIndexRoute
 }
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/app/explorar'
     | '/app/favoritos'
     | '/parceiro/beneficios'
+    | '/parceiro/validar'
     | '/app/'
     | '/parceiro/'
   fileRoutesByTo: FileRoutesByTo
@@ -203,6 +214,7 @@ export interface FileRouteTypes {
     | '/app/explorar'
     | '/app/favoritos'
     | '/parceiro/beneficios'
+    | '/parceiro/validar'
     | '/app'
     | '/parceiro'
   id:
@@ -222,6 +234,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/explorar'
     | '/_authenticated/app/favoritos'
     | '/_authenticated/parceiro/beneficios'
+    | '/_authenticated/parceiro/validar'
     | '/_authenticated/app/'
     | '/_authenticated/parceiro/'
   fileRoutesById: FileRoutesById
@@ -358,6 +371,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedParceiroBeneficiosRouteImport
       parentRoute: typeof AuthenticatedParceiroRoute
     }
+    '/_authenticated/parceiro/validar': {
+      id: '/_authenticated/parceiro/validar'
+      path: '/validar'
+      fullPath: '/parceiro/validar'
+      preLoaderRoute: typeof AuthenticatedParceiroValidarRouteImport
+      parentRoute: typeof AuthenticatedParceiroRoute
+    }
   }
 }
 
@@ -382,11 +402,13 @@ const AuthenticatedAppRouteWithChildren =
 
 interface AuthenticatedParceiroRouteChildren {
   AuthenticatedParceiroBeneficiosRoute: typeof AuthenticatedParceiroBeneficiosRoute
+  AuthenticatedParceiroValidarRoute: typeof AuthenticatedParceiroValidarRoute
   AuthenticatedParceiroIndexRoute: typeof AuthenticatedParceiroIndexRoute
 }
 
 const AuthenticatedParceiroRouteChildren: AuthenticatedParceiroRouteChildren = {
   AuthenticatedParceiroBeneficiosRoute: AuthenticatedParceiroBeneficiosRoute,
+  AuthenticatedParceiroValidarRoute: AuthenticatedParceiroValidarRoute,
   AuthenticatedParceiroIndexRoute: AuthenticatedParceiroIndexRoute,
 }
 
