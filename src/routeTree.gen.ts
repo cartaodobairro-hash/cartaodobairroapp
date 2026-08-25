@@ -19,6 +19,7 @@ import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppCartaoRouteImport } from './routes/_authenticated/app.cartao'
+import { Route as AuthenticatedAppContaRouteImport } from './routes/_authenticated/app.conta'
 import { Route as AuthenticatedAppExplorarRouteImport } from './routes/_authenticated/app.explorar'
 import { Route as AuthenticatedAppFavoritosRouteImport } from './routes/_authenticated/app.favoritos'
 
@@ -71,6 +72,11 @@ const AuthenticatedAppCartaoRoute = AuthenticatedAppCartaoRouteImport.update({
   path: '/cartao',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppContaRoute = AuthenticatedAppContaRouteImport.update({
+  id: '/conta',
+  path: '/conta',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppExplorarRoute =
   AuthenticatedAppExplorarRouteImport.update({
     id: '/explorar',
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/termos': typeof TermosRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/cartao': typeof AuthenticatedAppCartaoRoute
+  '/app/conta': typeof AuthenticatedAppContaRoute
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/app/': typeof AuthenticatedAppIndexRoute
@@ -105,6 +112,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
   '/app/cartao': typeof AuthenticatedAppCartaoRoute
+  '/app/conta': typeof AuthenticatedAppContaRoute
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/app': typeof AuthenticatedAppIndexRoute
@@ -120,6 +128,7 @@ export interface FileRoutesById {
   '/termos': typeof TermosRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/app/cartao': typeof AuthenticatedAppCartaoRoute
+  '/_authenticated/app/conta': typeof AuthenticatedAppContaRoute
   '/_authenticated/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/_authenticated/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
@@ -135,6 +144,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/app'
     | '/app/cartao'
+    | '/app/conta'
     | '/app/explorar'
     | '/app/favoritos'
     | '/app/'
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/termos'
     | '/app/cartao'
+    | '/app/conta'
     | '/app/explorar'
     | '/app/favoritos'
     | '/app'
@@ -161,6 +172,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/_authenticated/app'
     | '/_authenticated/app/cartao'
+    | '/_authenticated/app/conta'
     | '/_authenticated/app/explorar'
     | '/_authenticated/app/favoritos'
     | '/_authenticated/app/'
@@ -248,6 +260,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppCartaoRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/conta': {
+      id: '/_authenticated/app/conta'
+      path: '/conta'
+      fullPath: '/app/conta'
+      preLoaderRoute: typeof AuthenticatedAppContaRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/explorar': {
       id: '/_authenticated/app/explorar'
       path: '/explorar'
@@ -267,6 +286,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppCartaoRoute: typeof AuthenticatedAppCartaoRoute
+  AuthenticatedAppContaRoute: typeof AuthenticatedAppContaRoute
   AuthenticatedAppExplorarRoute: typeof AuthenticatedAppExplorarRoute
   AuthenticatedAppFavoritosRoute: typeof AuthenticatedAppFavoritosRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
@@ -274,6 +294,7 @@ interface AuthenticatedAppRouteChildren {
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppCartaoRoute: AuthenticatedAppCartaoRoute,
+  AuthenticatedAppContaRoute: AuthenticatedAppContaRoute,
   AuthenticatedAppExplorarRoute: AuthenticatedAppExplorarRoute,
   AuthenticatedAppFavoritosRoute: AuthenticatedAppFavoritosRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
