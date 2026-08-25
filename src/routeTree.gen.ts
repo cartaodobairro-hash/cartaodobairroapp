@@ -25,6 +25,7 @@ import { Route as AuthenticatedAppContaRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAppExplorarRouteImport } from './routes/_authenticated/app.explorar'
 import { Route as AuthenticatedAppFavoritosRouteImport } from './routes/_authenticated/app.favoritos'
 import { Route as AuthenticatedParceiroIndexRouteImport } from './routes/_authenticated/parceiro.index'
+import { Route as AuthenticatedParceiroBeneficiosRouteImport } from './routes/_authenticated/parceiro.beneficios'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -108,6 +109,12 @@ const AuthenticatedParceiroIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedParceiroRoute,
   } as any)
+const AuthenticatedParceiroBeneficiosRoute =
+  AuthenticatedParceiroBeneficiosRouteImport.update({
+    id: '/beneficios',
+    path: '/beneficios',
+    getParentRoute: () => AuthenticatedParceiroRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/app/conta': typeof AuthenticatedAppContaRoute
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
+  '/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/parceiro/': typeof AuthenticatedParceiroIndexRoute
 }
@@ -138,6 +146,7 @@ export interface FileRoutesByTo {
   '/app/conta': typeof AuthenticatedAppContaRoute
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
+  '/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/parceiro': typeof AuthenticatedParceiroIndexRoute
 }
@@ -157,6 +166,7 @@ export interface FileRoutesById {
   '/_authenticated/app/conta': typeof AuthenticatedAppContaRoute
   '/_authenticated/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/_authenticated/app/favoritos': typeof AuthenticatedAppFavoritosRoute
+  '/_authenticated/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/parceiro/': typeof AuthenticatedParceiroIndexRoute
 }
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/app/conta'
     | '/app/explorar'
     | '/app/favoritos'
+    | '/parceiro/beneficios'
     | '/app/'
     | '/parceiro/'
   fileRoutesByTo: FileRoutesByTo
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
     | '/app/conta'
     | '/app/explorar'
     | '/app/favoritos'
+    | '/parceiro/beneficios'
     | '/app'
     | '/parceiro'
   id:
@@ -209,6 +221,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/conta'
     | '/_authenticated/app/explorar'
     | '/_authenticated/app/favoritos'
+    | '/_authenticated/parceiro/beneficios'
     | '/_authenticated/app/'
     | '/_authenticated/parceiro/'
   fileRoutesById: FileRoutesById
@@ -338,6 +351,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedParceiroIndexRouteImport
       parentRoute: typeof AuthenticatedParceiroRoute
     }
+    '/_authenticated/parceiro/beneficios': {
+      id: '/_authenticated/parceiro/beneficios'
+      path: '/beneficios'
+      fullPath: '/parceiro/beneficios'
+      preLoaderRoute: typeof AuthenticatedParceiroBeneficiosRouteImport
+      parentRoute: typeof AuthenticatedParceiroRoute
+    }
   }
 }
 
@@ -361,10 +381,12 @@ const AuthenticatedAppRouteWithChildren =
   AuthenticatedAppRoute._addFileChildren(AuthenticatedAppRouteChildren)
 
 interface AuthenticatedParceiroRouteChildren {
+  AuthenticatedParceiroBeneficiosRoute: typeof AuthenticatedParceiroBeneficiosRoute
   AuthenticatedParceiroIndexRoute: typeof AuthenticatedParceiroIndexRoute
 }
 
 const AuthenticatedParceiroRouteChildren: AuthenticatedParceiroRouteChildren = {
+  AuthenticatedParceiroBeneficiosRoute: AuthenticatedParceiroBeneficiosRoute,
   AuthenticatedParceiroIndexRoute: AuthenticatedParceiroIndexRoute,
 }
 
