@@ -20,6 +20,7 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/ap
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppCartaoRouteImport } from './routes/_authenticated/app.cartao'
 import { Route as AuthenticatedAppExplorarRouteImport } from './routes/_authenticated/app.explorar'
+import { Route as AuthenticatedAppFavoritosRouteImport } from './routes/_authenticated/app.favoritos'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -76,6 +77,12 @@ const AuthenticatedAppExplorarRoute =
     path: '/explorar',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppFavoritosRoute =
+  AuthenticatedAppFavoritosRouteImport.update({
+    id: '/favoritos',
+    path: '/favoritos',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -87,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/cartao': typeof AuthenticatedAppCartaoRoute
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
+  '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesByTo {
@@ -98,6 +106,7 @@ export interface FileRoutesByTo {
   '/termos': typeof TermosRoute
   '/app/cartao': typeof AuthenticatedAppCartaoRoute
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
+  '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/app': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesById {
@@ -112,6 +121,7 @@ export interface FileRoutesById {
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/app/cartao': typeof AuthenticatedAppCartaoRoute
   '/_authenticated/app/explorar': typeof AuthenticatedAppExplorarRoute
+  '/_authenticated/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRouteTypes {
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/cartao'
     | '/app/explorar'
+    | '/app/favoritos'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/app/cartao'
     | '/app/explorar'
+    | '/app/favoritos'
     | '/app'
   id:
     | '__root__'
@@ -150,6 +162,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app'
     | '/_authenticated/app/cartao'
     | '/_authenticated/app/explorar'
+    | '/_authenticated/app/favoritos'
     | '/_authenticated/app/'
   fileRoutesById: FileRoutesById
 }
@@ -242,18 +255,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppExplorarRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/favoritos': {
+      id: '/_authenticated/app/favoritos'
+      path: '/favoritos'
+      fullPath: '/app/favoritos'
+      preLoaderRoute: typeof AuthenticatedAppFavoritosRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppCartaoRoute: typeof AuthenticatedAppCartaoRoute
   AuthenticatedAppExplorarRoute: typeof AuthenticatedAppExplorarRoute
+  AuthenticatedAppFavoritosRoute: typeof AuthenticatedAppFavoritosRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppCartaoRoute: AuthenticatedAppCartaoRoute,
   AuthenticatedAppExplorarRoute: AuthenticatedAppExplorarRoute,
+  AuthenticatedAppFavoritosRoute: AuthenticatedAppFavoritosRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
 
