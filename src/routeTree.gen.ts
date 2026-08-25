@@ -18,6 +18,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as AuthenticatedAppCartaoRouteImport } from './routes/_authenticated/app.cartao'
 import { Route as AuthenticatedAppExplorarRouteImport } from './routes/_authenticated/app.explorar'
 
 const IndexRoute = IndexRouteImport.update({
@@ -64,6 +65,11 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppCartaoRoute = AuthenticatedAppCartaoRouteImport.update({
+  id: '/cartao',
+  path: '/cartao',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppExplorarRoute =
   AuthenticatedAppExplorarRouteImport.update({
     id: '/explorar',
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/app/cartao': typeof AuthenticatedAppCartaoRoute
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/app/': typeof AuthenticatedAppIndexRoute
 }
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
+  '/app/cartao': typeof AuthenticatedAppCartaoRoute
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/app': typeof AuthenticatedAppIndexRoute
 }
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/app/cartao': typeof AuthenticatedAppCartaoRoute
   '/_authenticated/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
 }
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/termos'
     | '/app'
+    | '/app/cartao'
     | '/app/explorar'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/reset-password'
     | '/termos'
+    | '/app/cartao'
     | '/app/explorar'
     | '/app'
   id:
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/termos'
     | '/_authenticated/app'
+    | '/_authenticated/app/cartao'
     | '/_authenticated/app/explorar'
     | '/_authenticated/app/'
   fileRoutesById: FileRoutesById
@@ -216,6 +228,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/cartao': {
+      id: '/_authenticated/app/cartao'
+      path: '/cartao'
+      fullPath: '/app/cartao'
+      preLoaderRoute: typeof AuthenticatedAppCartaoRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/explorar': {
       id: '/_authenticated/app/explorar'
       path: '/explorar'
@@ -227,11 +246,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppCartaoRoute: typeof AuthenticatedAppCartaoRoute
   AuthenticatedAppExplorarRoute: typeof AuthenticatedAppExplorarRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppCartaoRoute: AuthenticatedAppCartaoRoute,
   AuthenticatedAppExplorarRoute: AuthenticatedAppExplorarRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
