@@ -10,33 +10,207 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ParceriaRouteImport } from './routes/parceria'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as TermosRouteImport } from './routes/termos'
+import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as AuthenticatedParceiroRouteImport } from './routes/_authenticated/parceiro'
+import { Route as EmpresaIdRouteImport } from './routes/empresa.$id'
+import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as AuthenticatedAppCartaoRouteImport } from './routes/_authenticated/app.cartao'
+import { Route as AuthenticatedAppContaRouteImport } from './routes/_authenticated/app.conta'
+import { Route as AuthenticatedAppExplorarRouteImport } from './routes/_authenticated/app.explorar'
+import { Route as AuthenticatedAppFavoritosRouteImport } from './routes/_authenticated/app.favoritos'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParceriaRoute = ParceriaRouteImport.update({
+  id: '/parceria',
+  path: '/parceria',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedParceiroRoute = AuthenticatedParceiroRouteImport.update({
+  id: '/parceiro',
+  path: '/parceiro',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const EmpresaIdRoute = EmpresaIdRouteImport.update({
+  id: '/empresa/$id',
+  path: '/empresa/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppCartaoRoute = AuthenticatedAppCartaoRouteImport.update({
+  id: '/cartao',
+  path: '/cartao',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppContaRoute = AuthenticatedAppContaRouteImport.update({
+  id: '/conta',
+  path: '/conta',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppExplorarRoute =
+  AuthenticatedAppExplorarRouteImport.update({
+    id: '/explorar',
+    path: '/explorar',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppFavoritosRoute =
+  AuthenticatedAppFavoritosRouteImport.update({
+    id: '/favoritos',
+    path: '/favoritos',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/parceria': typeof ParceriaRoute
+  '/privacidade': typeof PrivacidadeRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/termos': typeof TermosRoute
+  '/app': typeof AuthenticatedAppRouteWithChildren
+  '/parceiro': typeof AuthenticatedParceiroRoute
+  '/empresa/$id': typeof EmpresaIdRoute
+  '/app/cartao': typeof AuthenticatedAppCartaoRoute
+  '/app/conta': typeof AuthenticatedAppContaRoute
+  '/app/explorar': typeof AuthenticatedAppExplorarRoute
+  '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
+  '/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/parceria': typeof ParceriaRoute
+  '/privacidade': typeof PrivacidadeRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/termos': typeof TermosRoute
+  '/parceiro': typeof AuthenticatedParceiroRoute
+  '/empresa/$id': typeof EmpresaIdRoute
+  '/app/cartao': typeof AuthenticatedAppCartaoRoute
+  '/app/conta': typeof AuthenticatedAppContaRoute
+  '/app/explorar': typeof AuthenticatedAppExplorarRoute
+  '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
+  '/app': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/parceria': typeof ParceriaRoute
+  '/privacidade': typeof PrivacidadeRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/termos': typeof TermosRoute
+  '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/parceiro': typeof AuthenticatedParceiroRoute
+  '/empresa/$id': typeof EmpresaIdRoute
+  '/_authenticated/app/cartao': typeof AuthenticatedAppCartaoRoute
+  '/_authenticated/app/conta': typeof AuthenticatedAppContaRoute
+  '/_authenticated/app/explorar': typeof AuthenticatedAppExplorarRoute
+  '/_authenticated/app/favoritos': typeof AuthenticatedAppFavoritosRoute
+  '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/parceria'
+    | '/privacidade'
+    | '/reset-password'
+    | '/termos'
+    | '/app'
+    | '/parceiro'
+    | '/empresa/$id'
+    | '/app/cartao'
+    | '/app/conta'
+    | '/app/explorar'
+    | '/app/favoritos'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/parceria'
+    | '/privacidade'
+    | '/reset-password'
+    | '/termos'
+    | '/parceiro'
+    | '/empresa/$id'
+    | '/app/cartao'
+    | '/app/conta'
+    | '/app/explorar'
+    | '/app/favoritos'
+    | '/app'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/parceria'
+    | '/privacidade'
+    | '/reset-password'
+    | '/termos'
+    | '/_authenticated/app'
+    | '/_authenticated/parceiro'
+    | '/empresa/$id'
+    | '/_authenticated/app/cartao'
+    | '/_authenticated/app/conta'
+    | '/_authenticated/app/explorar'
+    | '/_authenticated/app/favoritos'
+    | '/_authenticated/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  ParceriaRoute: typeof ParceriaRoute
+  PrivacidadeRoute: typeof PrivacidadeRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  TermosRoute: typeof TermosRoute
+  EmpresaIdRoute: typeof EmpresaIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +222,148 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parceria': {
+      id: '/parceria'
+      path: '/parceria'
+      fullPath: '/parceria'
+      preLoaderRoute: typeof ParceriaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/app': {
+      id: '/_authenticated/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AuthenticatedAppRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/parceiro': {
+      id: '/_authenticated/parceiro'
+      path: '/parceiro'
+      fullPath: '/parceiro'
+      preLoaderRoute: typeof AuthenticatedParceiroRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/empresa/$id': {
+      id: '/empresa/$id'
+      path: '/empresa/$id'
+      fullPath: '/empresa/$id'
+      preLoaderRoute: typeof EmpresaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/app/': {
+      id: '/_authenticated/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/cartao': {
+      id: '/_authenticated/app/cartao'
+      path: '/cartao'
+      fullPath: '/app/cartao'
+      preLoaderRoute: typeof AuthenticatedAppCartaoRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/conta': {
+      id: '/_authenticated/app/conta'
+      path: '/conta'
+      fullPath: '/app/conta'
+      preLoaderRoute: typeof AuthenticatedAppContaRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/explorar': {
+      id: '/_authenticated/app/explorar'
+      path: '/explorar'
+      fullPath: '/app/explorar'
+      preLoaderRoute: typeof AuthenticatedAppExplorarRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/favoritos': {
+      id: '/_authenticated/app/favoritos'
+      path: '/favoritos'
+      fullPath: '/app/favoritos'
+      preLoaderRoute: typeof AuthenticatedAppFavoritosRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
+interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppCartaoRoute: typeof AuthenticatedAppCartaoRoute
+  AuthenticatedAppContaRoute: typeof AuthenticatedAppContaRoute
+  AuthenticatedAppExplorarRoute: typeof AuthenticatedAppExplorarRoute
+  AuthenticatedAppFavoritosRoute: typeof AuthenticatedAppFavoritosRoute
+  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+}
+
+const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppCartaoRoute: AuthenticatedAppCartaoRoute,
+  AuthenticatedAppContaRoute: AuthenticatedAppContaRoute,
+  AuthenticatedAppExplorarRoute: AuthenticatedAppExplorarRoute,
+  AuthenticatedAppFavoritosRoute: AuthenticatedAppFavoritosRoute,
+  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+}
+
+const AuthenticatedAppRouteWithChildren =
+  AuthenticatedAppRoute._addFileChildren(AuthenticatedAppRouteChildren)
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
+  AuthenticatedParceiroRoute: typeof AuthenticatedParceiroRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
+  AuthenticatedParceiroRoute: AuthenticatedParceiroRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  ParceriaRoute: ParceriaRoute,
+  PrivacidadeRoute: PrivacidadeRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  TermosRoute: TermosRoute,
+  EmpresaIdRoute: EmpresaIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

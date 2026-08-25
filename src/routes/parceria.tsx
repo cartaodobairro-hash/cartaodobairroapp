@@ -1,0 +1,162 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { BrandLogo } from "@/components/brand";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { maskCnpj, maskPhone } from "@/lib/format";
+import { useAuth } from "@/lib/auth";
+
+export const Route = createFileRoute("/parceria")({
+  head: () => ({
+    meta: [
+      { title: "Seja parceiro — Cartão do Bairro" },
+      {
+        name: "description",
+        content:
+          "Cadastre sua empresa no Cartão do Bairro, ofereça benefícios e receba novos clientes do seu bairro.",
+      },
+      { property: "og:title", content: "Seja parceiro — Cartão do Bairro" },
+      { property: "og:description", content: "Cadastre sua empresa e receba clientes do bairro." },
+    ],
+  }),
+  component: PartnerSignup,
+});
+
+function PartnerSignup() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [busy, setBusy] = useState(false);
+  const [form, setForm] = useState({
+    company_name: "",
+    trade_name: "",
+    cnpj: "",
+    category_id: "",
+    phone: "",
+    whatsapp: "",
+    email: "",
+    city: "",
+    neighborhood: "",
+    street: "",
+    number: "",
+    description: "",
+  });
+
+  const { data: categories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("categories").select("*").order("sort_order");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!user) {
+      toast.error("Crie sua conta primeiro", {
+        description: "O cadastro da empresa fica vinculado ao seu login.",
+      });
+      return navigate({ to: "/auth", search: { modo: "cadastro" } });
+    }
+    setBusy(true);
+    const { error } = await supabase.from("partners").insert({
+      ...form,
+      category_id: form.category_id || null,
+      user_id: user.id,
+      status: "pendente",
+    });
+    setBusy(false);
+    if (error) return toast.error("Não foi possível enviar", { description: error.message });
+    toast.success("Cadastro enviado!", { description: "Sua empresa está em análise." });
+    navigate({ to: "/parceiro" });
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="mx-auto flex w-full max-w-4xl items-center justify-between px-4 py-4">
+        <Link to="/">
+          <BrandLogo />
+        </Link>
+        <Button asChild variant="ghost" size="sm">
+          <Link to="/auth">Entrar</Link>
+        </Button>
+      </header>
+
+      <main className="mx-auto w-full max-w-4xl px-4 pb-16">
+        <h1 className="text-3xl font-extrabold tracking-tight">Seja uma empresa parceira</h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+          Ofereça descontos para os associados e apareça no mapa, na busca e nos destaques do
+          aplicativo. Sem mensalidade: você só oferece o benefício combinado.
+        </p>
+
+        <form onSubmit={submit} className="mt-8 grid gap-4 rounded-2xl border border-border bg-card p-5 shadow-card md:grid-cols-2">
+          <Field label="Razão social" value={form.company_name} onChange={(v) => setForm({ ...form, company_name: v })} required />
+          <Field label="Nome fantasia" value={form.trade_name} onChange={(v) => setForm({ ...form, trade_name: v })} required />
+          <Field label="CNPJ" value={form.cnpj} onChange={(v) => setForm({ ...form, cnpj: maskCnpj(v) })} />
+          <div>
+            <Label>Categoria</Label>
+            <select
+              className="mt-1 h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+              value={form.category_id}
+              onChange={(e) => setForm({ ...form, category_id: e.target.value })}
+              required
+            >
+              <option value="">Selecione</option>
+              {(categories ?? []).map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.icon} {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <Field label="Telefone" value={form.phone} onChange={(v) => setForm({ ...form, phone: maskPhone(v) })} />
+          <Field label="WhatsApp" value={form.whatsapp} onChange={(v) => setForm({ ...form, whatsapp: maskPhone(v) })} />
+          <Field label="E-mail" value={form.email} onChange={(v) => setForm({ ...form, email: v })} />
+          <Field label="Cidade" value={form.city} onChange={(v) => setForm({ ...form, city: v })} />
+          <Field label="Bairro" value={form.neighborhood} onChange={(v) => setForm({ ...form, neighborhood: v })} />
+          <Field label="Rua" value={form.street} onChange={(v) => setForm({ ...form, street: v })} />
+          <Field label="Número" value={form.number} onChange={(v) => setForm({ ...form, number: v })} />
+          <div className="md:col-span-2">
+            <Label>Descrição da empresa</Label>
+            <Textarea
+              className="mt-1"
+              rows={3}
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              placeholder="Conte o que sua empresa oferece e qual benefício pretende dar aos associados."
+            />
+          </div>
+          <div className="md:col-span-2">
+            <Button disabled={busy} className="w-full md:w-auto">
+              {busy ? "Enviando..." : "Enviar para análise"}
+            </Button>
+          </div>
+        </form>
+      </main>
+    </div>
+  );
+}
+
+function Field({
+  label,
+  value,
+  onChange,
+  required,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  required?: boolean;
+}) {
+  return (
+    <div>
+      <Label>{label}</Label>
+      <Input className="mt-1" value={value} required={required} onChange={(e) => onChange(e.target.value)} />
+    </div>
+  );
+}
