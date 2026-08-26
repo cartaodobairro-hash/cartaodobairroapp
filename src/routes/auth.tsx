@@ -15,8 +15,8 @@ type Search = { modo?: "login" | "cadastro"; vendedor?: string };
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (search: Record<string, unknown>): Search => ({
-    modo: search.modo === "cadastro" ? "cadastro" : "login",
-    vendedor: typeof search.vendedor === "string" ? search.vendedor : undefined,
+    modo: search["modo"] === "cadastro" ? "cadastro" : "login",
+    ...(typeof search["vendedor"] === "string" ? { vendedor: search["vendedor"] } : {}),
   }),
   head: () => ({
     meta: [
@@ -59,16 +59,28 @@ function AuthPage() {
       password: login.password,
     });
     setBusy(false);
-    if (error) return toast.error("Não foi possível entrar", { description: error.message });
+    if (error) {
+      toast.error("Não foi possível entrar", { description: error.message });
+      return;
+    }
     toast.success("Bem-vindo de volta!");
     navigate({ to: "/app" });
   }
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
-    if (signup.password !== signup.confirm) return toast.error("As senhas não conferem");
-    if (signup.password.length < 6) return toast.error("A senha precisa ter ao menos 6 caracteres");
-    if (!signup.terms) return toast.error("É necessário aceitar os termos de uso");
+    if (signup.password !== signup.confirm) {
+      toast.error("As senhas não conferem");
+      return;
+    }
+    if (signup.password.length < 6) {
+      toast.error("A senha precisa ter ao menos 6 caracteres");
+      return;
+    }
+    if (!signup.terms) {
+      toast.error("É necessário aceitar os termos de uso");
+      return;
+    }
     setBusy(true);
     const { error } = await supabase.auth.signUp({
       email: signup.email.trim(),
@@ -84,7 +96,10 @@ function AuthPage() {
       },
     });
     setBusy(false);
-    if (error) return toast.error("Não foi possível criar a conta", { description: error.message });
+    if (error) {
+      toast.error("Não foi possível criar a conta", { description: error.message });
+      return;
+    }
     if (vendedor) localStorage.setItem("cdb_seller_code", vendedor);
     toast.success("Conta criada!", { description: "Confirme seu e-mail para ativar o acesso." });
     setTab("login");
@@ -94,7 +109,10 @@ function AuthPage() {
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
     });
-    if (result.error) return toast.error("Falha no login com Google");
+    if (result.error) {
+      toast.error("Falha no login com Google");
+      return;
+    }
     if (result.redirected) return;
     navigate({ to: "/app" });
   }
@@ -175,11 +193,17 @@ function AuthPage() {
                 type="button"
                 className="w-full text-center text-xs text-muted-foreground underline"
                 onClick={async () => {
-                  if (!login.email) return toast.error("Informe seu e-mail primeiro");
+                  if (!login.email) {
+                    toast.error("Informe seu e-mail primeiro");
+                    return;
+                  }
                   const { error } = await supabase.auth.resetPasswordForEmail(login.email, {
                     redirectTo: `${window.location.origin}/reset-password`,
                   });
-                  if (error) return toast.error(error.message);
+                  if (error) {
+                    toast.error(error.message);
+                    return;
+                  }
                   toast.success("Enviamos um link de recuperação para seu e-mail");
                 }}
               >
