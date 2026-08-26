@@ -20,6 +20,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedParceiroRouteImport } from './routes/_authenticated/parceiro'
 import { Route as EmpresaIdRouteImport } from './routes/empresa.$id'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppCartaoRouteImport } from './routes/_authenticated/app.cartao'
 import { Route as AuthenticatedAppContaRouteImport } from './routes/_authenticated/app.conta'
@@ -83,6 +84,11 @@ const EmpresaIdRoute = EmpresaIdRouteImport.update({
   path: '/empresa/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -136,7 +142,7 @@ export interface FileRoutesByFullPath {
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
-  '/admin': typeof AuthenticatedAdminRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/parceiro': typeof AuthenticatedParceiroRouteWithChildren
   '/empresa/$id': typeof EmpresaIdRoute
@@ -146,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
   '/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/parceiro/': typeof AuthenticatedParceiroIndexRoute
 }
@@ -156,7 +163,6 @@ export interface FileRoutesByTo {
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
-  '/admin': typeof AuthenticatedAdminRoute
   '/empresa/$id': typeof EmpresaIdRoute
   '/app/cartao': typeof AuthenticatedAppCartaoRoute
   '/app/conta': typeof AuthenticatedAppContaRoute
@@ -164,6 +170,7 @@ export interface FileRoutesByTo {
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
   '/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/parceiro': typeof AuthenticatedParceiroIndexRoute
 }
@@ -176,7 +183,7 @@ export interface FileRoutesById {
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/parceiro': typeof AuthenticatedParceiroRouteWithChildren
   '/empresa/$id': typeof EmpresaIdRoute
@@ -186,6 +193,7 @@ export interface FileRoutesById {
   '/_authenticated/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/_authenticated/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
   '/_authenticated/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/parceiro/': typeof AuthenticatedParceiroIndexRoute
 }
@@ -208,6 +216,7 @@ export interface FileRouteTypes {
     | '/app/favoritos'
     | '/parceiro/beneficios'
     | '/parceiro/validar'
+    | '/admin/'
     | '/app/'
     | '/parceiro/'
   fileRoutesByTo: FileRoutesByTo
@@ -218,7 +227,6 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/reset-password'
     | '/termos'
-    | '/admin'
     | '/empresa/$id'
     | '/app/cartao'
     | '/app/conta'
@@ -226,6 +234,7 @@ export interface FileRouteTypes {
     | '/app/favoritos'
     | '/parceiro/beneficios'
     | '/parceiro/validar'
+    | '/admin'
     | '/app'
     | '/parceiro'
   id:
@@ -247,6 +256,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/favoritos'
     | '/_authenticated/parceiro/beneficios'
     | '/_authenticated/parceiro/validar'
+    | '/_authenticated/admin/'
     | '/_authenticated/app/'
     | '/_authenticated/parceiro/'
   fileRoutesById: FileRoutesById
@@ -341,6 +351,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpresaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/app/': {
       id: '/_authenticated/app/'
       path: '/'
@@ -400,6 +417,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppCartaoRoute: typeof AuthenticatedAppCartaoRoute
   AuthenticatedAppContaRoute: typeof AuthenticatedAppContaRoute
@@ -437,13 +465,13 @@ const AuthenticatedParceiroRouteWithChildren =
   )
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
   AuthenticatedParceiroRoute: typeof AuthenticatedParceiroRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
   AuthenticatedParceiroRoute: AuthenticatedParceiroRouteWithChildren,
 }
