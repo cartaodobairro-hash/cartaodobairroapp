@@ -34,6 +34,7 @@ import { Route as AuthenticatedParceiroIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedParceiroBeneficiosRouteImport } from './routes/_authenticated/parceiro.beneficios'
 import { Route as AuthenticatedParceiroValidarRouteImport } from './routes/_authenticated/parceiro.validar'
 import { Route as AuthenticatedVendedorIndexRouteImport } from './routes/_authenticated/vendedor.index'
+import { Route as AuthenticatedVendedorLeadsRouteImport } from './routes/_authenticated/vendedor.leads'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -168,6 +169,12 @@ const AuthenticatedVendedorIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedVendedorRoute,
   } as any)
+const AuthenticatedVendedorLeadsRoute =
+  AuthenticatedVendedorLeadsRouteImport.update({
+    id: '/leads',
+    path: '/leads',
+    getParentRoute: () => AuthenticatedVendedorRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -190,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
   '/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
+  '/vendedor/leads': typeof AuthenticatedVendedorLeadsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/parceiro/': typeof AuthenticatedParceiroIndexRoute
@@ -212,6 +220,7 @@ export interface FileRoutesByTo {
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
   '/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
+  '/vendedor/leads': typeof AuthenticatedVendedorLeadsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/parceiro': typeof AuthenticatedParceiroIndexRoute
@@ -240,6 +249,7 @@ export interface FileRoutesById {
   '/_authenticated/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/_authenticated/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
   '/_authenticated/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
+  '/_authenticated/vendedor/leads': typeof AuthenticatedVendedorLeadsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/parceiro/': typeof AuthenticatedParceiroIndexRoute
@@ -268,6 +278,7 @@ export interface FileRouteTypes {
     | '/app/favoritos'
     | '/parceiro/beneficios'
     | '/parceiro/validar'
+    | '/vendedor/leads'
     | '/admin/'
     | '/app/'
     | '/parceiro/'
@@ -290,6 +301,7 @@ export interface FileRouteTypes {
     | '/app/favoritos'
     | '/parceiro/beneficios'
     | '/parceiro/validar'
+    | '/vendedor/leads'
     | '/admin'
     | '/app'
     | '/parceiro'
@@ -317,6 +329,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/favoritos'
     | '/_authenticated/parceiro/beneficios'
     | '/_authenticated/parceiro/validar'
+    | '/_authenticated/vendedor/leads'
     | '/_authenticated/admin/'
     | '/_authenticated/app/'
     | '/_authenticated/parceiro/'
@@ -511,6 +524,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVendedorIndexRouteImport
       parentRoute: typeof AuthenticatedVendedorRoute
     }
+    '/_authenticated/vendedor/leads': {
+      id: '/_authenticated/vendedor/leads'
+      path: '/leads'
+      fullPath: '/vendedor/leads'
+      preLoaderRoute: typeof AuthenticatedVendedorLeadsRouteImport
+      parentRoute: typeof AuthenticatedVendedorRoute
+    }
   }
 }
 
@@ -568,10 +588,12 @@ const AuthenticatedParceiroRouteWithChildren =
   )
 
 interface AuthenticatedVendedorRouteChildren {
+  AuthenticatedVendedorLeadsRoute: typeof AuthenticatedVendedorLeadsRoute
   AuthenticatedVendedorIndexRoute: typeof AuthenticatedVendedorIndexRoute
 }
 
 const AuthenticatedVendedorRouteChildren: AuthenticatedVendedorRouteChildren = {
+  AuthenticatedVendedorLeadsRoute: AuthenticatedVendedorLeadsRoute,
   AuthenticatedVendedorIndexRoute: AuthenticatedVendedorIndexRoute,
 }
 
