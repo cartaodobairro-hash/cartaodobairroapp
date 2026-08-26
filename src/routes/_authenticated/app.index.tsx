@@ -4,7 +4,7 @@ import { CreditCard, MapPin, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCustomer, useProfile } from "@/lib/auth";
 import { BrandLogo } from "@/components/brand";
-import { brl, dateBR } from "@/lib/format";
+import { brl, dateBR, firstOf } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/app/")({
@@ -56,7 +56,7 @@ function ClientHome() {
     },
   });
 
-  const card = customer?.cards?.[0];
+  const card = firstOf(customer?.cards);
   const firstName = profile?.name?.split(" ")[0] ?? "associado";
 
   return (

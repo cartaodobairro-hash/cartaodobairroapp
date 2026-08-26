@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/shells";
-import { dateBR } from "@/lib/format";
+import { dateBR, firstOf } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/admin/clientes")({
   component: AdminCustomers,
@@ -39,7 +39,7 @@ function AdminCustomers() {
           <tbody>
             {(customers ?? []).map((c) => (
               <tr key={c.id} className="border-b border-border/60 last:border-0">
-                <td className="p-3 font-mono text-xs">{c.cards?.[0]?.card_number ?? "—"}</td>
+                <td className="p-3 font-mono text-xs">{firstOf(c.cards)?.card_number ?? "—"}</td>
                 <td className="p-3">{c.plans?.name ?? "—"}</td>
                 <td className="p-3">{[c.neighborhood, c.city].filter(Boolean).join(" - ") || "—"}</td>
                 <td className="p-3 uppercase text-xs">{c.status}</td>

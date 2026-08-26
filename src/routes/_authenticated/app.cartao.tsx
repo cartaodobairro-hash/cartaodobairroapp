@@ -3,7 +3,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useCustomer, useProfile } from "@/lib/auth";
-import { dateBR, maskCpf } from "@/lib/format";
+import { dateBR, maskCpf, firstOf } from "@/lib/format";
 import { PageHeader } from "@/components/shells";
 import { BrandMark } from "@/components/brand";
 
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_authenticated/app/cartao")({
 function DigitalCard() {
   const { data: profile } = useProfile();
   const { data: customer } = useCustomer();
-  const card = customer?.cards?.[0];
+  const card = firstOf(customer?.cards);
 
   const { data: dependents } = useQuery({
     queryKey: ["dependents", customer?.id],
