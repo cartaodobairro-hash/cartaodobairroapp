@@ -19,6 +19,7 @@ import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedParceiroRouteImport } from './routes/_authenticated/parceiro'
+import { Route as AuthenticatedVendedorRouteImport } from './routes/_authenticated/vendedor'
 import { Route as EmpresaIdRouteImport } from './routes/empresa.$id'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminClientesRouteImport } from './routes/_authenticated/admin.clientes'
@@ -80,6 +81,11 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
 const AuthenticatedParceiroRoute = AuthenticatedParceiroRouteImport.update({
   id: '/parceiro',
   path: '/parceiro',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedVendedorRoute = AuthenticatedVendedorRouteImport.update({
+  id: '/vendedor',
+  path: '/vendedor',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const EmpresaIdRoute = EmpresaIdRouteImport.update({
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/parceiro': typeof AuthenticatedParceiroRouteWithChildren
+  '/vendedor': typeof AuthenticatedVendedorRoute
   '/empresa/$id': typeof EmpresaIdRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesRoute
   '/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
@@ -187,6 +194,7 @@ export interface FileRoutesByTo {
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
+  '/vendedor': typeof AuthenticatedVendedorRoute
   '/empresa/$id': typeof EmpresaIdRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesRoute
   '/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
@@ -213,6 +221,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/parceiro': typeof AuthenticatedParceiroRouteWithChildren
+  '/_authenticated/vendedor': typeof AuthenticatedVendedorRoute
   '/empresa/$id': typeof EmpresaIdRoute
   '/_authenticated/admin/clientes': typeof AuthenticatedAdminClientesRoute
   '/_authenticated/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
@@ -239,6 +248,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/app'
     | '/parceiro'
+    | '/vendedor'
     | '/empresa/$id'
     | '/admin/clientes'
     | '/admin/parceiros'
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/reset-password'
     | '/termos'
+    | '/vendedor'
     | '/empresa/$id'
     | '/admin/clientes'
     | '/admin/parceiros'
@@ -285,6 +296,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/app'
     | '/_authenticated/parceiro'
+    | '/_authenticated/vendedor'
     | '/empresa/$id'
     | '/_authenticated/admin/clientes'
     | '/_authenticated/admin/parceiros'
@@ -381,6 +393,13 @@ declare module '@tanstack/react-router' {
       path: '/parceiro'
       fullPath: '/parceiro'
       preLoaderRoute: typeof AuthenticatedParceiroRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/vendedor': {
+      id: '/_authenticated/vendedor'
+      path: '/vendedor'
+      fullPath: '/vendedor'
+      preLoaderRoute: typeof AuthenticatedVendedorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/empresa/$id': {
@@ -534,12 +553,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
   AuthenticatedParceiroRoute: typeof AuthenticatedParceiroRouteWithChildren
+  AuthenticatedVendedorRoute: typeof AuthenticatedVendedorRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
   AuthenticatedParceiroRoute: AuthenticatedParceiroRouteWithChildren,
+  AuthenticatedVendedorRoute: AuthenticatedVendedorRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
