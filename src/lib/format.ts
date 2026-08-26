@@ -81,3 +81,9 @@ export function mapsDirectionsUrl(p: {
 export function mapsEmbedUrl(q: string) {
   return `https://www.google.com/maps?q=${encodeURIComponent(q)}&z=14&output=embed`;
 }
+
+/** Supabase pode tipar relações 1-N como objeto único; normaliza para o primeiro item. */
+export function firstOf<T>(value: T | T[] | null | undefined): T | undefined {
+  if (Array.isArray(value)) return value[0];
+  return value ?? undefined;
+}

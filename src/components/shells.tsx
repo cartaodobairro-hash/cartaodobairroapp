@@ -31,7 +31,7 @@ export function AppShell({ items, children }: { items: NavItem[]; children: Reac
             <Link
               key={String(item.to)}
               to={item.to}
-              activeOptions={{ exact: item.exact }}
+              activeOptions={{ exact: item.exact ?? false }}
               className="flex flex-1 flex-col items-center gap-1 px-1 py-2.5 text-[11px] font-medium text-muted-foreground transition-colors"
               activeProps={{ className: "text-primary" }}
             >
@@ -69,7 +69,7 @@ export function PanelShell({
               <Link
                 key={String(item.to)}
                 to={item.to}
-                activeOptions={{ exact: item.exact }}
+                activeOptions={{ exact: item.exact ?? false }}
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 activeProps={{ className: "bg-primary text-primary-foreground hover:bg-primary" }}
               >
@@ -96,7 +96,7 @@ export function PanelShell({
             <Link
               key={String(item.to)}
               to={item.to}
-              activeOptions={{ exact: item.exact }}
+              activeOptions={{ exact: item.exact ?? false }}
               className={cn(
                 "whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold text-muted-foreground",
               )}
