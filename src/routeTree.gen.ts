@@ -23,6 +23,7 @@ import { Route as EmpresaIdRouteImport } from './routes/empresa.$id'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminClientesRouteImport } from './routes/_authenticated/admin.clientes'
 import { Route as AuthenticatedAdminParceirosRouteImport } from './routes/_authenticated/admin.parceiros'
+import { Route as AuthenticatedAdminVendedoresRouteImport } from './routes/_authenticated/admin.vendedores'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppCartaoRouteImport } from './routes/_authenticated/app.cartao'
 import { Route as AuthenticatedAppContaRouteImport } from './routes/_authenticated/app.conta'
@@ -103,6 +104,12 @@ const AuthenticatedAdminParceirosRoute =
     path: '/parceiros',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminVendedoresRoute =
+  AuthenticatedAdminVendedoresRouteImport.update({
+    id: '/vendedores',
+    path: '/vendedores',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -162,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/empresa/$id': typeof EmpresaIdRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesRoute
   '/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
+  '/admin/vendedores': typeof AuthenticatedAdminVendedoresRoute
   '/app/cartao': typeof AuthenticatedAppCartaoRoute
   '/app/conta': typeof AuthenticatedAppContaRoute
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
@@ -182,6 +190,7 @@ export interface FileRoutesByTo {
   '/empresa/$id': typeof EmpresaIdRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesRoute
   '/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
+  '/admin/vendedores': typeof AuthenticatedAdminVendedoresRoute
   '/app/cartao': typeof AuthenticatedAppCartaoRoute
   '/app/conta': typeof AuthenticatedAppContaRoute
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
@@ -207,6 +216,7 @@ export interface FileRoutesById {
   '/empresa/$id': typeof EmpresaIdRoute
   '/_authenticated/admin/clientes': typeof AuthenticatedAdminClientesRoute
   '/_authenticated/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
+  '/_authenticated/admin/vendedores': typeof AuthenticatedAdminVendedoresRoute
   '/_authenticated/app/cartao': typeof AuthenticatedAppCartaoRoute
   '/_authenticated/app/conta': typeof AuthenticatedAppContaRoute
   '/_authenticated/app/explorar': typeof AuthenticatedAppExplorarRoute
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
     | '/empresa/$id'
     | '/admin/clientes'
     | '/admin/parceiros'
+    | '/admin/vendedores'
     | '/app/cartao'
     | '/app/conta'
     | '/app/explorar'
@@ -252,6 +263,7 @@ export interface FileRouteTypes {
     | '/empresa/$id'
     | '/admin/clientes'
     | '/admin/parceiros'
+    | '/admin/vendedores'
     | '/app/cartao'
     | '/app/conta'
     | '/app/explorar'
@@ -276,6 +288,7 @@ export interface FileRouteTypes {
     | '/empresa/$id'
     | '/_authenticated/admin/clientes'
     | '/_authenticated/admin/parceiros'
+    | '/_authenticated/admin/vendedores'
     | '/_authenticated/app/cartao'
     | '/_authenticated/app/conta'
     | '/_authenticated/app/explorar'
@@ -398,6 +411,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminParceirosRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/vendedores': {
+      id: '/_authenticated/admin/vendedores'
+      path: '/vendedores'
+      fullPath: '/admin/vendedores'
+      preLoaderRoute: typeof AuthenticatedAdminVendedoresRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/app/': {
       id: '/_authenticated/app/'
       path: '/'
@@ -460,12 +480,14 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminClientesRoute: typeof AuthenticatedAdminClientesRoute
   AuthenticatedAdminParceirosRoute: typeof AuthenticatedAdminParceirosRoute
+  AuthenticatedAdminVendedoresRoute: typeof AuthenticatedAdminVendedoresRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminClientesRoute: AuthenticatedAdminClientesRoute,
   AuthenticatedAdminParceirosRoute: AuthenticatedAdminParceirosRoute,
+  AuthenticatedAdminVendedoresRoute: AuthenticatedAdminVendedoresRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
