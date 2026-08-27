@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 
-export type NavItem = { to: LinkProps["to"]; label: string; icon: ReactNode; exact?: boolean };
+export type NavItem = { to: NonNullable<LinkProps["to"]>; label: string; icon: ReactNode; exact?: boolean };
 
 export function useSignOut() {
   const queryClient = useQueryClient();
