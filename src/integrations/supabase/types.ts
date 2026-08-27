@@ -413,6 +413,7 @@ export type Database = {
       }
       dependents: {
         Row: {
+          added_at: string
           birth_date: string | null
           cpf: string | null
           created_at: string
@@ -421,9 +422,11 @@ export type Database = {
           name: string
           photo_url: string | null
           relationship: string | null
+          removed_at: string | null
           status: Database["public"]["Enums"]["generic_status"]
         }
         Insert: {
+          added_at?: string
           birth_date?: string | null
           cpf?: string | null
           created_at?: string
@@ -432,9 +435,11 @@ export type Database = {
           name: string
           photo_url?: string | null
           relationship?: string | null
+          removed_at?: string | null
           status?: Database["public"]["Enums"]["generic_status"]
         }
         Update: {
+          added_at?: string
           birth_date?: string | null
           cpf?: string | null
           created_at?: string
@@ -443,6 +448,7 @@ export type Database = {
           name?: string
           photo_url?: string | null
           relationship?: string | null
+          removed_at?: string | null
           status?: Database["public"]["Enums"]["generic_status"]
         }
         Relationships: [
@@ -748,6 +754,8 @@ export type Database = {
           name: string
           period: string
           price: number
+          rules: string | null
+          sort_order: number
           status: Database["public"]["Enums"]["generic_status"]
         }
         Insert: {
@@ -759,6 +767,8 @@ export type Database = {
           name: string
           period?: string
           price?: number
+          rules?: string | null
+          sort_order?: number
           status?: Database["public"]["Enums"]["generic_status"]
         }
         Update: {
@@ -770,6 +780,8 @@ export type Database = {
           name?: string
           period?: string
           price?: number
+          rules?: string | null
+          sort_order?: number
           status?: Database["public"]["Enums"]["generic_status"]
         }
         Relationships: []
