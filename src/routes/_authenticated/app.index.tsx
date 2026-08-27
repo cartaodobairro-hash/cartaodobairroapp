@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCustomer, useProfile } from "@/lib/auth";
 import { BrandLogo } from "@/components/brand";
 import { brl, dateBR, firstOf } from "@/lib/format";
+import { useRealtimeCard } from "@/lib/realtime";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/app/")({
@@ -14,6 +15,8 @@ export const Route = createFileRoute("/_authenticated/app/")({
 function ClientHome() {
   const { data: profile } = useProfile();
   const { data: customer } = useCustomer();
+
+  useRealtimeCard(customer?.id);
 
   const { data: banners } = useQuery({
     queryKey: ["banners"],
