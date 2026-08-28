@@ -31,6 +31,7 @@ import { Route as AuthenticatedAppCartaoRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAppContaRouteImport } from './routes/_authenticated/app.conta'
 import { Route as AuthenticatedAppExplorarRouteImport } from './routes/_authenticated/app.explorar'
 import { Route as AuthenticatedAppFavoritosRouteImport } from './routes/_authenticated/app.favoritos'
+import { Route as AuthenticatedAppPlanosRouteImport } from './routes/_authenticated/app.planos'
 import { Route as AuthenticatedParceiroIndexRouteImport } from './routes/_authenticated/parceiro.index'
 import { Route as AuthenticatedParceiroBeneficiosRouteImport } from './routes/_authenticated/parceiro.beneficios'
 import { Route as AuthenticatedParceiroValidarRouteImport } from './routes/_authenticated/parceiro.validar'
@@ -151,6 +152,11 @@ const AuthenticatedAppFavoritosRoute =
     path: '/favoritos',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppPlanosRoute = AuthenticatedAppPlanosRouteImport.update({
+  id: '/planos',
+  path: '/planos',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedParceiroIndexRoute =
   AuthenticatedParceiroIndexRouteImport.update({
     id: '/',
@@ -202,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/app/conta': typeof AuthenticatedAppContaRoute
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
+  '/app/planos': typeof AuthenticatedAppPlanosRoute
   '/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
   '/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
   '/vendedor/leads': typeof AuthenticatedVendedorLeadsRoute
@@ -226,6 +233,7 @@ export interface FileRoutesByTo {
   '/app/conta': typeof AuthenticatedAppContaRoute
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
+  '/app/planos': typeof AuthenticatedAppPlanosRoute
   '/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
   '/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
   '/vendedor/leads': typeof AuthenticatedVendedorLeadsRoute
@@ -256,6 +264,7 @@ export interface FileRoutesById {
   '/_authenticated/app/conta': typeof AuthenticatedAppContaRoute
   '/_authenticated/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/_authenticated/app/favoritos': typeof AuthenticatedAppFavoritosRoute
+  '/_authenticated/app/planos': typeof AuthenticatedAppPlanosRoute
   '/_authenticated/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
   '/_authenticated/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
   '/_authenticated/vendedor/leads': typeof AuthenticatedVendedorLeadsRoute
@@ -286,6 +295,7 @@ export interface FileRouteTypes {
     | '/app/conta'
     | '/app/explorar'
     | '/app/favoritos'
+    | '/app/planos'
     | '/parceiro/beneficios'
     | '/parceiro/validar'
     | '/vendedor/leads'
@@ -310,6 +320,7 @@ export interface FileRouteTypes {
     | '/app/conta'
     | '/app/explorar'
     | '/app/favoritos'
+    | '/app/planos'
     | '/parceiro/beneficios'
     | '/parceiro/validar'
     | '/vendedor/leads'
@@ -339,6 +350,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/conta'
     | '/_authenticated/app/explorar'
     | '/_authenticated/app/favoritos'
+    | '/_authenticated/app/planos'
     | '/_authenticated/parceiro/beneficios'
     | '/_authenticated/parceiro/validar'
     | '/_authenticated/vendedor/leads'
@@ -516,6 +528,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppFavoritosRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/planos': {
+      id: '/_authenticated/app/planos'
+      path: '/planos'
+      fullPath: '/app/planos'
+      preLoaderRoute: typeof AuthenticatedAppPlanosRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/parceiro/': {
       id: '/_authenticated/parceiro/'
       path: '/'
@@ -576,6 +595,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppContaRoute: typeof AuthenticatedAppContaRoute
   AuthenticatedAppExplorarRoute: typeof AuthenticatedAppExplorarRoute
   AuthenticatedAppFavoritosRoute: typeof AuthenticatedAppFavoritosRoute
+  AuthenticatedAppPlanosRoute: typeof AuthenticatedAppPlanosRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
@@ -584,6 +604,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppContaRoute: AuthenticatedAppContaRoute,
   AuthenticatedAppExplorarRoute: AuthenticatedAppExplorarRoute,
   AuthenticatedAppFavoritosRoute: AuthenticatedAppFavoritosRoute,
+  AuthenticatedAppPlanosRoute: AuthenticatedAppPlanosRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
 
