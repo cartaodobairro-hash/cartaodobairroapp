@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ParceriaRouteImport } from './routes/parceria'
+import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as TermosRouteImport } from './routes/termos'
@@ -24,12 +25,15 @@ import { Route as EmpresaIdRouteImport } from './routes/empresa.$id'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminClientesRouteImport } from './routes/_authenticated/admin.clientes'
 import { Route as AuthenticatedAdminParceirosRouteImport } from './routes/_authenticated/admin.parceiros'
+import { Route as AuthenticatedAdminPlanosRouteImport } from './routes/_authenticated/admin.planos'
 import { Route as AuthenticatedAdminVendedoresRouteImport } from './routes/_authenticated/admin.vendedores'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppCartaoRouteImport } from './routes/_authenticated/app.cartao'
 import { Route as AuthenticatedAppContaRouteImport } from './routes/_authenticated/app.conta'
+import { Route as AuthenticatedAppDependentesRouteImport } from './routes/_authenticated/app.dependentes'
 import { Route as AuthenticatedAppExplorarRouteImport } from './routes/_authenticated/app.explorar'
 import { Route as AuthenticatedAppFavoritosRouteImport } from './routes/_authenticated/app.favoritos'
+import { Route as AuthenticatedAppPlanosRouteImport } from './routes/_authenticated/app.planos'
 import { Route as AuthenticatedParceiroIndexRouteImport } from './routes/_authenticated/parceiro.index'
 import { Route as AuthenticatedParceiroBeneficiosRouteImport } from './routes/_authenticated/parceiro.beneficios'
 import { Route as AuthenticatedParceiroValidarRouteImport } from './routes/_authenticated/parceiro.validar'
@@ -53,6 +57,11 @@ const AuthRoute = AuthRouteImport.update({
 const ParceriaRoute = ParceriaRouteImport.update({
   id: '/parceria',
   path: '/parceria',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanosRoute = PlanosRouteImport.update({
+  id: '/planos',
+  path: '/planos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacidadeRoute = PrivacidadeRouteImport.update({
@@ -112,6 +121,12 @@ const AuthenticatedAdminParceirosRoute =
     path: '/parceiros',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminPlanosRoute =
+  AuthenticatedAdminPlanosRouteImport.update({
+    id: '/planos',
+    path: '/planos',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminVendedoresRoute =
   AuthenticatedAdminVendedoresRouteImport.update({
     id: '/vendedores',
@@ -133,6 +148,12 @@ const AuthenticatedAppContaRoute = AuthenticatedAppContaRouteImport.update({
   path: '/conta',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppDependentesRoute =
+  AuthenticatedAppDependentesRouteImport.update({
+    id: '/dependentes',
+    path: '/dependentes',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppExplorarRoute =
   AuthenticatedAppExplorarRouteImport.update({
     id: '/explorar',
@@ -145,6 +166,11 @@ const AuthenticatedAppFavoritosRoute =
     path: '/favoritos',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppPlanosRoute = AuthenticatedAppPlanosRouteImport.update({
+  id: '/planos',
+  path: '/planos',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedParceiroIndexRoute =
   AuthenticatedParceiroIndexRouteImport.update({
     id: '/',
@@ -180,6 +206,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/parceria': typeof ParceriaRoute
+  '/planos': typeof PlanosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
@@ -190,11 +217,14 @@ export interface FileRoutesByFullPath {
   '/empresa/$id': typeof EmpresaIdRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesRoute
   '/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
+  '/admin/planos': typeof AuthenticatedAdminPlanosRoute
   '/admin/vendedores': typeof AuthenticatedAdminVendedoresRoute
   '/app/cartao': typeof AuthenticatedAppCartaoRoute
   '/app/conta': typeof AuthenticatedAppContaRoute
+  '/app/dependentes': typeof AuthenticatedAppDependentesRoute
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
+  '/app/planos': typeof AuthenticatedAppPlanosRoute
   '/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
   '/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
   '/vendedor/leads': typeof AuthenticatedVendedorLeadsRoute
@@ -207,17 +237,21 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/parceria': typeof ParceriaRoute
+  '/planos': typeof PlanosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
   '/empresa/$id': typeof EmpresaIdRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesRoute
   '/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
+  '/admin/planos': typeof AuthenticatedAdminPlanosRoute
   '/admin/vendedores': typeof AuthenticatedAdminVendedoresRoute
   '/app/cartao': typeof AuthenticatedAppCartaoRoute
   '/app/conta': typeof AuthenticatedAppContaRoute
+  '/app/dependentes': typeof AuthenticatedAppDependentesRoute
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
+  '/app/planos': typeof AuthenticatedAppPlanosRoute
   '/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
   '/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
   '/vendedor/leads': typeof AuthenticatedVendedorLeadsRoute
@@ -232,6 +266,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/parceria': typeof ParceriaRoute
+  '/planos': typeof PlanosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
@@ -242,11 +277,14 @@ export interface FileRoutesById {
   '/empresa/$id': typeof EmpresaIdRoute
   '/_authenticated/admin/clientes': typeof AuthenticatedAdminClientesRoute
   '/_authenticated/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
+  '/_authenticated/admin/planos': typeof AuthenticatedAdminPlanosRoute
   '/_authenticated/admin/vendedores': typeof AuthenticatedAdminVendedoresRoute
   '/_authenticated/app/cartao': typeof AuthenticatedAppCartaoRoute
   '/_authenticated/app/conta': typeof AuthenticatedAppContaRoute
+  '/_authenticated/app/dependentes': typeof AuthenticatedAppDependentesRoute
   '/_authenticated/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/_authenticated/app/favoritos': typeof AuthenticatedAppFavoritosRoute
+  '/_authenticated/app/planos': typeof AuthenticatedAppPlanosRoute
   '/_authenticated/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
   '/_authenticated/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
   '/_authenticated/vendedor/leads': typeof AuthenticatedVendedorLeadsRoute
@@ -261,6 +299,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/parceria'
+    | '/planos'
     | '/privacidade'
     | '/reset-password'
     | '/termos'
@@ -271,11 +310,14 @@ export interface FileRouteTypes {
     | '/empresa/$id'
     | '/admin/clientes'
     | '/admin/parceiros'
+    | '/admin/planos'
     | '/admin/vendedores'
     | '/app/cartao'
     | '/app/conta'
+    | '/app/dependentes'
     | '/app/explorar'
     | '/app/favoritos'
+    | '/app/planos'
     | '/parceiro/beneficios'
     | '/parceiro/validar'
     | '/vendedor/leads'
@@ -288,17 +330,21 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/parceria'
+    | '/planos'
     | '/privacidade'
     | '/reset-password'
     | '/termos'
     | '/empresa/$id'
     | '/admin/clientes'
     | '/admin/parceiros'
+    | '/admin/planos'
     | '/admin/vendedores'
     | '/app/cartao'
     | '/app/conta'
+    | '/app/dependentes'
     | '/app/explorar'
     | '/app/favoritos'
+    | '/app/planos'
     | '/parceiro/beneficios'
     | '/parceiro/validar'
     | '/vendedor/leads'
@@ -312,6 +358,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/parceria'
+    | '/planos'
     | '/privacidade'
     | '/reset-password'
     | '/termos'
@@ -322,11 +369,14 @@ export interface FileRouteTypes {
     | '/empresa/$id'
     | '/_authenticated/admin/clientes'
     | '/_authenticated/admin/parceiros'
+    | '/_authenticated/admin/planos'
     | '/_authenticated/admin/vendedores'
     | '/_authenticated/app/cartao'
     | '/_authenticated/app/conta'
+    | '/_authenticated/app/dependentes'
     | '/_authenticated/app/explorar'
     | '/_authenticated/app/favoritos'
+    | '/_authenticated/app/planos'
     | '/_authenticated/parceiro/beneficios'
     | '/_authenticated/parceiro/validar'
     | '/_authenticated/vendedor/leads'
@@ -341,6 +391,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ParceriaRoute: typeof ParceriaRoute
+  PlanosRoute: typeof PlanosRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermosRoute: typeof TermosRoute
@@ -375,6 +426,13 @@ declare module '@tanstack/react-router' {
       path: '/parceria'
       fullPath: '/parceria'
       preLoaderRoute: typeof ParceriaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planos': {
+      id: '/planos'
+      path: '/planos'
+      fullPath: '/planos'
+      preLoaderRoute: typeof PlanosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacidade': {
@@ -454,6 +512,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminParceirosRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/planos': {
+      id: '/_authenticated/admin/planos'
+      path: '/planos'
+      fullPath: '/admin/planos'
+      preLoaderRoute: typeof AuthenticatedAdminPlanosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/vendedores': {
       id: '/_authenticated/admin/vendedores'
       path: '/vendedores'
@@ -482,6 +547,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppContaRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/dependentes': {
+      id: '/_authenticated/app/dependentes'
+      path: '/dependentes'
+      fullPath: '/app/dependentes'
+      preLoaderRoute: typeof AuthenticatedAppDependentesRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/explorar': {
       id: '/_authenticated/app/explorar'
       path: '/explorar'
@@ -494,6 +566,13 @@ declare module '@tanstack/react-router' {
       path: '/favoritos'
       fullPath: '/app/favoritos'
       preLoaderRoute: typeof AuthenticatedAppFavoritosRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/planos': {
+      id: '/_authenticated/app/planos'
+      path: '/planos'
+      fullPath: '/app/planos'
+      preLoaderRoute: typeof AuthenticatedAppPlanosRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/parceiro/': {
@@ -537,6 +616,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminClientesRoute: typeof AuthenticatedAdminClientesRoute
   AuthenticatedAdminParceirosRoute: typeof AuthenticatedAdminParceirosRoute
+  AuthenticatedAdminPlanosRoute: typeof AuthenticatedAdminPlanosRoute
   AuthenticatedAdminVendedoresRoute: typeof AuthenticatedAdminVendedoresRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
@@ -544,6 +624,7 @@ interface AuthenticatedAdminRouteChildren {
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminClientesRoute: AuthenticatedAdminClientesRoute,
   AuthenticatedAdminParceirosRoute: AuthenticatedAdminParceirosRoute,
+  AuthenticatedAdminPlanosRoute: AuthenticatedAdminPlanosRoute,
   AuthenticatedAdminVendedoresRoute: AuthenticatedAdminVendedoresRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
@@ -554,16 +635,20 @@ const AuthenticatedAdminRouteWithChildren =
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppCartaoRoute: typeof AuthenticatedAppCartaoRoute
   AuthenticatedAppContaRoute: typeof AuthenticatedAppContaRoute
+  AuthenticatedAppDependentesRoute: typeof AuthenticatedAppDependentesRoute
   AuthenticatedAppExplorarRoute: typeof AuthenticatedAppExplorarRoute
   AuthenticatedAppFavoritosRoute: typeof AuthenticatedAppFavoritosRoute
+  AuthenticatedAppPlanosRoute: typeof AuthenticatedAppPlanosRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppCartaoRoute: AuthenticatedAppCartaoRoute,
   AuthenticatedAppContaRoute: AuthenticatedAppContaRoute,
+  AuthenticatedAppDependentesRoute: AuthenticatedAppDependentesRoute,
   AuthenticatedAppExplorarRoute: AuthenticatedAppExplorarRoute,
   AuthenticatedAppFavoritosRoute: AuthenticatedAppFavoritosRoute,
+  AuthenticatedAppPlanosRoute: AuthenticatedAppPlanosRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
 
@@ -624,6 +709,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ParceriaRoute: ParceriaRoute,
+  PlanosRoute: PlanosRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TermosRoute: TermosRoute,
