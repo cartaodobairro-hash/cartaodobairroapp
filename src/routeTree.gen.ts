@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ParceriaRouteImport } from './routes/parceria'
+import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as TermosRouteImport } from './routes/termos'
@@ -53,6 +54,11 @@ const AuthRoute = AuthRouteImport.update({
 const ParceriaRoute = ParceriaRouteImport.update({
   id: '/parceria',
   path: '/parceria',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanosRoute = PlanosRouteImport.update({
+  id: '/planos',
+  path: '/planos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacidadeRoute = PrivacidadeRouteImport.update({
@@ -180,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/parceria': typeof ParceriaRoute
+  '/planos': typeof PlanosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
@@ -207,6 +214,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/parceria': typeof ParceriaRoute
+  '/planos': typeof PlanosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
@@ -232,6 +240,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/parceria': typeof ParceriaRoute
+  '/planos': typeof PlanosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
@@ -261,6 +270,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/parceria'
+    | '/planos'
     | '/privacidade'
     | '/reset-password'
     | '/termos'
@@ -288,6 +298,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/parceria'
+    | '/planos'
     | '/privacidade'
     | '/reset-password'
     | '/termos'
@@ -312,6 +323,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/parceria'
+    | '/planos'
     | '/privacidade'
     | '/reset-password'
     | '/termos'
@@ -341,6 +353,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ParceriaRoute: typeof ParceriaRoute
+  PlanosRoute: typeof PlanosRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermosRoute: typeof TermosRoute
@@ -375,6 +388,13 @@ declare module '@tanstack/react-router' {
       path: '/parceria'
       fullPath: '/parceria'
       preLoaderRoute: typeof ParceriaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planos': {
+      id: '/planos'
+      path: '/planos'
+      fullPath: '/planos'
+      preLoaderRoute: typeof PlanosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacidade': {
@@ -624,6 +644,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ParceriaRoute: ParceriaRoute,
+  PlanosRoute: PlanosRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TermosRoute: TermosRoute,
