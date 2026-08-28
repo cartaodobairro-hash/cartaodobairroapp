@@ -29,6 +29,7 @@ import { Route as AuthenticatedAdminVendedoresRouteImport } from './routes/_auth
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppCartaoRouteImport } from './routes/_authenticated/app.cartao'
 import { Route as AuthenticatedAppContaRouteImport } from './routes/_authenticated/app.conta'
+import { Route as AuthenticatedAppDependentesRouteImport } from './routes/_authenticated/app.dependentes'
 import { Route as AuthenticatedAppExplorarRouteImport } from './routes/_authenticated/app.explorar'
 import { Route as AuthenticatedAppFavoritosRouteImport } from './routes/_authenticated/app.favoritos'
 import { Route as AuthenticatedAppPlanosRouteImport } from './routes/_authenticated/app.planos'
@@ -140,6 +141,12 @@ const AuthenticatedAppContaRoute = AuthenticatedAppContaRouteImport.update({
   path: '/conta',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppDependentesRoute =
+  AuthenticatedAppDependentesRouteImport.update({
+    id: '/dependentes',
+    path: '/dependentes',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppExplorarRoute =
   AuthenticatedAppExplorarRouteImport.update({
     id: '/explorar',
@@ -206,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/admin/vendedores': typeof AuthenticatedAdminVendedoresRoute
   '/app/cartao': typeof AuthenticatedAppCartaoRoute
   '/app/conta': typeof AuthenticatedAppContaRoute
+  '/app/dependentes': typeof AuthenticatedAppDependentesRoute
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/app/planos': typeof AuthenticatedAppPlanosRoute
@@ -231,6 +239,7 @@ export interface FileRoutesByTo {
   '/admin/vendedores': typeof AuthenticatedAdminVendedoresRoute
   '/app/cartao': typeof AuthenticatedAppCartaoRoute
   '/app/conta': typeof AuthenticatedAppContaRoute
+  '/app/dependentes': typeof AuthenticatedAppDependentesRoute
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/app/planos': typeof AuthenticatedAppPlanosRoute
@@ -262,6 +271,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/vendedores': typeof AuthenticatedAdminVendedoresRoute
   '/_authenticated/app/cartao': typeof AuthenticatedAppCartaoRoute
   '/_authenticated/app/conta': typeof AuthenticatedAppContaRoute
+  '/_authenticated/app/dependentes': typeof AuthenticatedAppDependentesRoute
   '/_authenticated/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/_authenticated/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/_authenticated/app/planos': typeof AuthenticatedAppPlanosRoute
@@ -293,6 +303,7 @@ export interface FileRouteTypes {
     | '/admin/vendedores'
     | '/app/cartao'
     | '/app/conta'
+    | '/app/dependentes'
     | '/app/explorar'
     | '/app/favoritos'
     | '/app/planos'
@@ -318,6 +329,7 @@ export interface FileRouteTypes {
     | '/admin/vendedores'
     | '/app/cartao'
     | '/app/conta'
+    | '/app/dependentes'
     | '/app/explorar'
     | '/app/favoritos'
     | '/app/planos'
@@ -348,6 +360,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/vendedores'
     | '/_authenticated/app/cartao'
     | '/_authenticated/app/conta'
+    | '/_authenticated/app/dependentes'
     | '/_authenticated/app/explorar'
     | '/_authenticated/app/favoritos'
     | '/_authenticated/app/planos'
@@ -514,6 +527,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppContaRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/dependentes': {
+      id: '/_authenticated/app/dependentes'
+      path: '/dependentes'
+      fullPath: '/app/dependentes'
+      preLoaderRoute: typeof AuthenticatedAppDependentesRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/explorar': {
       id: '/_authenticated/app/explorar'
       path: '/explorar'
@@ -593,6 +613,7 @@ const AuthenticatedAdminRouteWithChildren =
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppCartaoRoute: typeof AuthenticatedAppCartaoRoute
   AuthenticatedAppContaRoute: typeof AuthenticatedAppContaRoute
+  AuthenticatedAppDependentesRoute: typeof AuthenticatedAppDependentesRoute
   AuthenticatedAppExplorarRoute: typeof AuthenticatedAppExplorarRoute
   AuthenticatedAppFavoritosRoute: typeof AuthenticatedAppFavoritosRoute
   AuthenticatedAppPlanosRoute: typeof AuthenticatedAppPlanosRoute
@@ -602,6 +623,7 @@ interface AuthenticatedAppRouteChildren {
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppCartaoRoute: AuthenticatedAppCartaoRoute,
   AuthenticatedAppContaRoute: AuthenticatedAppContaRoute,
+  AuthenticatedAppDependentesRoute: AuthenticatedAppDependentesRoute,
   AuthenticatedAppExplorarRoute: AuthenticatedAppExplorarRoute,
   AuthenticatedAppFavoritosRoute: AuthenticatedAppFavoritosRoute,
   AuthenticatedAppPlanosRoute: AuthenticatedAppPlanosRoute,
