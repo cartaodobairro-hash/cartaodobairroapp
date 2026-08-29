@@ -52,6 +52,8 @@ function DigitalCard() {
         .from("dependents")
         .select("*")
         .eq("customer_id", customer!.id)
+        .is("removed_at", null)
+        .eq("status", "ativo")
         .order("created_at");
       if (error) throw error;
       return data;
@@ -61,6 +63,8 @@ function DigitalCard() {
   const status = statusMap[card?.status ?? "pendente"] ?? statusMap["pendente"]!;
   const planName = subscription?.plans?.name ?? customer?.plans?.name ?? "—";
   const isActive = card?.status === "ativo";
+  const maxDependents =
+    subscription?.plans?.max_dependents ?? customer?.plans?.max_dependents ?? 0;
 
   return (
     <div className="px-4 pt-5">
@@ -75,7 +79,7 @@ function DigitalCard() {
             recarregar a página.
           </p>
           <Button asChild className="mt-4">
-            <Link to="/app/conta">Ver minha assinatura</Link>
+            <Link to="/app/planos">Escolher meu plano</Link>
           </Button>
         </div>
       ) : (
@@ -97,9 +101,10 @@ function DigitalCard() {
           <div className="mt-6 flex items-end justify-between gap-4">
             <div>
               <p className="font-mono text-xl font-bold tracking-widest">{card.card_number}</p>
-              <p className="mt-1 text-xs opacity-70">
-                Plano {planName} • validade {dateBR(card.expires_at)}
+              <p className="mt-1 text-xs font-bold uppercase tracking-wide text-primary">
+                Plano: {planName}
               </p>
+              <p className="text-xs opacity-70">Validade {dateBR(card.expires_at)}</p>
               <p className="text-[11px] opacity-60">Emitido em {dateBR(card.issued_at)}</p>
             </div>
             <div className={`rounded-xl bg-white p-2 ${isActive ? "" : "opacity-40 grayscale"}`}>
@@ -134,9 +139,16 @@ function DigitalCard() {
         </div>
       ) : null}
 
-      <h2 className="mb-2 mt-6 text-sm font-bold uppercase tracking-wide text-muted-foreground">
-        Dependentes
-      </h2>
+      <div className="mb-2 mt-6 flex items-center justify-between">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground">
+          Dependentes
+        </h2>
+        {maxDependents > 0 ? (
+          <Button asChild size="sm" variant="ghost">
+            <Link to="/app/dependentes">Gerenciar</Link>
+          </Button>
+        ) : null}
+      </div>
       <div className="space-y-2 pb-4">
         {(dependents ?? []).map((d) => (
           <div
@@ -157,13 +169,9 @@ function DigitalCard() {
         ))}
         {!dependents?.length ? (
           <p className="text-sm text-muted-foreground">
-            Você ainda não cadastrou dependentes. O limite depende do seu plano
-            {subscription?.plans?.max_dependents != null
-              ? ` (${subscription.plans.max_dependents})`
-              : customer?.plans
-                ? ` (${customer.plans.max_dependents})`
-                : ""}
-            .
+            {maxDependents > 0
+              ? `Você ainda não cadastrou dependentes. Seu plano permite até ${maxDependents}.`
+              : "Seu plano é individual e não possui dependentes."}
           </p>
         ) : null}
       </div>
