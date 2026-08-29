@@ -15,7 +15,7 @@ function AdminCustomers() {
       const { data, error } = await supabase
         .from("customers")
         .select(
-          "id, city, neighborhood, status, created_at, plans(name, max_dependents), cards(card_number, status), profiles:user_id(name), dependents(id, name, removed_at, status)",
+          "id, city, neighborhood, status, created_at, plans(name, max_dependents), cards(card_number, status), dependents(id, name, removed_at, status)",
         )
         .order("created_at", { ascending: false })
         .limit(100);
@@ -31,7 +31,6 @@ function AdminCustomers() {
         <table className="w-full text-sm">
           <thead className="border-b border-border text-left text-xs uppercase text-muted-foreground">
             <tr>
-              <th className="p-3">Titular</th>
               <th className="p-3">Cartão</th>
               <th className="p-3">Plano</th>
               <th className="p-3">Dependentes</th>
@@ -43,7 +42,6 @@ function AdminCustomers() {
           <tbody>
             {(customers ?? []).map((c) => (
               <tr key={c.id} className="border-b border-border/60 last:border-0">
-                <td className="p-3">{firstOf(c.profiles)?.name ?? "—"}</td>
                 <td className="p-3 font-mono text-xs">{firstOf(c.cards)?.card_number ?? "—"}</td>
                 <td className="p-3">{c.plans?.name ?? "—"}</td>
                 <td className="p-3 text-xs text-muted-foreground">
