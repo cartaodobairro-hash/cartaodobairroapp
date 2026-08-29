@@ -66,6 +66,9 @@ function Landing() {
         <BrandLogo />
         <div className="flex items-center gap-2">
           <Button asChild variant="ghost" size="sm">
+            <Link to="/planos">Planos</Link>
+          </Button>
+          <Button asChild variant="ghost" size="sm">
             <Link to="/auth">Entrar</Link>
           </Button>
           <Button asChild size="sm">
