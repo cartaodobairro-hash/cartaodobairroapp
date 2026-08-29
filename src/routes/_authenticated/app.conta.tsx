@@ -98,6 +98,16 @@ function Account() {
             ? `${customer.plans.name} • ${brl(customer.plans.price)} / ${customer.plans.period}`
             : "Nenhum plano ativo no momento."}
         </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button asChild size="sm" variant="outline">
+            <Link to="/app/planos">{customer?.plans ? "Trocar de plano" : "Escolher plano"}</Link>
+          </Button>
+          {(customer?.plans?.max_dependents ?? 0) > 0 ? (
+            <Button asChild size="sm" variant="outline">
+              <Link to="/app/dependentes">Dependentes</Link>
+            </Button>
+          ) : null}
+        </div>
       </div>
 
       <div className="mt-4 rounded-2xl border border-border bg-card p-4 shadow-card">
