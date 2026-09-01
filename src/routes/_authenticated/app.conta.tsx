@@ -127,6 +127,12 @@ function Account() {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
+        <Button asChild variant="outline">
+          <Link to="/app/notificacoes">Notificações</Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link to="/app/suporte">Suporte</Link>
+        </Button>
         {isAdminRole(roles) ? (
           <Button asChild variant="outline">
             <Link to="/admin">Painel administrativo</Link>
