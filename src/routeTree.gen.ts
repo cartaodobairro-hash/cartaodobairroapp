@@ -24,7 +24,6 @@ import { Route as AuthenticatedVendedorRouteImport } from './routes/_authenticat
 import { Route as EmpresaIdRouteImport } from './routes/empresa.$id'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated/admin.categorias'
-import { Route as AuthenticatedAdminClientesRouteImport } from './routes/_authenticated/admin.clientes'
 import { Route as AuthenticatedAdminFinanceiroRouteImport } from './routes/_authenticated/admin.financeiro'
 import { Route as AuthenticatedAdminParceirosRouteImport } from './routes/_authenticated/admin.parceiros'
 import { Route as AuthenticatedAdminPlanosRouteImport } from './routes/_authenticated/admin.planos'
@@ -122,12 +121,6 @@ const AuthenticatedAdminCategoriasRoute =
   AuthenticatedAdminCategoriasRouteImport.update({
     id: '/categorias',
     path: '/categorias',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminClientesRoute =
-  AuthenticatedAdminClientesRouteImport.update({
-    id: '/clientes',
-    path: '/clientes',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminFinanceiroRoute =
@@ -278,7 +271,6 @@ export interface FileRoutesByFullPath {
   '/vendedor': typeof AuthenticatedVendedorRouteWithChildren
   '/empresa/$id': typeof EmpresaIdRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
-  '/admin/clientes': typeof AuthenticatedAdminClientesRoute
   '/admin/financeiro': typeof AuthenticatedAdminFinanceiroRoute
   '/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
@@ -314,7 +306,6 @@ export interface FileRoutesByTo {
   '/termos': typeof TermosRoute
   '/empresa/$id': typeof EmpresaIdRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
-  '/admin/clientes': typeof AuthenticatedAdminClientesRoute
   '/admin/financeiro': typeof AuthenticatedAdminFinanceiroRoute
   '/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
@@ -356,7 +347,6 @@ export interface FileRoutesById {
   '/_authenticated/vendedor': typeof AuthenticatedVendedorRouteWithChildren
   '/empresa/$id': typeof EmpresaIdRoute
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
-  '/_authenticated/admin/clientes': typeof AuthenticatedAdminClientesRoute
   '/_authenticated/admin/financeiro': typeof AuthenticatedAdminFinanceiroRoute
   '/_authenticated/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
   '/_authenticated/admin/planos': typeof AuthenticatedAdminPlanosRoute
@@ -398,7 +388,6 @@ export interface FileRouteTypes {
     | '/vendedor'
     | '/empresa/$id'
     | '/admin/categorias'
-    | '/admin/clientes'
     | '/admin/financeiro'
     | '/admin/parceiros'
     | '/admin/planos'
@@ -434,7 +423,6 @@ export interface FileRouteTypes {
     | '/termos'
     | '/empresa/$id'
     | '/admin/categorias'
-    | '/admin/clientes'
     | '/admin/financeiro'
     | '/admin/parceiros'
     | '/admin/planos'
@@ -475,7 +463,6 @@ export interface FileRouteTypes {
     | '/_authenticated/vendedor'
     | '/empresa/$id'
     | '/_authenticated/admin/categorias'
-    | '/_authenticated/admin/clientes'
     | '/_authenticated/admin/financeiro'
     | '/_authenticated/admin/parceiros'
     | '/_authenticated/admin/planos'
@@ -619,13 +606,6 @@ declare module '@tanstack/react-router' {
       path: '/categorias'
       fullPath: '/admin/categorias'
       preLoaderRoute: typeof AuthenticatedAdminCategoriasRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/clientes': {
-      id: '/_authenticated/admin/clientes'
-      path: '/clientes'
-      fullPath: '/admin/clientes'
-      preLoaderRoute: typeof AuthenticatedAdminClientesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/financeiro': {
@@ -794,7 +774,6 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCategoriasRoute: typeof AuthenticatedAdminCategoriasRoute
-  AuthenticatedAdminClientesRoute: typeof AuthenticatedAdminClientesRoute
   AuthenticatedAdminFinanceiroRoute: typeof AuthenticatedAdminFinanceiroRoute
   AuthenticatedAdminParceirosRoute: typeof AuthenticatedAdminParceirosRoute
   AuthenticatedAdminPlanosRoute: typeof AuthenticatedAdminPlanosRoute
@@ -805,7 +784,6 @@ interface AuthenticatedAdminRouteChildren {
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCategoriasRoute: AuthenticatedAdminCategoriasRoute,
-  AuthenticatedAdminClientesRoute: AuthenticatedAdminClientesRoute,
   AuthenticatedAdminFinanceiroRoute: AuthenticatedAdminFinanceiroRoute,
   AuthenticatedAdminParceirosRoute: AuthenticatedAdminParceirosRoute,
   AuthenticatedAdminPlanosRoute: AuthenticatedAdminPlanosRoute,
