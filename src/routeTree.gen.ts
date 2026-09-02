@@ -47,6 +47,8 @@ import { Route as AuthenticatedParceiroValidarRouteImport } from './routes/_auth
 import { Route as AuthenticatedVendedorIndexRouteImport } from './routes/_authenticated/vendedor.index'
 import { Route as AuthenticatedVendedorLeadsRouteImport } from './routes/_authenticated/vendedor.leads'
 import { Route as AuthenticatedVendedorVendasRouteImport } from './routes/_authenticated/vendedor.vendas'
+import { Route as AuthenticatedAdminClientesIndexRouteImport } from './routes/_authenticated/admin.clientes.index'
+import { Route as AuthenticatedAdminClientesIdRouteImport } from './routes/_authenticated/admin.clientes.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -256,6 +258,18 @@ const AuthenticatedVendedorVendasRoute =
     path: '/vendas',
     getParentRoute: () => AuthenticatedVendedorRoute,
   } as any)
+const AuthenticatedAdminClientesIndexRoute =
+  AuthenticatedAdminClientesIndexRouteImport.update({
+    id: '/clientes/',
+    path: '/clientes/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminClientesIdRoute =
+  AuthenticatedAdminClientesIdRouteImport.update({
+    id: '/clientes/$id',
+    path: '/clientes/$id',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -295,6 +309,8 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AuthenticatedAppIndexRoute
   '/parceiro/': typeof AuthenticatedParceiroIndexRoute
   '/vendedor/': typeof AuthenticatedVendedorIndexRoute
+  '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -330,6 +346,8 @@ export interface FileRoutesByTo {
   '/app': typeof AuthenticatedAppIndexRoute
   '/parceiro': typeof AuthenticatedParceiroIndexRoute
   '/vendedor': typeof AuthenticatedVendedorIndexRoute
+  '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/admin/clientes': typeof AuthenticatedAdminClientesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -371,6 +389,8 @@ export interface FileRoutesById {
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/parceiro/': typeof AuthenticatedParceiroIndexRoute
   '/_authenticated/vendedor/': typeof AuthenticatedVendedorIndexRoute
+  '/_authenticated/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/_authenticated/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -412,6 +432,8 @@ export interface FileRouteTypes {
     | '/app/'
     | '/parceiro/'
     | '/vendedor/'
+    | '/admin/clientes/$id'
+    | '/admin/clientes/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -447,6 +469,8 @@ export interface FileRouteTypes {
     | '/app'
     | '/parceiro'
     | '/vendedor'
+    | '/admin/clientes/$id'
+    | '/admin/clientes'
   id:
     | '__root__'
     | '/'
@@ -487,6 +511,8 @@ export interface FileRouteTypes {
     | '/_authenticated/app/'
     | '/_authenticated/parceiro/'
     | '/_authenticated/vendedor/'
+    | '/_authenticated/admin/clientes/$id'
+    | '/_authenticated/admin/clientes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -769,6 +795,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVendedorVendasRouteImport
       parentRoute: typeof AuthenticatedVendedorRoute
     }
+    '/_authenticated/admin/clientes/': {
+      id: '/_authenticated/admin/clientes/'
+      path: '/clientes'
+      fullPath: '/admin/clientes/'
+      preLoaderRoute: typeof AuthenticatedAdminClientesIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/clientes/$id': {
+      id: '/_authenticated/admin/clientes/$id'
+      path: '/clientes/$id'
+      fullPath: '/admin/clientes/$id'
+      preLoaderRoute: typeof AuthenticatedAdminClientesIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
@@ -780,6 +820,8 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSuporteRoute: typeof AuthenticatedAdminSuporteRoute
   AuthenticatedAdminVendedoresRoute: typeof AuthenticatedAdminVendedoresRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminClientesIdRoute: typeof AuthenticatedAdminClientesIdRoute
+  AuthenticatedAdminClientesIndexRoute: typeof AuthenticatedAdminClientesIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
@@ -790,6 +832,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSuporteRoute: AuthenticatedAdminSuporteRoute,
   AuthenticatedAdminVendedoresRoute: AuthenticatedAdminVendedoresRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminClientesIdRoute: AuthenticatedAdminClientesIdRoute,
+  AuthenticatedAdminClientesIndexRoute: AuthenticatedAdminClientesIndexRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
