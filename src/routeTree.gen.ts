@@ -24,7 +24,6 @@ import { Route as AuthenticatedVendedorRouteImport } from './routes/_authenticat
 import { Route as EmpresaIdRouteImport } from './routes/empresa.$id'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated/admin.categorias'
-import { Route as AuthenticatedAdminClientesRouteImport } from './routes/_authenticated/admin.clientes'
 import { Route as AuthenticatedAdminFinanceiroRouteImport } from './routes/_authenticated/admin.financeiro'
 import { Route as AuthenticatedAdminParceirosRouteImport } from './routes/_authenticated/admin.parceiros'
 import { Route as AuthenticatedAdminPlanosRouteImport } from './routes/_authenticated/admin.planos'
@@ -48,6 +47,8 @@ import { Route as AuthenticatedParceiroValidarRouteImport } from './routes/_auth
 import { Route as AuthenticatedVendedorIndexRouteImport } from './routes/_authenticated/vendedor.index'
 import { Route as AuthenticatedVendedorLeadsRouteImport } from './routes/_authenticated/vendedor.leads'
 import { Route as AuthenticatedVendedorVendasRouteImport } from './routes/_authenticated/vendedor.vendas'
+import { Route as AuthenticatedAdminClientesIndexRouteImport } from './routes/_authenticated/admin.clientes.index'
+import { Route as AuthenticatedAdminClientesIdRouteImport } from './routes/_authenticated/admin.clientes.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -122,12 +123,6 @@ const AuthenticatedAdminCategoriasRoute =
   AuthenticatedAdminCategoriasRouteImport.update({
     id: '/categorias',
     path: '/categorias',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminClientesRoute =
-  AuthenticatedAdminClientesRouteImport.update({
-    id: '/clientes',
-    path: '/clientes',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminFinanceiroRoute =
@@ -263,6 +258,18 @@ const AuthenticatedVendedorVendasRoute =
     path: '/vendas',
     getParentRoute: () => AuthenticatedVendedorRoute,
   } as any)
+const AuthenticatedAdminClientesIndexRoute =
+  AuthenticatedAdminClientesIndexRouteImport.update({
+    id: '/clientes/',
+    path: '/clientes/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminClientesIdRoute =
+  AuthenticatedAdminClientesIdRouteImport.update({
+    id: '/clientes/$id',
+    path: '/clientes/$id',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -278,7 +285,6 @@ export interface FileRoutesByFullPath {
   '/vendedor': typeof AuthenticatedVendedorRouteWithChildren
   '/empresa/$id': typeof EmpresaIdRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
-  '/admin/clientes': typeof AuthenticatedAdminClientesRoute
   '/admin/financeiro': typeof AuthenticatedAdminFinanceiroRoute
   '/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
@@ -303,6 +309,8 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AuthenticatedAppIndexRoute
   '/parceiro/': typeof AuthenticatedParceiroIndexRoute
   '/vendedor/': typeof AuthenticatedVendedorIndexRoute
+  '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -314,7 +322,6 @@ export interface FileRoutesByTo {
   '/termos': typeof TermosRoute
   '/empresa/$id': typeof EmpresaIdRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
-  '/admin/clientes': typeof AuthenticatedAdminClientesRoute
   '/admin/financeiro': typeof AuthenticatedAdminFinanceiroRoute
   '/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
@@ -339,6 +346,8 @@ export interface FileRoutesByTo {
   '/app': typeof AuthenticatedAppIndexRoute
   '/parceiro': typeof AuthenticatedParceiroIndexRoute
   '/vendedor': typeof AuthenticatedVendedorIndexRoute
+  '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/admin/clientes': typeof AuthenticatedAdminClientesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -356,7 +365,6 @@ export interface FileRoutesById {
   '/_authenticated/vendedor': typeof AuthenticatedVendedorRouteWithChildren
   '/empresa/$id': typeof EmpresaIdRoute
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
-  '/_authenticated/admin/clientes': typeof AuthenticatedAdminClientesRoute
   '/_authenticated/admin/financeiro': typeof AuthenticatedAdminFinanceiroRoute
   '/_authenticated/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
   '/_authenticated/admin/planos': typeof AuthenticatedAdminPlanosRoute
@@ -381,6 +389,8 @@ export interface FileRoutesById {
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/parceiro/': typeof AuthenticatedParceiroIndexRoute
   '/_authenticated/vendedor/': typeof AuthenticatedVendedorIndexRoute
+  '/_authenticated/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/_authenticated/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -398,7 +408,6 @@ export interface FileRouteTypes {
     | '/vendedor'
     | '/empresa/$id'
     | '/admin/categorias'
-    | '/admin/clientes'
     | '/admin/financeiro'
     | '/admin/parceiros'
     | '/admin/planos'
@@ -423,6 +432,8 @@ export interface FileRouteTypes {
     | '/app/'
     | '/parceiro/'
     | '/vendedor/'
+    | '/admin/clientes/$id'
+    | '/admin/clientes/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -434,7 +445,6 @@ export interface FileRouteTypes {
     | '/termos'
     | '/empresa/$id'
     | '/admin/categorias'
-    | '/admin/clientes'
     | '/admin/financeiro'
     | '/admin/parceiros'
     | '/admin/planos'
@@ -459,6 +469,8 @@ export interface FileRouteTypes {
     | '/app'
     | '/parceiro'
     | '/vendedor'
+    | '/admin/clientes/$id'
+    | '/admin/clientes'
   id:
     | '__root__'
     | '/'
@@ -475,7 +487,6 @@ export interface FileRouteTypes {
     | '/_authenticated/vendedor'
     | '/empresa/$id'
     | '/_authenticated/admin/categorias'
-    | '/_authenticated/admin/clientes'
     | '/_authenticated/admin/financeiro'
     | '/_authenticated/admin/parceiros'
     | '/_authenticated/admin/planos'
@@ -500,6 +511,8 @@ export interface FileRouteTypes {
     | '/_authenticated/app/'
     | '/_authenticated/parceiro/'
     | '/_authenticated/vendedor/'
+    | '/_authenticated/admin/clientes/$id'
+    | '/_authenticated/admin/clientes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -619,13 +632,6 @@ declare module '@tanstack/react-router' {
       path: '/categorias'
       fullPath: '/admin/categorias'
       preLoaderRoute: typeof AuthenticatedAdminCategoriasRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/clientes': {
-      id: '/_authenticated/admin/clientes'
-      path: '/clientes'
-      fullPath: '/admin/clientes'
-      preLoaderRoute: typeof AuthenticatedAdminClientesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/financeiro': {
@@ -789,29 +795,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVendedorVendasRouteImport
       parentRoute: typeof AuthenticatedVendedorRoute
     }
+    '/_authenticated/admin/clientes/': {
+      id: '/_authenticated/admin/clientes/'
+      path: '/clientes'
+      fullPath: '/admin/clientes/'
+      preLoaderRoute: typeof AuthenticatedAdminClientesIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/clientes/$id': {
+      id: '/_authenticated/admin/clientes/$id'
+      path: '/clientes/$id'
+      fullPath: '/admin/clientes/$id'
+      preLoaderRoute: typeof AuthenticatedAdminClientesIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCategoriasRoute: typeof AuthenticatedAdminCategoriasRoute
-  AuthenticatedAdminClientesRoute: typeof AuthenticatedAdminClientesRoute
   AuthenticatedAdminFinanceiroRoute: typeof AuthenticatedAdminFinanceiroRoute
   AuthenticatedAdminParceirosRoute: typeof AuthenticatedAdminParceirosRoute
   AuthenticatedAdminPlanosRoute: typeof AuthenticatedAdminPlanosRoute
   AuthenticatedAdminSuporteRoute: typeof AuthenticatedAdminSuporteRoute
   AuthenticatedAdminVendedoresRoute: typeof AuthenticatedAdminVendedoresRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminClientesIdRoute: typeof AuthenticatedAdminClientesIdRoute
+  AuthenticatedAdminClientesIndexRoute: typeof AuthenticatedAdminClientesIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCategoriasRoute: AuthenticatedAdminCategoriasRoute,
-  AuthenticatedAdminClientesRoute: AuthenticatedAdminClientesRoute,
   AuthenticatedAdminFinanceiroRoute: AuthenticatedAdminFinanceiroRoute,
   AuthenticatedAdminParceirosRoute: AuthenticatedAdminParceirosRoute,
   AuthenticatedAdminPlanosRoute: AuthenticatedAdminPlanosRoute,
   AuthenticatedAdminSuporteRoute: AuthenticatedAdminSuporteRoute,
   AuthenticatedAdminVendedoresRoute: AuthenticatedAdminVendedoresRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminClientesIdRoute: AuthenticatedAdminClientesIdRoute,
+  AuthenticatedAdminClientesIndexRoute: AuthenticatedAdminClientesIndexRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
