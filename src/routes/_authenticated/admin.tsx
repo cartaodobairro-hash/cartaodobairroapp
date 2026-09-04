@@ -2,6 +2,7 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
 import {
   Building2,
   CreditCard,
+  Images,
   LayoutDashboard,
   LifeBuoy,
   Tags,
