@@ -24,6 +24,15 @@ export const Route = createFileRoute("/_authenticated/admin/clientes/$id")({
 const genericStatuses = ["ativo", "pendente", "inativo", "bloqueado", "cancelado"] as const;
 type GenericStatus = (typeof genericStatuses)[number];
 
+type ProfileForm = { name: string; cpf: string; phone: string; birth_date: string };
+type SubForm = {
+  amount: string;
+  next_due_date: string;
+  status: string;
+  plan_id: string;
+  payment_method: string;
+};
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="rounded-2xl border border-border bg-card p-4 shadow-card">
@@ -40,8 +49,8 @@ function AdminCustomerDetail() {
   const queryClient = useQueryClient();
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingSub, setSavingSub] = useState(false);
-  const [profileForm, setProfileForm] = useState<Record<string, string> | null>(null);
-  const [subForm, setSubForm] = useState<Record<string, string> | null>(null);
+  const [profileForm, setProfileForm] = useState<ProfileForm | null>(null);
+  const [subForm, setSubForm] = useState<SubForm | null>(null);
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["admin-customer", id] });
@@ -116,7 +125,10 @@ function AdminCustomerDetail() {
       })
       .eq("id", profile.id);
     setSavingProfile(false);
-    if (error) return toast.error("Erro ao salvar", { description: error.message });
+    if (error) {
+      toast.error("Erro ao salvar", { description: error.message });
+      return;
+    }
     toast.success("Dados do cliente atualizados");
     invalidate();
   }
@@ -140,21 +152,30 @@ function AdminCustomerDetail() {
       await supabase.from("customers").update({ plan_id: sv.plan_id }).eq("id", customer.id);
     }
     setSavingSub(false);
-    if (error) return toast.error("Erro ao salvar assinatura", { description: error.message });
+    if (error) {
+      toast.error("Erro ao salvar assinatura", { description: error.message });
+      return;
+    }
     toast.success("Assinatura atualizada");
     invalidate();
   }
 
   async function setCustomerStatus(status: GenericStatus) {
     const { error } = await supabase.from("customers").update({ status }).eq("id", customer.id);
-    if (error) return toast.error("Erro", { description: error.message });
+    if (error) {
+      toast.error("Erro", { description: error.message });
+      return;
+    }
     toast.success(`Cliente marcado como ${status}`);
     invalidate();
   }
 
   async function registerPayment() {
     const amount = Number(sv.amount || 0);
-    if (!amount) return toast.error("Informe o valor da mensalidade");
+    if (!amount) {
+      toast.error("Informe o valor da mensalidade");
+      return;
+    }
     const { error } = await supabase.from("payments").insert({
       customer_id: customer.id,
       subscription_id: subscription?.id ?? null,
@@ -163,7 +184,10 @@ function AdminCustomerDetail() {
       status: "pago",
       paid_at: new Date().toISOString(),
     });
-    if (error) return toast.error("Erro ao registrar", { description: error.message });
+    if (error) {
+      toast.error("Erro ao registrar", { description: error.message });
+      return;
+    }
     const next = new Date();
     next.setMonth(next.getMonth() + 1);
     if (subscription) {
@@ -185,7 +209,10 @@ function AdminCustomerDetail() {
         paid_at: status === "pago" ? null : new Date().toISOString(),
       })
       .eq("id", paymentId);
-    if (error) return toast.error("Erro", { description: error.message });
+    if (error) {
+      toast.error("Erro", { description: error.message });
+      return;
+    }
     invalidate();
   }
 
@@ -226,7 +253,7 @@ function AdminCustomerDetail() {
         <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
           <p className="text-xs uppercase text-muted-foreground">Cartão</p>
           <div className="mt-1">
-            <StatusPill status={card?.status} />
+            <StatusPill status={card?.status ?? null} />
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
             Validade {card?.expires_at ? dateBR(card.expires_at) : "—"}
