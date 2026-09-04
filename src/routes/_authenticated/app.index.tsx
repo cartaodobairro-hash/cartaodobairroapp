@@ -90,20 +90,52 @@ function ClientHome() {
 
       {banners?.length ? (
         <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4">
-          {banners.map((b) => (
-            <div
-              key={b.id}
-              className="min-w-[80%] rounded-2xl border border-border bg-card p-4 shadow-card"
-            >
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">
-                {b.type}
-              </p>
-              <p className="mt-1 font-bold">{b.title}</p>
-              {b.subtitle ? (
-                <p className="text-xs text-muted-foreground">{b.subtitle}</p>
-              ) : null}
-            </div>
-          ))}
+          {banners.map((b) => {
+            const url = b.image_url ? bannerMedia?.[b.image_url] : undefined;
+            const content = (
+              <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+                {url ? (
+                  b.media_type === "video" ? (
+                    <video
+                      src={url}
+                      className="aspect-[2/1] w-full object-cover"
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                    />
+                  ) : (
+                    <img
+                      src={url}
+                      alt={b.title}
+                      loading="lazy"
+                      className="aspect-[2/1] w-full object-cover"
+                    />
+                  )
+                ) : null}
+                <div className="p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">
+                    {b.type}
+                  </p>
+                  <p className="mt-1 font-bold">{b.title}</p>
+                  {b.subtitle ? (
+                    <p className="text-xs text-muted-foreground">{b.subtitle}</p>
+                  ) : null}
+                </div>
+              </div>
+            );
+            return (
+              <div key={b.id} className="min-w-[80%] max-w-[420px]">
+                {b.link ? (
+                  <a href={b.link} target="_blank" rel="noreferrer" className="block">
+                    {content}
+                  </a>
+                ) : (
+                  content
+                )}
+              </div>
+            );
+          })}
         </div>
       ) : null}
 

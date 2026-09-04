@@ -2,6 +2,7 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
 import {
   Building2,
   CreditCard,
+  Images,
   LayoutDashboard,
   LifeBuoy,
   Tags,
@@ -18,6 +19,7 @@ const items: NavItem[] = [
   { to: "/admin/clientes", label: "Clientes", icon: <Users className="size-4" /> },
   { to: "/admin/vendedores", label: "Vendedores", icon: <UserRound className="size-4" /> },
   { to: "/admin/categorias", label: "Categorias", icon: <Tags className="size-4" /> },
+  { to: "/admin/banners", label: "Banners", icon: <Images className="size-4" /> },
   { to: "/admin/financeiro", label: "Financeiro", icon: <Wallet className="size-4" /> },
   { to: "/admin/suporte", label: "Suporte", icon: <LifeBuoy className="size-4" /> },
 ];

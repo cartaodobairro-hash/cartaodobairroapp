@@ -23,6 +23,7 @@ import { Route as AuthenticatedParceiroRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedVendedorRouteImport } from './routes/_authenticated/vendedor'
 import { Route as EmpresaIdRouteImport } from './routes/empresa.$id'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminBannersRouteImport } from './routes/_authenticated/admin.banners'
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated/admin.categorias'
 import { Route as AuthenticatedAdminFinanceiroRouteImport } from './routes/_authenticated/admin.financeiro'
 import { Route as AuthenticatedAdminParceirosRouteImport } from './routes/_authenticated/admin.parceiros'
@@ -119,6 +120,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminBannersRoute =
+  AuthenticatedAdminBannersRouteImport.update({
+    id: '/banners',
+    path: '/banners',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminCategoriasRoute =
   AuthenticatedAdminCategoriasRouteImport.update({
     id: '/categorias',
@@ -284,6 +291,7 @@ export interface FileRoutesByFullPath {
   '/parceiro': typeof AuthenticatedParceiroRouteWithChildren
   '/vendedor': typeof AuthenticatedVendedorRouteWithChildren
   '/empresa/$id': typeof EmpresaIdRoute
+  '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/financeiro': typeof AuthenticatedAdminFinanceiroRoute
   '/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
@@ -321,6 +329,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
   '/empresa/$id': typeof EmpresaIdRoute
+  '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/financeiro': typeof AuthenticatedAdminFinanceiroRoute
   '/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
@@ -364,6 +373,7 @@ export interface FileRoutesById {
   '/_authenticated/parceiro': typeof AuthenticatedParceiroRouteWithChildren
   '/_authenticated/vendedor': typeof AuthenticatedVendedorRouteWithChildren
   '/empresa/$id': typeof EmpresaIdRoute
+  '/_authenticated/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/_authenticated/admin/financeiro': typeof AuthenticatedAdminFinanceiroRoute
   '/_authenticated/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
@@ -407,6 +417,7 @@ export interface FileRouteTypes {
     | '/parceiro'
     | '/vendedor'
     | '/empresa/$id'
+    | '/admin/banners'
     | '/admin/categorias'
     | '/admin/financeiro'
     | '/admin/parceiros'
@@ -444,6 +455,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/termos'
     | '/empresa/$id'
+    | '/admin/banners'
     | '/admin/categorias'
     | '/admin/financeiro'
     | '/admin/parceiros'
@@ -486,6 +498,7 @@ export interface FileRouteTypes {
     | '/_authenticated/parceiro'
     | '/_authenticated/vendedor'
     | '/empresa/$id'
+    | '/_authenticated/admin/banners'
     | '/_authenticated/admin/categorias'
     | '/_authenticated/admin/financeiro'
     | '/_authenticated/admin/parceiros'
@@ -625,6 +638,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/banners': {
+      id: '/_authenticated/admin/banners'
+      path: '/banners'
+      fullPath: '/admin/banners'
+      preLoaderRoute: typeof AuthenticatedAdminBannersRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/categorias': {
@@ -813,6 +833,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminBannersRoute: typeof AuthenticatedAdminBannersRoute
   AuthenticatedAdminCategoriasRoute: typeof AuthenticatedAdminCategoriasRoute
   AuthenticatedAdminFinanceiroRoute: typeof AuthenticatedAdminFinanceiroRoute
   AuthenticatedAdminParceirosRoute: typeof AuthenticatedAdminParceirosRoute
@@ -825,6 +846,7 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminBannersRoute: AuthenticatedAdminBannersRoute,
   AuthenticatedAdminCategoriasRoute: AuthenticatedAdminCategoriasRoute,
   AuthenticatedAdminFinanceiroRoute: AuthenticatedAdminFinanceiroRoute,
   AuthenticatedAdminParceirosRoute: AuthenticatedAdminParceirosRoute,
