@@ -69,6 +69,7 @@ export type Database = {
           image_url: string | null
           impressions: number
           link: string | null
+          media_type: string
           partner_id: string | null
           sort_order: number
           start_date: string | null
@@ -86,6 +87,7 @@ export type Database = {
           image_url?: string | null
           impressions?: number
           link?: string | null
+          media_type?: string
           partner_id?: string | null
           sort_order?: number
           start_date?: string | null
@@ -103,6 +105,7 @@ export type Database = {
           image_url?: string | null
           impressions?: number
           link?: string | null
+          media_type?: string
           partner_id?: string | null
           sort_order?: number
           start_date?: string | null
