@@ -50,6 +50,7 @@ import { Route as AuthenticatedVendedorLeadsRouteImport } from './routes/_authen
 import { Route as AuthenticatedVendedorVendasRouteImport } from './routes/_authenticated/vendedor.vendas'
 import { Route as AuthenticatedAdminClientesIndexRouteImport } from './routes/_authenticated/admin.clientes.index'
 import { Route as AuthenticatedAdminClientesIdRouteImport } from './routes/_authenticated/admin.clientes.$id'
+import { Route as ApiPublicWebhooksInfinitepayRouteImport } from './routes/api/public/webhooks/infinitepay'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -277,6 +278,12 @@ const AuthenticatedAdminClientesIdRoute =
     path: '/clientes/$id',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const ApiPublicWebhooksInfinitepayRoute =
+  ApiPublicWebhooksInfinitepayRouteImport.update({
+    id: '/api/public/webhooks/infinitepay',
+    path: '/api/public/webhooks/infinitepay',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -318,6 +325,7 @@ export interface FileRoutesByFullPath {
   '/parceiro/': typeof AuthenticatedParceiroIndexRoute
   '/vendedor/': typeof AuthenticatedVendedorIndexRoute
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/api/public/webhooks/infinitepay': typeof ApiPublicWebhooksInfinitepayRoute
   '/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -356,6 +364,7 @@ export interface FileRoutesByTo {
   '/parceiro': typeof AuthenticatedParceiroIndexRoute
   '/vendedor': typeof AuthenticatedVendedorIndexRoute
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/api/public/webhooks/infinitepay': typeof ApiPublicWebhooksInfinitepayRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesIndexRoute
 }
 export interface FileRoutesById {
@@ -400,6 +409,7 @@ export interface FileRoutesById {
   '/_authenticated/parceiro/': typeof AuthenticatedParceiroIndexRoute
   '/_authenticated/vendedor/': typeof AuthenticatedVendedorIndexRoute
   '/_authenticated/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/api/public/webhooks/infinitepay': typeof ApiPublicWebhooksInfinitepayRoute
   '/_authenticated/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
 }
 export interface FileRouteTypes {
@@ -444,6 +454,7 @@ export interface FileRouteTypes {
     | '/parceiro/'
     | '/vendedor/'
     | '/admin/clientes/$id'
+    | '/api/public/webhooks/infinitepay'
     | '/admin/clientes/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -482,6 +493,7 @@ export interface FileRouteTypes {
     | '/parceiro'
     | '/vendedor'
     | '/admin/clientes/$id'
+    | '/api/public/webhooks/infinitepay'
     | '/admin/clientes'
   id:
     | '__root__'
@@ -525,6 +537,7 @@ export interface FileRouteTypes {
     | '/_authenticated/parceiro/'
     | '/_authenticated/vendedor/'
     | '/_authenticated/admin/clientes/$id'
+    | '/api/public/webhooks/infinitepay'
     | '/_authenticated/admin/clientes/'
   fileRoutesById: FileRoutesById
 }
@@ -538,6 +551,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermosRoute: typeof TermosRoute
   EmpresaIdRoute: typeof EmpresaIdRoute
+  ApiPublicWebhooksInfinitepayRoute: typeof ApiPublicWebhooksInfinitepayRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -829,6 +843,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminClientesIdRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/api/public/webhooks/infinitepay': {
+      id: '/api/public/webhooks/infinitepay'
+      path: '/api/public/webhooks/infinitepay'
+      fullPath: '/api/public/webhooks/infinitepay'
+      preLoaderRoute: typeof ApiPublicWebhooksInfinitepayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -955,6 +976,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   TermosRoute: TermosRoute,
   EmpresaIdRoute: EmpresaIdRoute,
+  ApiPublicWebhooksInfinitepayRoute: ApiPublicWebhooksInfinitepayRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
