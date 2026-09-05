@@ -6,6 +6,7 @@ import { useCustomer, useProfile } from "@/lib/auth";
 import { BrandLogo } from "@/components/brand";
 import { brl, dateBR, firstOf } from "@/lib/format";
 import { useRealtimeCard } from "@/lib/realtime";
+import { useMediaUrls } from "@/lib/media";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/app/")({
@@ -30,6 +31,11 @@ function ClientHome() {
       return data;
     },
   });
+
+  const { data: bannerMedia } = useMediaUrls(
+    "banners",
+    (banners ?? []).map((b) => b.image_url),
+  );
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
