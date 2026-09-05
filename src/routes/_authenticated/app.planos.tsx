@@ -87,10 +87,10 @@ function AppPlans() {
           customer_id: customerId,
           plan_id: plan.id,
           amount: plan.price,
-          status: "ativo",
+          status: "pendente",
           start_date: new Date().toISOString().slice(0, 10),
           next_due_date: nextDue,
-          payment_method: "pendente",
+          payment_method: "infinitepay",
         })
         .select("id")
         .single();
@@ -100,16 +100,17 @@ function AppPlans() {
         customer_id: customerId,
         subscription_id: sub.id,
         amount: plan.price,
-        method: "pendente",
+        method: "infinitepay",
         status: "pendente",
       });
       if (payError) throw payError;
 
       await queryClient.invalidateQueries();
-      toast.success(`Plano ${plan.name} contratado`, {
-        description: "Seu cartão digital foi gerado automaticamente.",
+      toast.success(`Plano ${plan.name} selecionado`, {
+        description: "Falta só o pagamento para liberar seu cartão.",
       });
-      navigate({ to: "/app/cartao" });
+      navigate({ to: "/app/pagamento" });
+
     } catch (e) {
       toast.error("Não foi possível contratar o plano", {
         description: e instanceof Error ? e.message : undefined,

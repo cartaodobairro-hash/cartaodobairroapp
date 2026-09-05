@@ -37,6 +37,7 @@ import { Route as AuthenticatedAppDependentesRouteImport } from './routes/_authe
 import { Route as AuthenticatedAppExplorarRouteImport } from './routes/_authenticated/app.explorar'
 import { Route as AuthenticatedAppFavoritosRouteImport } from './routes/_authenticated/app.favoritos'
 import { Route as AuthenticatedAppNotificacoesRouteImport } from './routes/_authenticated/app.notificacoes'
+import { Route as AuthenticatedAppPagamentoRouteImport } from './routes/_authenticated/app.pagamento'
 import { Route as AuthenticatedAppPlanosRouteImport } from './routes/_authenticated/app.planos'
 import { Route as AuthenticatedAppSuporteRouteImport } from './routes/_authenticated/app.suporte'
 import { Route as AuthenticatedParceiroIndexRouteImport } from './routes/_authenticated/parceiro.index'
@@ -202,6 +203,12 @@ const AuthenticatedAppNotificacoesRoute =
     path: '/notificacoes',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppPagamentoRoute =
+  AuthenticatedAppPagamentoRouteImport.update({
+    id: '/pagamento',
+    path: '/pagamento',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppPlanosRoute = AuthenticatedAppPlanosRouteImport.update({
   id: '/planos',
   path: '/planos',
@@ -311,6 +318,7 @@ export interface FileRoutesByFullPath {
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/app/notificacoes': typeof AuthenticatedAppNotificacoesRoute
+  '/app/pagamento': typeof AuthenticatedAppPagamentoRoute
   '/app/planos': typeof AuthenticatedAppPlanosRoute
   '/app/suporte': typeof AuthenticatedAppSuporteRoute
   '/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
@@ -350,6 +358,7 @@ export interface FileRoutesByTo {
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/app/notificacoes': typeof AuthenticatedAppNotificacoesRoute
+  '/app/pagamento': typeof AuthenticatedAppPagamentoRoute
   '/app/planos': typeof AuthenticatedAppPlanosRoute
   '/app/suporte': typeof AuthenticatedAppSuporteRoute
   '/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
@@ -395,6 +404,7 @@ export interface FileRoutesById {
   '/_authenticated/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/_authenticated/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/_authenticated/app/notificacoes': typeof AuthenticatedAppNotificacoesRoute
+  '/_authenticated/app/pagamento': typeof AuthenticatedAppPagamentoRoute
   '/_authenticated/app/planos': typeof AuthenticatedAppPlanosRoute
   '/_authenticated/app/suporte': typeof AuthenticatedAppSuporteRoute
   '/_authenticated/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
@@ -440,6 +450,7 @@ export interface FileRouteTypes {
     | '/app/explorar'
     | '/app/favoritos'
     | '/app/notificacoes'
+    | '/app/pagamento'
     | '/app/planos'
     | '/app/suporte'
     | '/parceiro/beneficios'
@@ -479,6 +490,7 @@ export interface FileRouteTypes {
     | '/app/explorar'
     | '/app/favoritos'
     | '/app/notificacoes'
+    | '/app/pagamento'
     | '/app/planos'
     | '/app/suporte'
     | '/parceiro/beneficios'
@@ -523,6 +535,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/explorar'
     | '/_authenticated/app/favoritos'
     | '/_authenticated/app/notificacoes'
+    | '/_authenticated/app/pagamento'
     | '/_authenticated/app/planos'
     | '/_authenticated/app/suporte'
     | '/_authenticated/parceiro/beneficios'
@@ -752,6 +765,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppNotificacoesRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/pagamento': {
+      id: '/_authenticated/app/pagamento'
+      path: '/pagamento'
+      fullPath: '/app/pagamento'
+      preLoaderRoute: typeof AuthenticatedAppPagamentoRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/planos': {
       id: '/_authenticated/app/planos'
       path: '/planos'
@@ -889,6 +909,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppExplorarRoute: typeof AuthenticatedAppExplorarRoute
   AuthenticatedAppFavoritosRoute: typeof AuthenticatedAppFavoritosRoute
   AuthenticatedAppNotificacoesRoute: typeof AuthenticatedAppNotificacoesRoute
+  AuthenticatedAppPagamentoRoute: typeof AuthenticatedAppPagamentoRoute
   AuthenticatedAppPlanosRoute: typeof AuthenticatedAppPlanosRoute
   AuthenticatedAppSuporteRoute: typeof AuthenticatedAppSuporteRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
@@ -901,6 +922,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppExplorarRoute: AuthenticatedAppExplorarRoute,
   AuthenticatedAppFavoritosRoute: AuthenticatedAppFavoritosRoute,
   AuthenticatedAppNotificacoesRoute: AuthenticatedAppNotificacoesRoute,
+  AuthenticatedAppPagamentoRoute: AuthenticatedAppPagamentoRoute,
   AuthenticatedAppPlanosRoute: AuthenticatedAppPlanosRoute,
   AuthenticatedAppSuporteRoute: AuthenticatedAppSuporteRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
