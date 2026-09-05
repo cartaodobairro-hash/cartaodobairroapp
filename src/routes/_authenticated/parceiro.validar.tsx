@@ -48,22 +48,19 @@ function ValidateCard() {
   async function search() {
     setBusy(true);
     const value = code.trim();
-    const { data, error } = await supabase
-      .from("cards")
-      .select("id, customer_id, card_number, status, expires_at")
-      .or(`qr_token.eq.${value},card_number.eq.${value}`)
-      .maybeSingle();
+    const { data, error } = await supabase.rpc("lookup_card_for_validation", { _code: value });
     setBusy(false);
     if (error) {
       toast.error("Erro na consulta", { description: error.message });
       return;
     }
-    if (!data) {
+    const found = (data ?? [])[0];
+    if (!found) {
       setCard(null);
       toast.error("Cartão não encontrado");
       return;
     }
-    setCard(data);
+    setCard(found as Found);
   }
 
   async function confirm() {
