@@ -1263,6 +1263,16 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      lookup_card_for_validation: {
+        Args: { _code: string }
+        Returns: {
+          card_number: string
+          customer_id: string
+          expires_at: string
+          id: string
+          status: Database["public"]["Enums"]["card_status"]
+        }[]
+      }
       owns_customer: { Args: { _customer_id: string }; Returns: boolean }
       owns_partner: { Args: { _partner_id: string }; Returns: boolean }
       owns_seller: { Args: { _seller_id: string }; Returns: boolean }
