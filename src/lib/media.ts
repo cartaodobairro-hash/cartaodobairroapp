@@ -26,7 +26,7 @@ export function useMediaUrls(bucket: string, paths: (string | null | undefined)[
         if (error) throw error;
         data?.forEach((item, i) => {
           const path = item.path ?? toSign[i];
-          if (item.signedUrl) map[path] = item.signedUrl;
+          if (path && item.signedUrl) map[path] = item.signedUrl;
         });
       }
       return map;
