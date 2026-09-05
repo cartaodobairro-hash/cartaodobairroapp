@@ -755,6 +755,7 @@ export type Database = {
           id: string
           max_dependents: number
           name: string
+          payment_link: string | null
           period: string
           price: number
           rules: string | null
@@ -768,6 +769,7 @@ export type Database = {
           id?: string
           max_dependents?: number
           name: string
+          payment_link?: string | null
           period?: string
           price?: number
           rules?: string | null
@@ -781,6 +783,7 @@ export type Database = {
           id?: string
           max_dependents?: number
           name?: string
+          payment_link?: string | null
           period?: string
           price?: number
           rules?: string | null
@@ -1254,6 +1257,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activate_subscription_by_email: {
+        Args: { _amount?: number; _email: string; _transaction_id?: string }
+        Returns: boolean
+      }
       generate_card_number: { Args: never; Returns: string }
       has_role: {
         Args: {

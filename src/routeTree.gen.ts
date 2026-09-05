@@ -37,6 +37,7 @@ import { Route as AuthenticatedAppDependentesRouteImport } from './routes/_authe
 import { Route as AuthenticatedAppExplorarRouteImport } from './routes/_authenticated/app.explorar'
 import { Route as AuthenticatedAppFavoritosRouteImport } from './routes/_authenticated/app.favoritos'
 import { Route as AuthenticatedAppNotificacoesRouteImport } from './routes/_authenticated/app.notificacoes'
+import { Route as AuthenticatedAppPagamentoRouteImport } from './routes/_authenticated/app.pagamento'
 import { Route as AuthenticatedAppPlanosRouteImport } from './routes/_authenticated/app.planos'
 import { Route as AuthenticatedAppSuporteRouteImport } from './routes/_authenticated/app.suporte'
 import { Route as AuthenticatedParceiroIndexRouteImport } from './routes/_authenticated/parceiro.index'
@@ -50,6 +51,7 @@ import { Route as AuthenticatedVendedorLeadsRouteImport } from './routes/_authen
 import { Route as AuthenticatedVendedorVendasRouteImport } from './routes/_authenticated/vendedor.vendas'
 import { Route as AuthenticatedAdminClientesIndexRouteImport } from './routes/_authenticated/admin.clientes.index'
 import { Route as AuthenticatedAdminClientesIdRouteImport } from './routes/_authenticated/admin.clientes.$id'
+import { Route as ApiPublicWebhooksInfinitepayRouteImport } from './routes/api/public/webhooks/infinitepay'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -201,6 +203,12 @@ const AuthenticatedAppNotificacoesRoute =
     path: '/notificacoes',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppPagamentoRoute =
+  AuthenticatedAppPagamentoRouteImport.update({
+    id: '/pagamento',
+    path: '/pagamento',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppPlanosRoute = AuthenticatedAppPlanosRouteImport.update({
   id: '/planos',
   path: '/planos',
@@ -277,6 +285,12 @@ const AuthenticatedAdminClientesIdRoute =
     path: '/clientes/$id',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const ApiPublicWebhooksInfinitepayRoute =
+  ApiPublicWebhooksInfinitepayRouteImport.update({
+    id: '/api/public/webhooks/infinitepay',
+    path: '/api/public/webhooks/infinitepay',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -304,6 +318,7 @@ export interface FileRoutesByFullPath {
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/app/notificacoes': typeof AuthenticatedAppNotificacoesRoute
+  '/app/pagamento': typeof AuthenticatedAppPagamentoRoute
   '/app/planos': typeof AuthenticatedAppPlanosRoute
   '/app/suporte': typeof AuthenticatedAppSuporteRoute
   '/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
@@ -318,6 +333,7 @@ export interface FileRoutesByFullPath {
   '/parceiro/': typeof AuthenticatedParceiroIndexRoute
   '/vendedor/': typeof AuthenticatedVendedorIndexRoute
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/api/public/webhooks/infinitepay': typeof ApiPublicWebhooksInfinitepayRoute
   '/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -342,6 +358,7 @@ export interface FileRoutesByTo {
   '/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/app/notificacoes': typeof AuthenticatedAppNotificacoesRoute
+  '/app/pagamento': typeof AuthenticatedAppPagamentoRoute
   '/app/planos': typeof AuthenticatedAppPlanosRoute
   '/app/suporte': typeof AuthenticatedAppSuporteRoute
   '/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
@@ -356,6 +373,7 @@ export interface FileRoutesByTo {
   '/parceiro': typeof AuthenticatedParceiroIndexRoute
   '/vendedor': typeof AuthenticatedVendedorIndexRoute
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/api/public/webhooks/infinitepay': typeof ApiPublicWebhooksInfinitepayRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesIndexRoute
 }
 export interface FileRoutesById {
@@ -386,6 +404,7 @@ export interface FileRoutesById {
   '/_authenticated/app/explorar': typeof AuthenticatedAppExplorarRoute
   '/_authenticated/app/favoritos': typeof AuthenticatedAppFavoritosRoute
   '/_authenticated/app/notificacoes': typeof AuthenticatedAppNotificacoesRoute
+  '/_authenticated/app/pagamento': typeof AuthenticatedAppPagamentoRoute
   '/_authenticated/app/planos': typeof AuthenticatedAppPlanosRoute
   '/_authenticated/app/suporte': typeof AuthenticatedAppSuporteRoute
   '/_authenticated/parceiro/beneficios': typeof AuthenticatedParceiroBeneficiosRoute
@@ -400,6 +419,7 @@ export interface FileRoutesById {
   '/_authenticated/parceiro/': typeof AuthenticatedParceiroIndexRoute
   '/_authenticated/vendedor/': typeof AuthenticatedVendedorIndexRoute
   '/_authenticated/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/api/public/webhooks/infinitepay': typeof ApiPublicWebhooksInfinitepayRoute
   '/_authenticated/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
 }
 export interface FileRouteTypes {
@@ -430,6 +450,7 @@ export interface FileRouteTypes {
     | '/app/explorar'
     | '/app/favoritos'
     | '/app/notificacoes'
+    | '/app/pagamento'
     | '/app/planos'
     | '/app/suporte'
     | '/parceiro/beneficios'
@@ -444,6 +465,7 @@ export interface FileRouteTypes {
     | '/parceiro/'
     | '/vendedor/'
     | '/admin/clientes/$id'
+    | '/api/public/webhooks/infinitepay'
     | '/admin/clientes/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -468,6 +490,7 @@ export interface FileRouteTypes {
     | '/app/explorar'
     | '/app/favoritos'
     | '/app/notificacoes'
+    | '/app/pagamento'
     | '/app/planos'
     | '/app/suporte'
     | '/parceiro/beneficios'
@@ -482,6 +505,7 @@ export interface FileRouteTypes {
     | '/parceiro'
     | '/vendedor'
     | '/admin/clientes/$id'
+    | '/api/public/webhooks/infinitepay'
     | '/admin/clientes'
   id:
     | '__root__'
@@ -511,6 +535,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/explorar'
     | '/_authenticated/app/favoritos'
     | '/_authenticated/app/notificacoes'
+    | '/_authenticated/app/pagamento'
     | '/_authenticated/app/planos'
     | '/_authenticated/app/suporte'
     | '/_authenticated/parceiro/beneficios'
@@ -525,6 +550,7 @@ export interface FileRouteTypes {
     | '/_authenticated/parceiro/'
     | '/_authenticated/vendedor/'
     | '/_authenticated/admin/clientes/$id'
+    | '/api/public/webhooks/infinitepay'
     | '/_authenticated/admin/clientes/'
   fileRoutesById: FileRoutesById
 }
@@ -538,6 +564,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermosRoute: typeof TermosRoute
   EmpresaIdRoute: typeof EmpresaIdRoute
+  ApiPublicWebhooksInfinitepayRoute: typeof ApiPublicWebhooksInfinitepayRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -738,6 +765,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppNotificacoesRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/pagamento': {
+      id: '/_authenticated/app/pagamento'
+      path: '/pagamento'
+      fullPath: '/app/pagamento'
+      preLoaderRoute: typeof AuthenticatedAppPagamentoRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/planos': {
       id: '/_authenticated/app/planos'
       path: '/planos'
@@ -829,6 +863,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminClientesIdRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/api/public/webhooks/infinitepay': {
+      id: '/api/public/webhooks/infinitepay'
+      path: '/api/public/webhooks/infinitepay'
+      fullPath: '/api/public/webhooks/infinitepay'
+      preLoaderRoute: typeof ApiPublicWebhooksInfinitepayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -868,6 +909,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppExplorarRoute: typeof AuthenticatedAppExplorarRoute
   AuthenticatedAppFavoritosRoute: typeof AuthenticatedAppFavoritosRoute
   AuthenticatedAppNotificacoesRoute: typeof AuthenticatedAppNotificacoesRoute
+  AuthenticatedAppPagamentoRoute: typeof AuthenticatedAppPagamentoRoute
   AuthenticatedAppPlanosRoute: typeof AuthenticatedAppPlanosRoute
   AuthenticatedAppSuporteRoute: typeof AuthenticatedAppSuporteRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
@@ -880,6 +922,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppExplorarRoute: AuthenticatedAppExplorarRoute,
   AuthenticatedAppFavoritosRoute: AuthenticatedAppFavoritosRoute,
   AuthenticatedAppNotificacoesRoute: AuthenticatedAppNotificacoesRoute,
+  AuthenticatedAppPagamentoRoute: AuthenticatedAppPagamentoRoute,
   AuthenticatedAppPlanosRoute: AuthenticatedAppPlanosRoute,
   AuthenticatedAppSuporteRoute: AuthenticatedAppSuporteRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
@@ -955,6 +998,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   TermosRoute: TermosRoute,
   EmpresaIdRoute: EmpresaIdRoute,
+  ApiPublicWebhooksInfinitepayRoute: ApiPublicWebhooksInfinitepayRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
