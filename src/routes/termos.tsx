@@ -31,11 +31,22 @@ export const Route = createFileRoute("/termos")({
         Os descontos são concedidos diretamente pelo parceiro mediante validação do QR Code. Cada
         benefício possui regras próprias de uso, horários e limites.
       </p>
-      <h2>4. Cancelamento</h2>
+      <h2>4. Cancelamento e fidelidade</h2>
       <p>
-        A assinatura pode ser cancelada a qualquer momento pelo aplicativo. O acesso permanece
-        disponível até o fim do período já pago.
+        A assinatura possui prazo de fidelidade de 12 (doze) meses, contados a partir da data de
+        ativação do plano. O acesso permanece disponível até o fim do período já pago.
       </p>
+      <p>
+        A assinatura pode ser cancelada a qualquer momento pelo aplicativo. Em caso de cancelamento
+        antes do término dos 12 meses, será devida multa rescisória correspondente a 50% (cinquenta
+        por cento) do valor das parcelas restantes até o fim do período de fidelidade.
+      </p>
+      <p>
+        Exemplo: em um plano de R$ 19,90 por mês com 6 parcelas a vencer, a multa será de 50% sobre
+        R$ 119,40, ou seja, R$ 59,70. Após completar os 12 meses, o cancelamento é livre e sem
+        qualquer multa.
+      </p>
+
       <h2>5. Responsabilidades</h2>
       <p>
         A qualidade dos produtos e serviços é de responsabilidade de cada empresa parceira. O Cartão
