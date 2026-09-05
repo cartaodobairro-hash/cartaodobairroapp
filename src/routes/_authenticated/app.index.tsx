@@ -32,6 +32,11 @@ function ClientHome() {
     },
   });
 
+  const { data: bannerMedia } = useMediaUrls(
+    "banners",
+    (banners ?? []).map((b) => b.image_url),
+  );
+
   const { data: categories } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
