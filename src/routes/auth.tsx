@@ -51,7 +51,10 @@ function AuthPage() {
     if (!loading && user) navigate({ to: "/app", replace: true });
   }, [user, loading, navigate]);
 
-  const [login, setLogin] = useState({ email: "", password: "" });
+  const [login, setLogin] = useState({ identifier: "", password: "" });
+  const [useBio, setUseBio] = useState(false);
+  const [bioReady, setBioReady] = useState(false);
+  const [bioSaved, setBioSaved] = useState(false);
   const [signup, setSignup] = useState({
     name: "",
     cpf: "",
@@ -62,21 +65,74 @@ function AuthPage() {
     terms: false,
   });
 
+  useEffect(() => {
+    void biometricAvailable().then(setBioReady);
+    setBioSaved(biometricEnrolled());
+  }, []);
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: login.email.trim(),
-      password: login.password,
-    });
-    setBusy(false);
-    if (error) {
-      toast.error("Não foi possível entrar", { description: error.message });
-      return;
+    try {
+      const tokens = await signInWithIdentifier({
+        data: { identifier: login.identifier, password: login.password },
+      });
+      const { error } = await supabase.auth.setSession({
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
+      });
+      if (error) throw new Error(error.message);
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      const session = sessionData.session;
+      if (session) {
+        biometricUpdateToken(session.refresh_token);
+        if (useBio && !biometricEnrolled()) {
+          try {
+            await biometricEnroll({
+              userId: session.user.id,
+              label: session.user.email ?? login.identifier,
+              refreshToken: session.refresh_token,
+            });
+            toast.success("Biometria ativada neste aparelho");
+          } catch (bioError) {
+            toast.error("Não foi possível ativar a biometria", {
+              description: bioError instanceof Error ? bioError.message : undefined,
+            });
+          }
+        }
+      }
+      toast.success("Bem-vindo de volta!");
+      navigate({ to: "/app" });
+    } catch (error) {
+      toast.error("Não foi possível entrar", {
+        description: error instanceof Error ? error.message : undefined,
+      });
+    } finally {
+      setBusy(false);
     }
-    toast.success("Bem-vindo de volta!");
-    navigate({ to: "/app" });
   }
+
+  async function handleBiometricLogin() {
+    setBusy(true);
+    try {
+      const refreshToken = await biometricUnlock();
+      const { data, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
+      if (error || !data.session) throw new Error("Sua sessão expirou. Entre com a senha uma vez.");
+      biometricUpdateToken(data.session.refresh_token);
+      toast.success("Bem-vindo de volta!");
+      navigate({ to: "/app" });
+    } catch (error) {
+      biometricForget();
+      setBioSaved(false);
+      toast.error("Entrada por biometria indisponível", {
+        description: error instanceof Error ? error.message : undefined,
+      });
+    } finally {
+      setBusy(false);
+    }
+  }
+
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
