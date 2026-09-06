@@ -46,11 +46,13 @@ export const Route = createFileRoute("/api/public/webhooks/infinitepay")({
               : null;
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data, error } = await supabaseAdmin.rpc("activate_subscription_by_email", {
+        const args: { _email: string; _amount?: number; _transaction_id?: string } = {
           _email: email,
-          _amount: amount,
-          _transaction_id: transactionId,
-        });
+        };
+        if (amount !== null && Number.isFinite(amount)) args._amount = amount;
+        if (transactionId) args._transaction_id = transactionId;
+        const { data, error } = await supabaseAdmin.rpc("activate_subscription_by_email", args);
+
         if (error) return new Response(error.message, { status: 500 });
         if (!data) return new Response("Subscription not found", { status: 404 });
 

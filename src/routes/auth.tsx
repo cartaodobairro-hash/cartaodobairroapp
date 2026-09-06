@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Fingerprint } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/lib/auth";
@@ -10,6 +11,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { maskCpf, maskPhone, onlyDigits } from "@/lib/format";
+import { signInWithIdentifier } from "@/lib/account.functions";
+import {
+  biometricAvailable,
+  biometricEnroll,
+  biometricEnrolled,
+  biometricForget,
+  biometricUnlock,
+  biometricUpdateToken,
+} from "@/lib/biometric";
+
 
 type Search = { modo?: "login" | "cadastro"; vendedor?: string };
 
@@ -40,7 +51,10 @@ function AuthPage() {
     if (!loading && user) navigate({ to: "/app", replace: true });
   }, [user, loading, navigate]);
 
-  const [login, setLogin] = useState({ email: "", password: "" });
+  const [login, setLogin] = useState({ identifier: "", password: "" });
+  const [useBio, setUseBio] = useState(false);
+  const [bioReady, setBioReady] = useState(false);
+  const [bioSaved, setBioSaved] = useState(false);
   const [signup, setSignup] = useState({
     name: "",
     cpf: "",
@@ -51,21 +65,74 @@ function AuthPage() {
     terms: false,
   });
 
+  useEffect(() => {
+    void biometricAvailable().then(setBioReady);
+    setBioSaved(biometricEnrolled());
+  }, []);
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: login.email.trim(),
-      password: login.password,
-    });
-    setBusy(false);
-    if (error) {
-      toast.error("Não foi possível entrar", { description: error.message });
-      return;
+    try {
+      const tokens = await signInWithIdentifier({
+        data: { identifier: login.identifier, password: login.password },
+      });
+      const { error } = await supabase.auth.setSession({
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
+      });
+      if (error) throw new Error(error.message);
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      const session = sessionData.session;
+      if (session) {
+        biometricUpdateToken(session.refresh_token);
+        if (useBio && !biometricEnrolled()) {
+          try {
+            await biometricEnroll({
+              userId: session.user.id,
+              label: session.user.email ?? login.identifier,
+              refreshToken: session.refresh_token,
+            });
+            toast.success("Biometria ativada neste aparelho");
+          } catch (bioError) {
+            toast.error("Não foi possível ativar a biometria", {
+              description: bioError instanceof Error ? bioError.message : undefined,
+            });
+          }
+        }
+      }
+      toast.success("Bem-vindo de volta!");
+      navigate({ to: "/app" });
+    } catch (error) {
+      toast.error("Não foi possível entrar", {
+        description: error instanceof Error ? error.message : undefined,
+      });
+    } finally {
+      setBusy(false);
     }
-    toast.success("Bem-vindo de volta!");
-    navigate({ to: "/app" });
   }
+
+  async function handleBiometricLogin() {
+    setBusy(true);
+    try {
+      const refreshToken = await biometricUnlock();
+      const { data, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
+      if (error || !data.session) throw new Error("Sua sessão expirou. Entre com a senha uma vez.");
+      biometricUpdateToken(data.session.refresh_token);
+      toast.success("Bem-vindo de volta!");
+      navigate({ to: "/app" });
+    } catch (error) {
+      biometricForget();
+      setBioSaved(false);
+      toast.error("Entrada por biometria indisponível", {
+        description: error instanceof Error ? error.message : undefined,
+      });
+    } finally {
+      setBusy(false);
+    }
+  }
+
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
@@ -162,14 +229,14 @@ function AuthPage() {
           {tab === "login" ? (
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <Label htmlFor="email">E-mail</Label>
+                <Label htmlFor="acesso">E-mail, CPF ou telefone</Label>
                 <Input
-                  id="email"
-                  type="email"
+                  id="acesso"
                   required
-                  value={login.email}
-                  onChange={(e) => setLogin({ ...login, email: e.target.value })}
-                  placeholder="voce@email.com"
+                  autoComplete="username"
+                  value={login.identifier}
+                  onChange={(e) => setLogin({ ...login, identifier: e.target.value })}
+                  placeholder="voce@email.com, 000.000.000-00 ou (11) 99999-0000"
                 />
               </div>
               <div>
@@ -178,14 +245,32 @@ function AuthPage() {
                   id="senha"
                   type="password"
                   required
+                  autoComplete="current-password"
                   value={login.password}
                   onChange={(e) => setLogin({ ...login, password: e.target.value })}
                   placeholder="••••••••"
                 />
               </div>
+              {bioReady && !bioSaved ? (
+                <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Checkbox checked={useBio} onCheckedChange={(v) => setUseBio(v === true)} />
+                  <span>Ativar entrada por biometria neste aparelho</span>
+                </label>
+              ) : null}
               <Button className="w-full" disabled={busy}>
                 {busy ? "Entrando..." : "Entrar"}
               </Button>
+              {bioSaved ? (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="w-full"
+                  disabled={busy}
+                  onClick={() => void handleBiometricLogin()}
+                >
+                  <Fingerprint className="mr-2 size-4" /> Entrar com biometria
+                </Button>
+              ) : null}
               <Button type="button" variant="outline" className="w-full" onClick={handleGoogle}>
                 Continuar com Google
               </Button>
@@ -193,11 +278,11 @@ function AuthPage() {
                 type="button"
                 className="w-full text-center text-xs text-muted-foreground underline"
                 onClick={async () => {
-                  if (!login.email) {
-                    toast.error("Informe seu e-mail primeiro");
+                  if (!login.identifier.includes("@")) {
+                    toast.error("Informe seu e-mail para recuperar a senha");
                     return;
                   }
-                  const { error } = await supabase.auth.resetPasswordForEmail(login.email, {
+                  const { error } = await supabase.auth.resetPasswordForEmail(login.identifier, {
                     redirectTo: `${window.location.origin}/reset-password`,
                   });
                   if (error) {
@@ -209,6 +294,7 @@ function AuthPage() {
               >
                 Esqueci minha senha
               </button>
+
             </form>
           ) : (
             <form onSubmit={handleSignup} className="space-y-3">
