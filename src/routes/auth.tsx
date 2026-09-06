@@ -229,14 +229,14 @@ function AuthPage() {
           {tab === "login" ? (
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <Label htmlFor="email">E-mail</Label>
+                <Label htmlFor="acesso">E-mail, CPF ou telefone</Label>
                 <Input
-                  id="email"
-                  type="email"
+                  id="acesso"
                   required
-                  value={login.email}
-                  onChange={(e) => setLogin({ ...login, email: e.target.value })}
-                  placeholder="voce@email.com"
+                  autoComplete="username"
+                  value={login.identifier}
+                  onChange={(e) => setLogin({ ...login, identifier: e.target.value })}
+                  placeholder="voce@email.com, 000.000.000-00 ou (11) 99999-0000"
                 />
               </div>
               <div>
@@ -245,14 +245,32 @@ function AuthPage() {
                   id="senha"
                   type="password"
                   required
+                  autoComplete="current-password"
                   value={login.password}
                   onChange={(e) => setLogin({ ...login, password: e.target.value })}
                   placeholder="••••••••"
                 />
               </div>
+              {bioReady && !bioSaved ? (
+                <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Checkbox checked={useBio} onCheckedChange={(v) => setUseBio(v === true)} />
+                  <span>Ativar entrada por biometria neste aparelho</span>
+                </label>
+              ) : null}
               <Button className="w-full" disabled={busy}>
                 {busy ? "Entrando..." : "Entrar"}
               </Button>
+              {bioSaved ? (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="w-full"
+                  disabled={busy}
+                  onClick={() => void handleBiometricLogin()}
+                >
+                  <Fingerprint className="mr-2 size-4" /> Entrar com biometria
+                </Button>
+              ) : null}
               <Button type="button" variant="outline" className="w-full" onClick={handleGoogle}>
                 Continuar com Google
               </Button>
@@ -260,11 +278,11 @@ function AuthPage() {
                 type="button"
                 className="w-full text-center text-xs text-muted-foreground underline"
                 onClick={async () => {
-                  if (!login.email) {
-                    toast.error("Informe seu e-mail primeiro");
+                  if (!login.identifier.includes("@")) {
+                    toast.error("Informe seu e-mail para recuperar a senha");
                     return;
                   }
-                  const { error } = await supabase.auth.resetPasswordForEmail(login.email, {
+                  const { error } = await supabase.auth.resetPasswordForEmail(login.identifier, {
                     redirectTo: `${window.location.origin}/reset-password`,
                   });
                   if (error) {
@@ -276,6 +294,7 @@ function AuthPage() {
               >
                 Esqueci minha senha
               </button>
+
             </form>
           ) : (
             <form onSubmit={handleSignup} className="space-y-3">
