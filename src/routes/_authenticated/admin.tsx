@@ -5,6 +5,7 @@ import {
   Images,
   LayoutDashboard,
   LifeBuoy,
+  ReceiptText,
   Tags,
   Users,
   UserRound,
