@@ -114,8 +114,9 @@ function AdminSubscriptions() {
     renew: boolean,
   ) {
     setBusy(sub.id);
-    const payload: Record<string, unknown> = { status };
-    if (renew) payload["next_due_date"] = addPeriod(sub.plans?.period);
+    const payload = renew
+      ? { status, next_due_date: addPeriod(sub.plans?.period) }
+      : { status };
     const { error } = await supabase.from("subscriptions").update(payload).eq("id", sub.id);
     setBusy(null);
     if (error) {
