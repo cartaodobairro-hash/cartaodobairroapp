@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Fingerprint } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/lib/auth";
@@ -10,6 +11,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { maskCpf, maskPhone, onlyDigits } from "@/lib/format";
+import { signInWithIdentifier } from "@/lib/account.functions";
+import {
+  biometricAvailable,
+  biometricEnroll,
+  biometricEnrolled,
+  biometricForget,
+  biometricUnlock,
+  biometricUpdateToken,
+} from "@/lib/biometric";
+
 
 type Search = { modo?: "login" | "cadastro"; vendedor?: string };
 
