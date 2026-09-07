@@ -2,7 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Pencil, Printer, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/shells";
 import { Button } from "@/components/ui/button";
@@ -57,6 +65,20 @@ function AdminCustomerDetail() {
   const [monthsToGenerate, setMonthsToGenerate] = useState("12");
   const [profileForm, setProfileForm] = useState<ProfileForm | null>(null);
   const [subForm, setSubForm] = useState<SubForm | null>(null);
+  const [editing, setEditing] = useState<{
+    id: string;
+    amount: string;
+    date: string;
+    status: string;
+  } | null>(null);
+  const [savingPayment, setSavingPayment] = useState(false);
+  const [receipt, setReceipt] = useState<{
+    amount: number;
+    date: string;
+    method: string;
+    status: string;
+  } | null>(null);
+
 
 
   const invalidate = () => {
@@ -224,24 +246,81 @@ function AdminCustomerDetail() {
     invalidate();
   }
 
-  async function editPaymentAmount(paymentId: string, current: number) {
-    const input = window.prompt(
-      "Novo valor da mensalidade (ex: 19,90)",
-      String(current).replace(".", ","),
-    );
-    if (input === null) return;
-    const amount = Number(input.replace(/\./g, "").replace(",", "."));
+  async function savePaymentEdit() {
+    if (!editing) return;
+    const amount = Number(editing.amount.replace(/\./g, "").replace(",", "."));
     if (!Number.isFinite(amount) || amount <= 0) {
       toast.error("Valor inválido");
       return;
     }
-    const { error } = await supabase.from("payments").update({ amount }).eq("id", paymentId);
+    if (!editing.date) {
+      toast.error("Informe a data");
+      return;
+    }
+    const iso = new Date(`${editing.date}T12:00:00`).toISOString();
+    setSavingPayment(true);
+    const { error } = await supabase
+      .from("payments")
+      .update({
+        amount,
+        created_at: iso,
+        paid_at: editing.status === "pago" ? iso : null,
+      })
+      .eq("id", editing.id);
+    setSavingPayment(false);
     if (error) {
       toast.error("Não foi possível alterar", { description: error.message });
       return;
     }
-    toast.success("Valor atualizado");
+    toast.success("Mensalidade atualizada");
+    setEditing(null);
     invalidate();
+  }
+
+  function printReceipt() {
+    if (!receipt) return;
+    const win = window.open("", "_blank", "width=520,height=680");
+    if (!win) {
+      toast.error("Permita janelas pop-up para imprimir o comprovante");
+      return;
+    }
+    win.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+      <title>Comprovante de pagamento</title>
+      <style>
+        body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;padding:32px;color:#1c1917}
+        h1{font-size:18px;margin:0 0 4px}
+        .sub{color:#78716c;font-size:12px;margin-bottom:24px}
+        .row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e7e5e4;font-size:14px}
+        .row span:first-child{color:#78716c}
+        .total{font-size:22px;font-weight:700;margin-top:20px}
+        .foot{margin-top:28px;font-size:11px;color:#a8a29e}
+      </style></head><body>
+      <h1>Comprovante de pagamento — Cartão do Bairro</h1>
+      <div class="sub">Emitido em ${new Date().toLocaleString("pt-BR")}</div>
+      <div class="row"><span>Cliente</span><strong>${profile?.name ?? "—"}</strong></div>
+      <div class="row"><span>CPF</span><strong>${profile?.cpf ? maskCpf(profile.cpf) : "—"}</strong></div>
+      <div class="row"><span>Plano</span><strong>${subscription?.plans?.name ?? customer.plans?.name ?? "—"}</strong></div>
+      <div class="row"><span>Data do pagamento</span><strong>${dateBR(receipt.date)}</strong></div>
+      <div class="row"><span>Forma de pagamento</span><strong>${receipt.method}</strong></div>
+      <div class="row"><span>Situação</span><strong>${receipt.status === "pago" ? "PAGO" : "PENDENTE"}</strong></div>
+      <div class="total">${brl(receipt.amount)}</div>
+      <div class="foot">Documento gerado eletronicamente pelo painel Cartão do Bairro.</div>
+      <script>window.onload=()=>window.print()<\/script>
+      </body></html>`);
+    win.document.close();
+  }
+
+  function receiptText() {
+    if (!receipt) return "";
+    return [
+      "*Comprovante de pagamento — Cartão do Bairro*",
+      `Cliente: ${profile?.name ?? "—"}`,
+      `Plano: ${subscription?.plans?.name ?? customer.plans?.name ?? "—"}`,
+      `Valor: ${brl(receipt.amount)}`,
+      `Data: ${dateBR(receipt.date)}`,
+      `Forma: ${receipt.method}`,
+      `Situação: ${receipt.status === "pago" ? "PAGO" : "PENDENTE"}`,
+    ].join("\n");
   }
 
   async function deletePayment(paymentId: string) {
@@ -554,12 +633,37 @@ function AdminCustomerDetail() {
                     >
                       {p.status === "pago" ? "Marcar pendente" : "Marcar pago"}
                     </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      title="Gerar comprovante"
+                      onClick={() =>
+                        setReceipt({
+                          amount: Number(p.amount),
+                          date: p.paid_at ?? p.created_at,
+                          method: p.method,
+                          status: p.status,
+                        })
+                      }
+                    >
+                      <Printer className="size-4" />
+                    </Button>
                     {isAdmin ? (
                       <>
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => void editPaymentAmount(p.id, Number(p.amount))}
+                          title="Editar valor e data"
+                          onClick={() =>
+                            setEditing({
+                              id: p.id,
+                              amount: String(p.amount).replace(".", ","),
+                              date: new Date(p.paid_at ?? p.created_at)
+                                .toISOString()
+                                .slice(0, 10),
+                              status: p.status,
+                            })
+                          }
                         >
                           <Pencil className="size-4" />
                         </Button>
