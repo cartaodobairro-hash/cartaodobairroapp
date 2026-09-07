@@ -2,14 +2,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/shells";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { brl, dateBR, dateTimeBR, firstOf, maskCpf, maskPhone } from "@/lib/format";
+import { isAdminRole, useRoles } from "@/lib/auth";
 import { StatusPill } from "./admin.clientes.index";
+
 
 export const Route = createFileRoute("/_authenticated/admin/clientes/$id")({
   component: AdminCustomerDetail,
@@ -47,10 +49,15 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function AdminCustomerDetail() {
   const { id } = Route.useParams();
   const queryClient = useQueryClient();
+  const { data: roles } = useRoles();
+  const isAdmin = isAdminRole(roles);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingSub, setSavingSub] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [monthsToGenerate, setMonthsToGenerate] = useState("12");
   const [profileForm, setProfileForm] = useState<ProfileForm | null>(null);
   const [subForm, setSubForm] = useState<SubForm | null>(null);
+
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["admin-customer", id] });
@@ -215,6 +222,49 @@ function AdminCustomerDetail() {
     }
     invalidate();
   }
+
+  async function deletePayment(paymentId: string) {
+    if (!window.confirm("Excluir esta mensalidade? Esta ação não pode ser desfeita.")) return;
+    const { error } = await supabase.from("payments").delete().eq("id", paymentId);
+    if (error) {
+      toast.error("Não foi possível excluir", { description: error.message });
+      return;
+    }
+    toast.success("Mensalidade excluída");
+    invalidate();
+  }
+
+  async function generateUpcoming() {
+    const amount = Number(sv.amount || 0);
+    if (!amount) {
+      toast.error("Informe o valor da mensalidade");
+      return;
+    }
+    const months = Number(monthsToGenerate);
+    const base = sv.next_due_date ? new Date(`${sv.next_due_date}T12:00:00`) : new Date();
+    const rows = Array.from({ length: months }, (_, i) => {
+      const due = new Date(base);
+      due.setMonth(due.getMonth() + i);
+      return {
+        customer_id: customer.id,
+        subscription_id: subscription?.id ?? null,
+        amount,
+        method: sv.payment_method || "manual",
+        status: "pendente" as const,
+        created_at: due.toISOString(),
+      };
+    });
+    setGenerating(true);
+    const { error } = await supabase.from("payments").insert(rows);
+    setGenerating(false);
+    if (error) {
+      toast.error("Erro ao gerar mensalidades", { description: error.message });
+      return;
+    }
+    toast.success(`${months} mensalidades geradas`);
+    invalidate();
+  }
+
 
   return (
     <div className="space-y-4 pb-8">
@@ -398,14 +448,29 @@ function AdminCustomerDetail() {
             />
           </div>
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           <Button onClick={() => void saveSubscription()} disabled={savingSub}>
             {savingSub ? "Salvando..." : subscription ? "Atualizar assinatura" : "Criar assinatura"}
           </Button>
           <Button variant="outline" onClick={() => void registerPayment()}>
             Registrar mensalidade paga
           </Button>
+          <select
+            className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+            value={monthsToGenerate}
+            onChange={(e) => setMonthsToGenerate(e.target.value)}
+          >
+            {[3, 6, 12, 24].map((n) => (
+              <option key={n} value={String(n)}>
+                {n} meses
+              </option>
+            ))}
+          </select>
+          <Button variant="outline" disabled={generating} onClick={() => void generateUpcoming()}>
+            {generating ? "Gerando..." : "Gerar próximas mensalidades"}
+          </Button>
         </div>
+
         <p className="mt-2 text-xs text-muted-foreground">
           Ativar a assinatura emite ou reativa o cartão digital automaticamente; inativar bloqueia o
           cartão.
@@ -468,7 +533,18 @@ function AdminCustomerDetail() {
                     >
                       {p.status === "pago" ? "Marcar pendente" : "Marcar pago"}
                     </Button>
+                    {isAdmin ? (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive"
+                        onClick={() => void deletePayment(p.id)}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    ) : null}
                   </td>
+
                 </tr>
               ))}
             </tbody>
