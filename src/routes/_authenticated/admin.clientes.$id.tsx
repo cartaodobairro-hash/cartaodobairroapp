@@ -47,10 +47,15 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function AdminCustomerDetail() {
   const { id } = Route.useParams();
   const queryClient = useQueryClient();
+  const { data: roles } = useRoles();
+  const isAdmin = isAdminRole(roles);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingSub, setSavingSub] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [monthsToGenerate, setMonthsToGenerate] = useState("12");
   const [profileForm, setProfileForm] = useState<ProfileForm | null>(null);
   const [subForm, setSubForm] = useState<SubForm | null>(null);
+
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["admin-customer", id] });
