@@ -633,12 +633,37 @@ function AdminCustomerDetail() {
                     >
                       {p.status === "pago" ? "Marcar pendente" : "Marcar pago"}
                     </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      title="Gerar comprovante"
+                      onClick={() =>
+                        setReceipt({
+                          amount: Number(p.amount),
+                          date: p.paid_at ?? p.created_at,
+                          method: p.method,
+                          status: p.status,
+                        })
+                      }
+                    >
+                      <Printer className="size-4" />
+                    </Button>
                     {isAdmin ? (
                       <>
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => void editPaymentAmount(p.id, Number(p.amount))}
+                          title="Editar valor e data"
+                          onClick={() =>
+                            setEditing({
+                              id: p.id,
+                              amount: String(p.amount).replace(".", ","),
+                              date: new Date(p.paid_at ?? p.created_at)
+                                .toISOString()
+                                .slice(0, 10),
+                              status: p.status,
+                            })
+                          }
                         >
                           <Pencil className="size-4" />
                         </Button>
