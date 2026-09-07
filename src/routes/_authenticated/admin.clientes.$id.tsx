@@ -65,6 +65,20 @@ function AdminCustomerDetail() {
   const [monthsToGenerate, setMonthsToGenerate] = useState("12");
   const [profileForm, setProfileForm] = useState<ProfileForm | null>(null);
   const [subForm, setSubForm] = useState<SubForm | null>(null);
+  const [editing, setEditing] = useState<{
+    id: string;
+    amount: string;
+    date: string;
+    status: string;
+  } | null>(null);
+  const [savingPayment, setSavingPayment] = useState(false);
+  const [receipt, setReceipt] = useState<{
+    amount: number;
+    date: string;
+    method: string;
+    status: string;
+  } | null>(null);
+
 
 
   const invalidate = () => {
