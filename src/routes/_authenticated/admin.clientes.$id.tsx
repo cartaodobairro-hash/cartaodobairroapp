@@ -216,6 +216,49 @@ function AdminCustomerDetail() {
     invalidate();
   }
 
+  async function deletePayment(paymentId: string) {
+    if (!window.confirm("Excluir esta mensalidade? Esta ação não pode ser desfeita.")) return;
+    const { error } = await supabase.from("payments").delete().eq("id", paymentId);
+    if (error) {
+      toast.error("Não foi possível excluir", { description: error.message });
+      return;
+    }
+    toast.success("Mensalidade excluída");
+    invalidate();
+  }
+
+  async function generateUpcoming() {
+    const amount = Number(sv.amount || 0);
+    if (!amount) {
+      toast.error("Informe o valor da mensalidade");
+      return;
+    }
+    const months = Number(monthsToGenerate);
+    const base = sv.next_due_date ? new Date(`${sv.next_due_date}T12:00:00`) : new Date();
+    const rows = Array.from({ length: months }, (_, i) => {
+      const due = new Date(base);
+      due.setMonth(due.getMonth() + i);
+      return {
+        customer_id: customer.id,
+        subscription_id: subscription?.id ?? null,
+        amount,
+        method: sv.payment_method || "manual",
+        status: "pendente" as const,
+        created_at: due.toISOString(),
+      };
+    });
+    setGenerating(true);
+    const { error } = await supabase.from("payments").insert(rows);
+    setGenerating(false);
+    if (error) {
+      toast.error("Erro ao gerar mensalidades", { description: error.message });
+      return;
+    }
+    toast.success(`${months} mensalidades geradas`);
+    invalidate();
+  }
+
+
   return (
     <div className="space-y-4 pb-8">
       <Link
