@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { brl, dateBR, dateTimeBR, firstOf, maskCpf, maskPhone } from "@/lib/format";
+import { isAdminRole, useRoles } from "@/lib/auth";
 import { StatusPill } from "./admin.clientes.index";
+
 
 export const Route = createFileRoute("/_authenticated/admin/clientes/$id")({
   component: AdminCustomerDetail,
