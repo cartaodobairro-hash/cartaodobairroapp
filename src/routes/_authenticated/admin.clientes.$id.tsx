@@ -533,7 +533,18 @@ function AdminCustomerDetail() {
                     >
                       {p.status === "pago" ? "Marcar pendente" : "Marcar pago"}
                     </Button>
+                    {isAdmin ? (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive"
+                        onClick={() => void deletePayment(p.id)}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    ) : null}
                   </td>
+
                 </tr>
               ))}
             </tbody>
