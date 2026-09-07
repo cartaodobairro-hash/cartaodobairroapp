@@ -101,7 +101,8 @@ function AdminCustomerDetail() {
   const dependents = customer.dependents ?? [];
   const activeDependents = dependents.filter((d) => !d.removed_at && d.status === "ativo");
   const payments = [...(customer.payments ?? [])].sort(
-    (a, b) => +new Date(b.created_at) - +new Date(a.created_at),
+    (a, b) =>
+      +new Date(a.paid_at ?? a.created_at) - +new Date(b.paid_at ?? b.created_at),
   );
 
   const pv = {
@@ -220,6 +221,26 @@ function AdminCustomerDetail() {
       toast.error("Erro", { description: error.message });
       return;
     }
+    invalidate();
+  }
+
+  async function editPaymentAmount(paymentId: string, current: number) {
+    const input = window.prompt(
+      "Novo valor da mensalidade (ex: 19,90)",
+      String(current).replace(".", ","),
+    );
+    if (input === null) return;
+    const amount = Number(input.replace(/\./g, "").replace(",", "."));
+    if (!Number.isFinite(amount) || amount <= 0) {
+      toast.error("Valor inválido");
+      return;
+    }
+    const { error } = await supabase.from("payments").update({ amount }).eq("id", paymentId);
+    if (error) {
+      toast.error("Não foi possível alterar", { description: error.message });
+      return;
+    }
+    toast.success("Valor atualizado");
     invalidate();
   }
 
