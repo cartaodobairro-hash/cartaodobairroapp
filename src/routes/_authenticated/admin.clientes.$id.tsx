@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/shells";
 import { Button } from "@/components/ui/button";
@@ -101,7 +101,8 @@ function AdminCustomerDetail() {
   const dependents = customer.dependents ?? [];
   const activeDependents = dependents.filter((d) => !d.removed_at && d.status === "ativo");
   const payments = [...(customer.payments ?? [])].sort(
-    (a, b) => +new Date(b.created_at) - +new Date(a.created_at),
+    (a, b) =>
+      +new Date(a.paid_at ?? a.created_at) - +new Date(b.paid_at ?? b.created_at),
   );
 
   const pv = {
@@ -220,6 +221,26 @@ function AdminCustomerDetail() {
       toast.error("Erro", { description: error.message });
       return;
     }
+    invalidate();
+  }
+
+  async function editPaymentAmount(paymentId: string, current: number) {
+    const input = window.prompt(
+      "Novo valor da mensalidade (ex: 19,90)",
+      String(current).replace(".", ","),
+    );
+    if (input === null) return;
+    const amount = Number(input.replace(/\./g, "").replace(",", "."));
+    if (!Number.isFinite(amount) || amount <= 0) {
+      toast.error("Valor inválido");
+      return;
+    }
+    const { error } = await supabase.from("payments").update({ amount }).eq("id", paymentId);
+    if (error) {
+      toast.error("Não foi possível alterar", { description: error.message });
+      return;
+    }
+    toast.success("Valor atualizado");
     invalidate();
   }
 
@@ -534,14 +555,23 @@ function AdminCustomerDetail() {
                       {p.status === "pago" ? "Marcar pendente" : "Marcar pago"}
                     </Button>
                     {isAdmin ? (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive"
-                        onClick={() => void deletePayment(p.id)}
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
+                      <>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => void editPaymentAmount(p.id, Number(p.amount))}
+                        >
+                          <Pencil className="size-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive"
+                          onClick={() => void deletePayment(p.id)}
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </>
                     ) : null}
                   </td>
 
