@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/shells";
 import { Button } from "@/components/ui/button";
@@ -555,14 +555,23 @@ function AdminCustomerDetail() {
                       {p.status === "pago" ? "Marcar pendente" : "Marcar pago"}
                     </Button>
                     {isAdmin ? (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive"
-                        onClick={() => void deletePayment(p.id)}
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
+                      <>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => void editPaymentAmount(p.id, Number(p.amount))}
+                        >
+                          <Pencil className="size-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive"
+                          onClick={() => void deletePayment(p.id)}
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </>
                     ) : null}
                   </td>
 
