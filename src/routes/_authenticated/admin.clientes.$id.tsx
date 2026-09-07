@@ -448,14 +448,29 @@ function AdminCustomerDetail() {
             />
           </div>
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           <Button onClick={() => void saveSubscription()} disabled={savingSub}>
             {savingSub ? "Salvando..." : subscription ? "Atualizar assinatura" : "Criar assinatura"}
           </Button>
           <Button variant="outline" onClick={() => void registerPayment()}>
             Registrar mensalidade paga
           </Button>
+          <select
+            className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+            value={monthsToGenerate}
+            onChange={(e) => setMonthsToGenerate(e.target.value)}
+          >
+            {[3, 6, 12, 24].map((n) => (
+              <option key={n} value={String(n)}>
+                {n} meses
+              </option>
+            ))}
+          </select>
+          <Button variant="outline" disabled={generating} onClick={() => void generateUpcoming()}>
+            {generating ? "Gerando..." : "Gerar próximas mensalidades"}
+          </Button>
         </div>
+
         <p className="mt-2 text-xs text-muted-foreground">
           Ativar a assinatura emite ou reativa o cartão digital automaticamente; inativar bloqueia o
           cartão.
