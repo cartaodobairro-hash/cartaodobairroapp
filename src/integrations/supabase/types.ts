@@ -300,6 +300,167 @@ export type Database = {
           },
         ]
       }
+      cash_flow_balances: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          opening_amount: number
+          reference_month: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          opening_amount?: number
+          reference_month: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          opening_amount?: number
+          reference_month?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      cash_flow_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          sort_order: number
+          status: Database["public"]["Enums"]["generic_status"]
+          type: Database["public"]["Enums"]["cash_flow_type"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["generic_status"]
+          type: Database["public"]["Enums"]["cash_flow_type"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["generic_status"]
+          type?: Database["public"]["Enums"]["cash_flow_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      cash_flow_entries: {
+        Row: {
+          amount: number
+          category_id: string | null
+          competence_date: string
+          counterparty: string | null
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          description: string
+          due_date: string
+          expected_date: string | null
+          id: string
+          notes: string | null
+          payment_method: string | null
+          plan_id: string | null
+          recurrence: Database["public"]["Enums"]["cash_flow_recurrence"]
+          recurrence_end: string | null
+          seller_id: string | null
+          settled_at: string | null
+          status: Database["public"]["Enums"]["cash_flow_status"]
+          type: Database["public"]["Enums"]["cash_flow_type"]
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          category_id?: string | null
+          competence_date: string
+          counterparty?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          description: string
+          due_date: string
+          expected_date?: string | null
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          plan_id?: string | null
+          recurrence?: Database["public"]["Enums"]["cash_flow_recurrence"]
+          recurrence_end?: string | null
+          seller_id?: string | null
+          settled_at?: string | null
+          status?: Database["public"]["Enums"]["cash_flow_status"]
+          type: Database["public"]["Enums"]["cash_flow_type"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category_id?: string | null
+          competence_date?: string
+          counterparty?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          description?: string
+          due_date?: string
+          expected_date?: string | null
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          plan_id?: string | null
+          recurrence?: Database["public"]["Enums"]["cash_flow_recurrence"]
+          recurrence_end?: string | null
+          seller_id?: string | null
+          settled_at?: string | null
+          status?: Database["public"]["Enums"]["cash_flow_status"]
+          type?: Database["public"]["Enums"]["cash_flow_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cash_flow_entries_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "cash_flow_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cash_flow_entries_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cash_flow_entries_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cash_flow_entries_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string
@@ -1294,6 +1455,14 @@ export type Database = {
         | "seller"
         | "customer"
       card_status: "ativo" | "pendente" | "bloqueado" | "expirado"
+      cash_flow_recurrence:
+        | "nenhuma"
+        | "mensal"
+        | "trimestral"
+        | "semestral"
+        | "anual"
+      cash_flow_status: "previsto" | "pago" | "cancelado"
+      cash_flow_type: "receita" | "despesa"
       commission_status:
         | "pendente"
         | "aprovada"
@@ -1454,6 +1623,15 @@ export const Constants = {
         "customer",
       ],
       card_status: ["ativo", "pendente", "bloqueado", "expirado"],
+      cash_flow_recurrence: [
+        "nenhuma",
+        "mensal",
+        "trimestral",
+        "semestral",
+        "anual",
+      ],
+      cash_flow_status: ["previsto", "pago", "cancelado"],
+      cash_flow_type: ["receita", "despesa"],
       commission_status: [
         "pendente",
         "aprovada",
