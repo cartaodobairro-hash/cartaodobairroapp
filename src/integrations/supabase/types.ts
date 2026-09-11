@@ -1422,6 +1422,14 @@ export type Database = {
         Args: { _amount?: number; _email: string; _transaction_id?: string }
         Returns: boolean
       }
+      activate_subscription_by_id: {
+        Args: {
+          _amount?: number
+          _subscription_id: string
+          _transaction_id?: string
+        }
+        Returns: boolean
+      }
       generate_card_number: { Args: never; Returns: string }
       has_role: {
         Args: {
