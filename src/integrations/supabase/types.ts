@@ -119,6 +119,13 @@ export type Database = {
             foreignKeyName: "banners_partner_id_fkey"
             columns: ["partner_id"]
             isOneToOne: false
+            referencedRelation: "partner_directory_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "banners_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
             referencedRelation: "partners"
             referencedColumns: ["id"]
           },
@@ -171,6 +178,13 @@ export type Database = {
           usage_limit?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "benefits_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_directory_public"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "benefits_partner_id_fkey"
             columns: ["partner_id"]
@@ -248,6 +262,13 @@ export type Database = {
             columns: ["employee_id"]
             isOneToOne: false
             referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "card_usage_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_directory_public"
             referencedColumns: ["id"]
           },
           {
@@ -676,6 +697,13 @@ export type Database = {
             foreignKeyName: "employees_partner_id_fkey"
             columns: ["partner_id"]
             isOneToOne: false
+            referencedRelation: "partner_directory_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
             referencedRelation: "partners"
             referencedColumns: ["id"]
           },
@@ -701,6 +729,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "favorites_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_directory_public"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "favorites_partner_id_fkey"
             columns: ["partner_id"]
@@ -1027,6 +1062,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "reviews_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_directory_public"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "reviews_partner_id_fkey"
             columns: ["partner_id"]
@@ -1415,7 +1457,86 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      partner_directory_public: {
+        Row: {
+          category_id: string | null
+          city: string | null
+          complement: string | null
+          cover_url: string | null
+          description: string | null
+          id: string | null
+          instagram: string | null
+          latitude: number | null
+          logo_url: string | null
+          longitude: number | null
+          neighborhood: string | null
+          number: string | null
+          opening_hours: string | null
+          rating: number | null
+          reviews_count: number | null
+          sponsored: boolean | null
+          state: string | null
+          status: Database["public"]["Enums"]["partner_status"] | null
+          street: string | null
+          trade_name: string | null
+          website: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          city?: string | null
+          complement?: string | null
+          cover_url?: string | null
+          description?: string | null
+          id?: string | null
+          instagram?: string | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          neighborhood?: string | null
+          number?: string | null
+          opening_hours?: string | null
+          rating?: number | null
+          reviews_count?: number | null
+          sponsored?: boolean | null
+          state?: string | null
+          status?: Database["public"]["Enums"]["partner_status"] | null
+          street?: string | null
+          trade_name?: string | null
+          website?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          city?: string | null
+          complement?: string | null
+          cover_url?: string | null
+          description?: string | null
+          id?: string | null
+          instagram?: string | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          neighborhood?: string | null
+          number?: string | null
+          opening_hours?: string | null
+          rating?: number | null
+          reviews_count?: number | null
+          sponsored?: boolean | null
+          state?: string | null
+          status?: Database["public"]["Enums"]["partner_status"] | null
+          street?: string | null
+          trade_name?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partners_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       activate_subscription_by_email: {
