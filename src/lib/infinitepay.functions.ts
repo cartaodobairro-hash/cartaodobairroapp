@@ -1,4 +1,5 @@
-import { createServerFn, getRequest } from "@tanstack/react-start";
+import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -115,11 +116,19 @@ export const confirmInfinitePayReturn = createServerFn({ method: "POST" })
     if (!confirmation) return { paid: false };
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: activated, error } = await supabaseAdmin.rpc("activate_subscription_by_id", {
+    const activationArgs: {
+      _subscription_id: string;
+      _transaction_id: string;
+      _amount?: number;
+    } = {
       _subscription_id: subscription.id,
-      _amount: typeof confirmation.amount === "number" ? confirmation.amount / 100 : undefined,
       _transaction_id: data.transactionNsu,
-    });
+    };
+    if (typeof confirmation.amount === "number") activationArgs._amount = confirmation.amount / 100;
+    const { data: activated, error } = await supabaseAdmin.rpc(
+      "activate_subscription_by_id",
+      activationArgs,
+    );
     if (error || !activated) throw new Error("O pagamento foi confirmado, mas a ativação falhou.");
     return { paid: true };
   });

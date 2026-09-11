@@ -39,10 +39,12 @@ function PaymentStep() {
     enabled: !!customer?.id,
     refetchInterval: 6000,
     queryFn: async () => {
+      const customerId = customer?.id;
+      if (!customerId) return null;
       const { data, error } = await supabase
         .from("subscriptions")
         .select("*, plans(*)")
-        .eq("customer_id", customer!.id)
+        .eq("customer_id", customerId)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -64,7 +66,9 @@ function PaymentStep() {
       },
     })
       .then((result) => {
-        if (result.paid) return queryClient.invalidateQueries({ queryKey: ["subscription-payment"] });
+        if (result.paid) {
+          void queryClient.invalidateQueries({ queryKey: ["subscription-payment"] });
+        }
       })
       .catch(() => toast.error("Ainda não conseguimos confirmar o pagamento."));
   }, [confirmReturn, paid, queryClient, search.slug, search.transaction_nsu, subscription?.id]);
