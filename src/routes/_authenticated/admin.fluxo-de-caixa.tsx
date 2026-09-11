@@ -132,16 +132,17 @@ function CashFlowPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["admin-cash-flow"],
     queryFn: async () => {
-      const [entries, categories, payments, commissions, subscriptions, balances, customers] = await Promise.all([
+      const [entries, categories, payments, commissions, subscriptions, balances, customers, profiles] = await Promise.all([
         supabase.from("cash_flow_entries").select("*, cash_flow_categories(name)").order("due_date"),
         supabase.from("cash_flow_categories").select("*").eq("status", "ativo").order("sort_order"),
         supabase.from("payments").select("id, amount, method, status, paid_at, created_at, customer_id"),
         supabase.from("seller_commissions").select("id, amount, status, due_date, paid_at, sellers(name)"),
         supabase.from("subscriptions").select("id, amount, status, next_due_date, customer_id, plans(name)"),
         supabase.from("cash_flow_balances").select("*"),
-        supabase.from("customers").select("id, profiles(name)"),
+        supabase.from("customers").select("id, user_id"),
+        supabase.from("profiles").select("id, name"),
       ]);
-      const error = [entries, categories, payments, commissions, subscriptions, balances, customers].find((r) => r.error)?.error;
+      const error = [entries, categories, payments, commissions, subscriptions, balances, customers, profiles].find((r) => r.error)?.error;
       if (error) throw error;
       return {
         entries: (entries.data ?? []) as Entry[],
@@ -151,11 +152,15 @@ function CashFlowPage() {
         subscriptions: subscriptions.data ?? [],
         balances: balances.data ?? [],
         customers: customers.data ?? [],
+        profiles: profiles.data ?? [],
       };
     },
   });
 
-  const customerNames = useMemo(() => new Map((data?.customers ?? []).map((c) => [c.id, c.profiles?.name ?? "Cliente"])), [data]);
+  const customerNames = useMemo(() => {
+    const profiles = new Map((data?.profiles ?? []).map((profile) => [profile.id, profile.name]));
+    return new Map((data?.customers ?? []).map((customer) => [customer.id, profiles.get(customer.user_id) ?? "Cliente"]));
+  }, [data]);
   const ledger = useMemo<LedgerRow[]>(() => {
     if (!data) return [];
     const rows: LedgerRow[] = [];
@@ -166,7 +171,7 @@ function CashFlowPage() {
         const date = i ? addMonths(entry.expected_date ?? entry.due_date, i * interval) : entry.expected_date ?? entry.due_date;
         if (entry.recurrence_end && date > entry.recurrence_end) break;
         if (Number(date.slice(0, 4)) > now.getFullYear() + 2) break;
-        rows.push({
+        const row: LedgerRow = {
           id: `${entry.id}-${i}`,
           source: "manual",
           type: entry.type,
@@ -178,8 +183,9 @@ function CashFlowPage() {
           date: i ? date : entry.settled_at?.slice(0, 10) ?? date,
           status: i ? "previsto" : entry.status,
           method: entry.payment_method ?? "—",
-          editable: i ? undefined : entry,
-        });
+        };
+        if (!i) row.editable = entry;
+        rows.push(row);
       }
     }
     for (const payment of data.payments) {
@@ -290,7 +296,10 @@ function CashFlowPage() {
       ? await supabase.from("cash_flow_entries").update(payload).eq("id", form.id)
       : await supabase.from("cash_flow_entries").insert(payload);
     setSaving(false);
-    if (result.error) return toast.error("Não foi possível salvar", { description: result.error.message });
+    if (result.error) {
+      toast.error("Não foi possível salvar", { description: result.error.message });
+      return;
+    }
     toast.success(form.id ? "Lançamento atualizado" : "Lançamento adicionado");
     setForm(null);
     queryClient.invalidateQueries({ queryKey: ["admin-cash-flow"] });
@@ -319,7 +328,10 @@ function CashFlowPage() {
   async function settle(row: LedgerRow) {
     if (!row.editable) return;
     const { error } = await supabase.from("cash_flow_entries").update({ status: "pago", settled_at: new Date().toISOString() }).eq("id", row.editable.id);
-    if (error) return toast.error("Não foi possível confirmar", { description: error.message });
+    if (error) {
+      toast.error("Não foi possível confirmar", { description: error.message });
+      return;
+    }
     toast.success(row.type === "receita" ? "Recebimento confirmado" : "Pagamento confirmado");
     queryClient.invalidateQueries({ queryKey: ["admin-cash-flow"] });
   }
@@ -327,16 +339,25 @@ function CashFlowPage() {
   async function removeEntry(entry: Entry) {
     if (!window.confirm("Excluir este lançamento?")) return;
     const { error } = await supabase.from("cash_flow_entries").delete().eq("id", entry.id);
-    if (error) return toast.error("Não foi possível excluir", { description: error.message });
+    if (error) {
+      toast.error("Não foi possível excluir", { description: error.message });
+      return;
+    }
     toast.success("Lançamento excluído");
     queryClient.invalidateQueries({ queryKey: ["admin-cash-flow"] });
   }
 
   async function saveBalance() {
     const value = Number(balanceValue.replace(",", "."));
-    if (!Number.isFinite(value)) return toast.error("Informe um saldo válido");
+    if (!Number.isFinite(value)) {
+      toast.error("Informe um saldo válido");
+      return;
+    }
     const { error } = await supabase.from("cash_flow_balances").upsert({ reference_month: `${selectedKey}-01`, opening_amount: value }, { onConflict: "reference_month" });
-    if (error) return toast.error("Não foi possível salvar", { description: error.message });
+    if (error) {
+      toast.error("Não foi possível salvar", { description: error.message });
+      return;
+    }
     toast.success("Saldo inicial atualizado");
     setBalanceOpen(false);
     queryClient.invalidateQueries({ queryKey: ["admin-cash-flow"] });
@@ -353,8 +374,8 @@ function CashFlowPage() {
     URL.revokeObjectURL(url);
   }
 
-  const revenueVariation = percentChange(current.recebidas, previous.recebidas);
-  const expenseVariation = percentChange(current.pagas, previous.pagas);
+  const revenueVariation = percentChange(current?.recebidas ?? 0, previous?.recebidas ?? 0);
+  const expenseVariation = percentChange(current?.pagas ?? 0, previous?.pagas ?? 0);
   const activeSubs = data?.subscriptions.filter((s) => s.status === "ativo").length ?? 0;
   const paidCount = selectedRows.filter((r) => r.type === "receita" && r.status === "pago").length;
   const health = projected < 0 ? "Risco de caixa negativo" : overdue > received * 0.2 ? "Atenção à inadimplência" : "Fluxo financeiro saudável";
