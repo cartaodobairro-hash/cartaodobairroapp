@@ -65,6 +65,20 @@ function AuthPage() {
     terms: false,
   });
 
+  async function goToAccountHome(userId: string) {
+    const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+    const roles = (data ?? []).map((item) => item.role);
+    if (roles.includes("super_admin") || roles.includes("admin") || roles.includes("financeiro")) {
+      navigate({ to: "/admin" });
+    } else if (roles.includes("partner")) {
+      navigate({ to: "/parceiro" });
+    } else if (roles.includes("seller")) {
+      navigate({ to: "/vendedor" });
+    } else {
+      navigate({ to: "/app" });
+    }
+  }
+
   useEffect(() => {
     void biometricAvailable().then(setBioReady);
     setBioSaved(biometricEnrolled());
@@ -103,7 +117,7 @@ function AuthPage() {
         }
       }
       toast.success("Bem-vindo de volta!");
-      navigate({ to: "/app" });
+      await goToAccountHome(tokens.user_id);
     } catch (error) {
       toast.error("Não foi possível entrar", {
         description: error instanceof Error ? error.message : undefined,
@@ -121,7 +135,7 @@ function AuthPage() {
       if (error || !data.session) throw new Error("Sua sessão expirou. Entre com a senha uma vez.");
       biometricUpdateToken(data.session.refresh_token);
       toast.success("Bem-vindo de volta!");
-      navigate({ to: "/app" });
+      await goToAccountHome(data.session.user.id);
     } catch (error) {
       biometricForget();
       setBioSaved(false);
