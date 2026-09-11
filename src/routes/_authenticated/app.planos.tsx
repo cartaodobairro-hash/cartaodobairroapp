@@ -194,8 +194,8 @@ function AppPlans() {
       <div className="pb-6">
         <PlanSteps />
         <p className="mt-3 text-xs text-muted-foreground">
-          O pagamento online será integrado em breve. Ao confirmar, sua assinatura fica registrada e
-          o cartão digital é gerado automaticamente.
+          O pagamento é feito com segurança pelo InfinitePay. Após a confirmação, a mensalidade recebe
+          baixa e o cartão digital é liberado automaticamente.
         </p>
       </div>
     </div>

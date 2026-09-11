@@ -14,18 +14,17 @@ function pick(obj: unknown, keys: string[]): string | null {
   return null;
 }
 
+function amountInReais(payload: unknown): number | null {
+  if (!payload || typeof payload !== "object") return null;
+  const raw = (payload as Record<string, unknown>)["amount"];
+  const cents = typeof raw === "number" ? raw : typeof raw === "string" ? Number(raw) : NaN;
+  return Number.isFinite(cents) ? cents / 100 : null;
+}
+
 export const Route = createFileRoute("/api/public/webhooks/infinitepay")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const secret = process.env["INFINITEPAY_WEBHOOK_SECRET"];
-        const url = new URL(request.url);
-        const provided =
-          request.headers.get("x-webhook-secret") ?? url.searchParams.get("secret") ?? "";
-        if (!secret || provided !== secret) {
-          return new Response("Invalid secret", { status: 401 });
-        }
-
         let payload: unknown;
         try {
           payload = await request.json();
@@ -33,25 +32,41 @@ export const Route = createFileRoute("/api/public/webhooks/infinitepay")({
           return new Response("Invalid payload", { status: 400 });
         }
 
-        const email = pick(payload, ["email", "customer_email", "payer_email", "buyer_email"]);
-        if (!email) return new Response("Missing email", { status: 400 });
+        const subscriptionId = pick(payload, ["order_nsu"]);
+        const transactionId = pick(payload, ["transaction_nsu"]);
+        const slug = pick(payload, ["invoice_slug", "slug"]);
+        if (!subscriptionId || !transactionId || !slug) {
+          return new Response("Missing payment identifiers", { status: 400 });
+        }
 
-        const transactionId = pick(payload, ["transaction_id", "id", "nsu", "order_nsu"]);
-        const rawAmount = (payload as Record<string, unknown>)["amount"];
-        const amount =
-          typeof rawAmount === "number"
-            ? rawAmount
-            : typeof rawAmount === "string"
-              ? Number(rawAmount)
-              : null;
+        const verification = await fetch("https://api.checkout.infinitepay.io/payment_check", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            handle: "cartao-do-bairro",
+            order_nsu: subscriptionId,
+            transaction_nsu: transactionId,
+            slug,
+          }),
+        });
+        if (!verification.ok) return new Response("Payment verification failed", { status: 502 });
+        const checked = (await verification.json()) as {
+          success?: boolean;
+          paid?: boolean;
+          amount?: number;
+        };
+        if (checked.success !== true || checked.paid !== true) {
+          return new Response("Payment not confirmed", { status: 400 });
+        }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const args: { _email: string; _amount?: number; _transaction_id?: string } = {
-          _email: email,
+        const args: { _subscription_id: string; _amount?: number; _transaction_id: string } = {
+          _subscription_id: subscriptionId,
+          _transaction_id: transactionId,
         };
-        if (amount !== null && Number.isFinite(amount)) args._amount = amount;
-        if (transactionId) args._transaction_id = transactionId;
-        const { data, error } = await supabaseAdmin.rpc("activate_subscription_by_email", args);
+        const amount = typeof checked.amount === "number" ? checked.amount / 100 : amountInReais(payload);
+        if (amount !== null) args._amount = amount;
+        const { data, error } = await supabaseAdmin.rpc("activate_subscription_by_id", args);
 
         if (error) return new Response(error.message, { status: 500 });
         if (!data) return new Response("Subscription not found", { status: 404 });

@@ -59,7 +59,7 @@ function PartnerSignup() {
     },
   });
 
-  async function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent): Promise<void> {
     e.preventDefault();
     if (!form.company_name.trim() || !form.trade_name.trim() || !form.category_id) {
       setTab("empresa");
@@ -123,16 +123,19 @@ function PartnerSignup() {
       accountCreated = !result.error;
     }
     setBusy(false);
-    if (error) return toast.error("Não foi possível enviar", { description: error.message });
+    if (error) {
+      toast.error("Não foi possível enviar", { description: error.message });
+      return;
+    }
     if (accountCreated) {
       toast.success("Cadastro enviado!", {
         description: "Confirme seu e-mail e entre para acompanhar a análise.",
       });
-      navigate({ to: "/auth", search: { modo: "login" } });
+      void navigate({ to: "/auth", search: { modo: "login" } });
       return;
     }
     toast.success("Cadastro enviado!", { description: "Sua empresa está em análise." });
-    navigate({ to: "/parceiro" });
+    void navigate({ to: "/parceiro" });
   }
 
   return (

@@ -1,5 +1,8 @@
 # Roadmap
 
+- [x] Integrar retorno e confirmação automática do pagamento InfinitePay
+- [x] Dar baixa na mensalidade e ativar cliente, assinatura e cartão automaticamente
+
 - [x] Adicionar criação de login e senha ao cadastro de parceiros
 
 - [x] Criar estrutura segura para lançamentos manuais, categorias, recorrências e saldos iniciais
