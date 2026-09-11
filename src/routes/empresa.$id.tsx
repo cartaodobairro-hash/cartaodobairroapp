@@ -28,11 +28,13 @@ function PartnerPage() {
   const queryClient = useQueryClient();
 
   const { data: partner, isLoading } = useQuery({
-    queryKey: ["partner", id],
+    queryKey: ["partner", id, user?.id ?? "public"],
     queryFn: async () => {
+      const publicFields =
+        "id, category_id, trade_name, description, instagram, website, logo_url, cover_url, state, city, neighborhood, street, number, complement, latitude, longitude, opening_hours, rating, reviews_count, sponsored, status, created_at, updated_at, categories(name, icon), benefits(*)";
       const { data, error } = await supabase
         .from("partners")
-        .select("*, categories(name, icon), benefits(*)")
+        .select(user ? "*, categories(name, icon), benefits(*)" : publicFields)
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
