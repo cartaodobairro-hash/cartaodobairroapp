@@ -123,7 +123,10 @@ function PartnerSignup() {
       accountCreated = !result.error;
     }
     setBusy(false);
-    if (error) return toast.error("Não foi possível enviar", { description: error.message });
+    if (error) {
+      toast.error("Não foi possível enviar", { description: error.message });
+      return;
+    }
     if (accountCreated) {
       toast.success("Cadastro enviado!", {
         description: "Confirme seu e-mail e entre para acompanhar a análise.",

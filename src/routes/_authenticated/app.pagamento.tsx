@@ -2,14 +2,23 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, ExternalLink, Loader2 } from "lucide-react";
+import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useCustomer } from "@/lib/auth";
 import { PageHeader } from "@/components/shells";
 import { Button } from "@/components/ui/button";
 import { brl } from "@/lib/format";
+import { confirmInfinitePayReturn, createInfinitePayCheckout } from "@/lib/infinitepay.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/_authenticated/app/pagamento")({
+  validateSearch: z.object({
+    retorno: z.string().optional(),
+    order_nsu: z.string().optional(),
+    transaction_nsu: z.string().optional(),
+    slug: z.string().optional(),
+  }),
   component: PaymentStep,
 });
 
@@ -19,7 +28,11 @@ function PaymentStep() {
   const { data: customer } = useCustomer();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const search = Route.useSearch();
+  const createCheckout = useServerFn(createInfinitePayCheckout);
+  const confirmReturn = useServerFn(confirmInfinitePayReturn);
   const [finishing, setFinishing] = useState(false);
+  const [openingCheckout, setOpeningCheckout] = useState(false);
 
   const { data: subscription, isFetching } = useQuery({
     queryKey: ["subscription-payment", customer?.id],
@@ -40,6 +53,40 @@ function PaymentStep() {
 
   const plan = (subscription?.plans ?? null) as unknown as PlanInfo | null;
   const paid = subscription?.status === "ativo";
+
+  useEffect(() => {
+    if (!subscription?.id || !search.transaction_nsu || !search.slug || paid) return;
+    void confirmReturn({
+      data: {
+        subscriptionId: subscription.id,
+        transactionNsu: search.transaction_nsu,
+        slug: search.slug,
+      },
+    })
+      .then((result) => {
+        if (result.paid) return queryClient.invalidateQueries({ queryKey: ["subscription-payment"] });
+      })
+      .catch(() => toast.error("Ainda não conseguimos confirmar o pagamento."));
+  }, [confirmReturn, paid, queryClient, search.slug, search.transaction_nsu, subscription?.id]);
+
+  async function openCheckout() {
+    if (!subscription?.id) return;
+    setOpeningCheckout(true);
+    try {
+      const result = await createCheckout({ data: { subscriptionId: subscription.id } });
+      if (result.alreadyPaid) {
+        await queryClient.invalidateQueries({ queryKey: ["subscription-payment"] });
+        return;
+      }
+      if (result.checkoutUrl) window.location.assign(result.checkoutUrl);
+    } catch (error) {
+      toast.error("Não foi possível abrir o pagamento", {
+        description: error instanceof Error ? error.message : undefined,
+      });
+    } finally {
+      setOpeningCheckout(false);
+    }
+  }
 
   useEffect(() => {
     if (!paid || finishing) return;
@@ -77,19 +124,12 @@ function PaymentStep() {
 
             <Button
               className="mt-4 w-full"
-              disabled={!plan?.payment_link}
-              onClick={() => {
-                if (plan?.payment_link) window.open(plan.payment_link, "_blank", "noopener");
-              }}
+              disabled={!subscription?.id || openingCheckout}
+              onClick={() => void openCheckout()}
             >
+              {openingCheckout ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
               Pagar agora <ExternalLink className="ml-2 size-4" />
             </Button>
-
-            {!plan?.payment_link ? (
-              <p className="mt-3 text-xs text-muted-foreground">
-                O link de pagamento deste plano ainda não foi configurado. Fale com o suporte.
-              </p>
-            ) : null}
 
             <div className="mt-4 flex items-center gap-2 rounded-xl bg-muted p-3 text-xs text-muted-foreground">
               {isFetching ? <Loader2 className="size-4 animate-spin" /> : null}
@@ -109,9 +149,9 @@ function PaymentStep() {
       </div>
 
       <ol className="mt-6 space-y-2 pb-8 text-xs text-muted-foreground">
-        <li>1. Toque em “Pagar agora” e conclua o pagamento na página segura.</li>
-        <li>2. Volte para esta tela — a confirmação chega automaticamente.</li>
-        <li>3. Você será levado para a tela de entrar na conta com o acesso liberado.</li>
+        <li>1. Toque em “Pagar agora” e conclua o pagamento na página segura do InfinitePay.</li>
+        <li>2. Ao concluir, você volta automaticamente para o Cartão do Bairro.</li>
+        <li>3. A mensalidade recebe baixa e seu cartão é liberado para uso.</li>
       </ol>
     </div>
   );
