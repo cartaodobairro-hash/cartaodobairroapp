@@ -2,13 +2,13 @@
 
 - [x] Adicionar criação de login e senha ao cadastro de parceiros
 
-- [ ] Criar estrutura segura para lançamentos manuais, categorias, recorrências e saldos iniciais
-- [ ] Integrar assinaturas, pagamentos e comissões existentes sem duplicar dados
-- [ ] Criar dashboard Fluxo de Caixa com filtros, resumo, análise executiva e indicadores
-- [ ] Criar evolução mensal, comparação, projeção de 12 meses e detalhamento diário
-- [ ] Criar gestão de contas a receber e a pagar com edição de status
-- [ ] Criar alertas financeiros automáticos
-- [ ] Adicionar exportação para Excel, PDF e impressão
-- [ ] Adicionar Fluxo de Caixa ao menu administrativo
-- [ ] Validar acesso administrativo, cálculos e visual em computador e celular
-- [ ] Concluir e validar as janelas pendentes de edição/comprovante na ficha do cliente
+- [x] Criar estrutura segura para lançamentos manuais, categorias, recorrências e saldos iniciais
+- [x] Integrar assinaturas, pagamentos e comissões existentes sem duplicar dados
+- [x] Criar dashboard Fluxo de Caixa com filtros, resumo, análise executiva e indicadores
+- [x] Criar evolução mensal, comparação, projeção de 12 meses e detalhamento diário
+- [x] Criar gestão de contas a receber e a pagar com edição de status
+- [x] Criar alertas financeiros automáticos
+- [x] Adicionar exportação para Excel, PDF e impressão
+- [x] Adicionar Fluxo de Caixa ao menu administrativo
+- [x] Validar acesso administrativo, cálculos e visual em computador e celular
+- [x] Concluir e validar as janelas pendentes de edição/comprovante na ficha do cliente
