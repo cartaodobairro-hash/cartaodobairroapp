@@ -688,6 +688,75 @@ function AdminCustomerDetail() {
           ) : null}
         </div>
       </Section>
+
+      <Dialog open={Boolean(editing)} onOpenChange={(open) => !open && setEditing(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar mensalidade</DialogTitle>
+            <DialogDescription>Altere o valor e a data desta mensalidade.</DialogDescription>
+          </DialogHeader>
+          {editing ? (
+            <div className="grid gap-4 py-2 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="payment-amount">Valor</Label>
+                <Input
+                  id="payment-amount"
+                  className="mt-1"
+                  inputMode="decimal"
+                  value={editing.amount}
+                  onChange={(event) => setEditing({ ...editing, amount: event.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="payment-date">Data</Label>
+                <Input
+                  id="payment-date"
+                  className="mt-1"
+                  type="date"
+                  value={editing.date}
+                  onChange={(event) => setEditing({ ...editing, date: event.target.value })}
+                />
+              </div>
+            </div>
+          ) : null}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditing(null)}>Cancelar</Button>
+            <Button disabled={savingPayment} onClick={() => void savePaymentEdit()}>
+              {savingPayment ? "Salvando..." : "Salvar alterações"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={Boolean(receipt)} onOpenChange={(open) => !open && setReceipt(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Comprovante de pagamento</DialogTitle>
+            <DialogDescription>Confira os dados antes de imprimir ou compartilhar.</DialogDescription>
+          </DialogHeader>
+          {receipt ? (
+            <div className="rounded-xl border border-border bg-muted/30 p-4 text-sm">
+              <div className="flex justify-between border-b py-2"><span className="text-muted-foreground">Cliente</span><strong>{profile?.name ?? "—"}</strong></div>
+              <div className="flex justify-between border-b py-2"><span className="text-muted-foreground">Plano</span><strong>{subscription?.plans?.name ?? customer.plans?.name ?? "—"}</strong></div>
+              <div className="flex justify-between border-b py-2"><span className="text-muted-foreground">Data</span><strong>{dateBR(receipt.date)}</strong></div>
+              <div className="flex justify-between border-b py-2"><span className="text-muted-foreground">Forma</span><strong className="uppercase">{receipt.method}</strong></div>
+              <div className="flex justify-between pt-3 text-lg"><span>Valor</span><strong>{brl(receipt.amount)}</strong></div>
+            </div>
+          ) : null}
+          <DialogFooter className="gap-2 sm:justify-between">
+            <Button
+              variant="outline"
+              onClick={() => {
+                const phone = (profile?.whatsapp || profile?.phone || "").replace(/\D/g, "");
+                window.open(`https://wa.me/${phone ? `55${phone}` : ""}?text=${encodeURIComponent(receiptText())}`, "_blank", "noopener,noreferrer");
+              }}
+            >
+              Enviar por WhatsApp
+            </Button>
+            <Button onClick={printReceipt}><Printer className="size-4" /> Imprimir / PDF</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
