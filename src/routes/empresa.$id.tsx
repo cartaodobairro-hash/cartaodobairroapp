@@ -3,9 +3,31 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Heart, MapPin, Phone, Star } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { brl, mapsDirectionsUrl, mapsEmbedUrl, partnerAddress } from "@/lib/format";
+
+type PartnerView = Pick<
+  Database["public"]["Tables"]["partners"]["Row"],
+  | "id"
+  | "trade_name"
+  | "description"
+  | "whatsapp"
+  | "state"
+  | "city"
+  | "neighborhood"
+  | "street"
+  | "number"
+  | "latitude"
+  | "longitude"
+  | "opening_hours"
+  | "rating"
+  | "reviews_count"
+> & {
+  categories: Pick<Database["public"]["Tables"]["categories"]["Row"], "name" | "icon"> | null;
+  benefits: Database["public"]["Tables"]["benefits"]["Row"][];
+};
 
 export const Route = createFileRoute("/empresa/$id")({
   head: () => ({
@@ -30,15 +52,16 @@ function PartnerPage() {
   const { data: partner, isLoading } = useQuery({
     queryKey: ["partner", id, user?.id ?? "public"],
     queryFn: async () => {
-      const publicFields =
-        "id, category_id, trade_name, description, instagram, website, logo_url, cover_url, state, city, neighborhood, street, number, complement, latitude, longitude, opening_hours, rating, reviews_count, sponsored, status, created_at, updated_at, categories(name, icon), benefits(*)";
-      const { data, error } = await supabase
-        .from("partners")
-        .select(user ? "*, categories(name, icon), benefits(*)" : publicFields)
-        .eq("id", id)
-        .maybeSingle();
+      const request = user
+        ? supabase.from("partners").select("*, categories(name, icon), benefits(*)").eq("id", id).maybeSingle()
+        : supabase
+            .from("partners")
+            .select("id, trade_name, description, state, city, neighborhood, street, number, latitude, longitude, opening_hours, rating, reviews_count, categories(name, icon), benefits(*)")
+            .eq("id", id)
+            .maybeSingle();
+      const { data, error } = await request;
       if (error) throw error;
-      return data;
+      return data as unknown as PartnerView | null;
     },
   });
 
@@ -46,11 +69,12 @@ function PartnerPage() {
     queryKey: ["favorite", id, user?.id],
     enabled: !!user,
     queryFn: async () => {
+      if (!user) return null;
       const { data, error } = await supabase
         .from("favorites")
         .select("id")
         .eq("partner_id", id)
-        .eq("user_id", user!.id)
+        .eq("user_id", user.id)
         .maybeSingle();
       if (error) throw error;
       return data;

@@ -117,7 +117,8 @@ function AuthPage() {
         }
       }
       toast.success("Bem-vindo de volta!");
-      await goToAccountHome(tokens.user_id);
+      if (!session) throw new Error("Não foi possível identificar sua conta.");
+      await goToAccountHome(session.user.id);
     } catch (error) {
       toast.error("Não foi possível entrar", {
         description: error instanceof Error ? error.message : undefined,
