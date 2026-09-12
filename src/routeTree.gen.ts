@@ -53,6 +53,7 @@ import { Route as AuthenticatedVendedorLeadsRouteImport } from './routes/_authen
 import { Route as AuthenticatedVendedorVendasRouteImport } from './routes/_authenticated/vendedor.vendas'
 import { Route as AuthenticatedAdminClientesIndexRouteImport } from './routes/_authenticated/admin.clientes.index'
 import { Route as AuthenticatedAdminClientesIdRouteImport } from './routes/_authenticated/admin.clientes.$id'
+import { Route as AuthenticatedAdminParceirosIdRouteImport } from './routes/_authenticated/admin.parceiros.$id'
 import { Route as ApiPublicWebhooksInfinitepayRouteImport } from './routes/api/public/webhooks/infinitepay'
 
 const IndexRoute = IndexRouteImport.update({
@@ -299,6 +300,12 @@ const AuthenticatedAdminClientesIdRoute =
     path: '/clientes/$id',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminParceirosIdRoute =
+  AuthenticatedAdminParceirosIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAdminParceirosRoute,
+  } as any)
 const ApiPublicWebhooksInfinitepayRoute =
   ApiPublicWebhooksInfinitepayRouteImport.update({
     id: '/api/public/webhooks/infinitepay',
@@ -324,7 +331,7 @@ export interface FileRoutesByFullPath {
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/financeiro': typeof AuthenticatedAdminFinanceiroRoute
   '/admin/fluxo-de-caixa': typeof AuthenticatedAdminFluxoDeCaixaRoute
-  '/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
+  '/admin/parceiros': typeof AuthenticatedAdminParceirosRouteWithChildren
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
   '/admin/suporte': typeof AuthenticatedAdminSuporteRoute
   '/admin/vendedores': typeof AuthenticatedAdminVendedoresRoute
@@ -349,6 +356,7 @@ export interface FileRoutesByFullPath {
   '/parceiro/': typeof AuthenticatedParceiroIndexRoute
   '/vendedor/': typeof AuthenticatedVendedorIndexRoute
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/admin/parceiros/$id': typeof AuthenticatedAdminParceirosIdRoute
   '/api/public/webhooks/infinitepay': typeof ApiPublicWebhooksInfinitepayRoute
   '/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
 }
@@ -366,7 +374,7 @@ export interface FileRoutesByTo {
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/financeiro': typeof AuthenticatedAdminFinanceiroRoute
   '/admin/fluxo-de-caixa': typeof AuthenticatedAdminFluxoDeCaixaRoute
-  '/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
+  '/admin/parceiros': typeof AuthenticatedAdminParceirosRouteWithChildren
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
   '/admin/suporte': typeof AuthenticatedAdminSuporteRoute
   '/admin/vendedores': typeof AuthenticatedAdminVendedoresRoute
@@ -391,6 +399,7 @@ export interface FileRoutesByTo {
   '/parceiro': typeof AuthenticatedParceiroIndexRoute
   '/vendedor': typeof AuthenticatedVendedorIndexRoute
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/admin/parceiros/$id': typeof AuthenticatedAdminParceirosIdRoute
   '/api/public/webhooks/infinitepay': typeof ApiPublicWebhooksInfinitepayRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesIndexRoute
 }
@@ -414,7 +423,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/_authenticated/admin/financeiro': typeof AuthenticatedAdminFinanceiroRoute
   '/_authenticated/admin/fluxo-de-caixa': typeof AuthenticatedAdminFluxoDeCaixaRoute
-  '/_authenticated/admin/parceiros': typeof AuthenticatedAdminParceirosRoute
+  '/_authenticated/admin/parceiros': typeof AuthenticatedAdminParceirosRouteWithChildren
   '/_authenticated/admin/planos': typeof AuthenticatedAdminPlanosRoute
   '/_authenticated/admin/suporte': typeof AuthenticatedAdminSuporteRoute
   '/_authenticated/admin/vendedores': typeof AuthenticatedAdminVendedoresRoute
@@ -439,6 +448,7 @@ export interface FileRoutesById {
   '/_authenticated/parceiro/': typeof AuthenticatedParceiroIndexRoute
   '/_authenticated/vendedor/': typeof AuthenticatedVendedorIndexRoute
   '/_authenticated/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/_authenticated/admin/parceiros/$id': typeof AuthenticatedAdminParceirosIdRoute
   '/api/public/webhooks/infinitepay': typeof ApiPublicWebhooksInfinitepayRoute
   '/_authenticated/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
 }
@@ -487,6 +497,7 @@ export interface FileRouteTypes {
     | '/parceiro/'
     | '/vendedor/'
     | '/admin/clientes/$id'
+    | '/admin/parceiros/$id'
     | '/api/public/webhooks/infinitepay'
     | '/admin/clientes/'
   fileRoutesByTo: FileRoutesByTo
@@ -529,6 +540,7 @@ export interface FileRouteTypes {
     | '/parceiro'
     | '/vendedor'
     | '/admin/clientes/$id'
+    | '/admin/parceiros/$id'
     | '/api/public/webhooks/infinitepay'
     | '/admin/clientes'
   id:
@@ -576,6 +588,7 @@ export interface FileRouteTypes {
     | '/_authenticated/parceiro/'
     | '/_authenticated/vendedor/'
     | '/_authenticated/admin/clientes/$id'
+    | '/_authenticated/admin/parceiros/$id'
     | '/api/public/webhooks/infinitepay'
     | '/_authenticated/admin/clientes/'
   fileRoutesById: FileRoutesById
@@ -903,6 +916,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminClientesIdRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/parceiros/$id': {
+      id: '/_authenticated/admin/parceiros/$id'
+      path: '/$id'
+      fullPath: '/admin/parceiros/$id'
+      preLoaderRoute: typeof AuthenticatedAdminParceirosIdRouteImport
+      parentRoute: typeof AuthenticatedAdminParceirosRoute
+    }
     '/api/public/webhooks/infinitepay': {
       id: '/api/public/webhooks/infinitepay'
       path: '/api/public/webhooks/infinitepay'
@@ -913,13 +933,27 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedAdminParceirosRouteChildren {
+  AuthenticatedAdminParceirosIdRoute: typeof AuthenticatedAdminParceirosIdRoute
+}
+
+const AuthenticatedAdminParceirosRouteChildren: AuthenticatedAdminParceirosRouteChildren =
+  {
+    AuthenticatedAdminParceirosIdRoute: AuthenticatedAdminParceirosIdRoute,
+  }
+
+const AuthenticatedAdminParceirosRouteWithChildren =
+  AuthenticatedAdminParceirosRoute._addFileChildren(
+    AuthenticatedAdminParceirosRouteChildren,
+  )
+
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAssinaturasRoute: typeof AuthenticatedAdminAssinaturasRoute
   AuthenticatedAdminBannersRoute: typeof AuthenticatedAdminBannersRoute
   AuthenticatedAdminCategoriasRoute: typeof AuthenticatedAdminCategoriasRoute
   AuthenticatedAdminFinanceiroRoute: typeof AuthenticatedAdminFinanceiroRoute
   AuthenticatedAdminFluxoDeCaixaRoute: typeof AuthenticatedAdminFluxoDeCaixaRoute
-  AuthenticatedAdminParceirosRoute: typeof AuthenticatedAdminParceirosRoute
+  AuthenticatedAdminParceirosRoute: typeof AuthenticatedAdminParceirosRouteWithChildren
   AuthenticatedAdminPlanosRoute: typeof AuthenticatedAdminPlanosRoute
   AuthenticatedAdminSuporteRoute: typeof AuthenticatedAdminSuporteRoute
   AuthenticatedAdminVendedoresRoute: typeof AuthenticatedAdminVendedoresRoute
@@ -934,7 +968,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCategoriasRoute: AuthenticatedAdminCategoriasRoute,
   AuthenticatedAdminFinanceiroRoute: AuthenticatedAdminFinanceiroRoute,
   AuthenticatedAdminFluxoDeCaixaRoute: AuthenticatedAdminFluxoDeCaixaRoute,
-  AuthenticatedAdminParceirosRoute: AuthenticatedAdminParceirosRoute,
+  AuthenticatedAdminParceirosRoute:
+    AuthenticatedAdminParceirosRouteWithChildren,
   AuthenticatedAdminPlanosRoute: AuthenticatedAdminPlanosRoute,
   AuthenticatedAdminSuporteRoute: AuthenticatedAdminSuporteRoute,
   AuthenticatedAdminVendedoresRoute: AuthenticatedAdminVendedoresRoute,
