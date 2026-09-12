@@ -15,3 +15,5 @@
 - [x] Adicionar Fluxo de Caixa ao menu administrativo
 - [x] Validar acesso administrativo, cálculos e visual em computador e celular
 - [x] Concluir e validar as janelas pendentes de edição/comprovante na ficha do cliente
+- [x] Criar dashboard analítico por parceiro sem impacto no Fluxo de Caixa
+- [x] Registrar valor de compra e desconto separadamente nos atendimentos

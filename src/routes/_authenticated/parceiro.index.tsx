@@ -5,6 +5,8 @@ import { usePartner } from "@/lib/auth";
 import { PageHeader, StatCard } from "@/components/shells";
 import { brl, dateTimeBR } from "@/lib/format";
 import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated/parceiro/")({
   component: PartnerDashboard,
@@ -12,6 +14,7 @@ export const Route = createFileRoute("/_authenticated/parceiro/")({
 
 function PartnerDashboard() {
   const { data: partner, isLoading } = usePartner();
+  const queryClient = useQueryClient();
 
   const { data: usage } = useQuery({
     queryKey: ["partner-usage", partner?.id],
@@ -19,7 +22,7 @@ function PartnerDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("card_usage")
-        .select("id, used_at, amount_saved, benefits(title)")
+        .select("id, customer_id, used_at, purchase_amount, amount_saved, benefits(title)")
         .eq("partner_id", partner!.id)
         .order("used_at", { ascending: false })
         .limit(20);
@@ -27,6 +30,19 @@ function PartnerDashboard() {
       return data;
     },
   });
+
+  useEffect(() => {
+    if (!partner?.id) return;
+    const channel = supabase
+      .channel(`partner-summary-${partner.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "card_usage", filter: `partner_id=eq.${partner.id}` }, () => {
+        queryClient.invalidateQueries({ queryKey: ["partner-usage", partner.id] });
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [partner?.id, queryClient]);
 
   if (isLoading) return <p className="text-sm text-muted-foreground">Carregando...</p>;
 
@@ -45,6 +61,8 @@ function PartnerDashboard() {
   }
 
   const total = (usage ?? []).reduce((s, u) => s + Number(u.amount_saved ?? 0), 0);
+  const purchases = (usage ?? []).reduce((s, u) => s + Number(u.purchase_amount ?? 0), 0);
+  const customers = new Set((usage ?? []).map((u) => u.customer_id)).size;
   const statusLabel: Record<string, string> = {
     pendente: "Em análise",
     aprovado: "Aprovada",
@@ -64,10 +82,11 @@ function PartnerDashboard() {
         }
       />
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Validações (últimas)" value={usage?.length ?? 0} tone="brand" />
-        <StatCard label="Economia gerada" value={brl(total)} />
-        <StatCard label="Avaliação" value={Number(partner.rating ?? 0).toFixed(1)} hint={`${partner.reviews_count} avaliações`} />
+        <StatCard label="Clientes atendidos" value={customers} />
+        <StatCard label="Compras registradas" value={brl(purchases)} />
+        <StatCard label="Descontos concedidos" value={brl(total)} tone="ink" />
       </div>
 
       <h2 className="mb-2 mt-6 text-sm font-bold uppercase tracking-wide text-muted-foreground">
@@ -81,7 +100,8 @@ function PartnerDashboard() {
           >
             <span>{u.benefits?.title ?? "Benefício"}</span>
             <span className="text-muted-foreground">{dateTimeBR(u.used_at)}</span>
-            <span className="font-semibold">{brl(u.amount_saved)}</span>
+            <span className="font-semibold">{u.purchase_amount === null ? "Compra não informada" : brl(u.purchase_amount)}</span>
+            <span className="text-primary">-{brl(u.amount_saved)}</span>
           </div>
         ))}
         {!usage?.length ? (
