@@ -190,6 +190,7 @@ export type Database = {
           employee_id: string | null
           id: string
           partner_id: string
+          purchase_amount: number | null
           used_at: string
         }
         Insert: {
@@ -201,6 +202,7 @@ export type Database = {
           employee_id?: string | null
           id?: string
           partner_id: string
+          purchase_amount?: number | null
           used_at?: string
         }
         Update: {
@@ -212,6 +214,7 @@ export type Database = {
           employee_id?: string | null
           id?: string
           partner_id?: string
+          purchase_amount?: number | null
           used_at?: string
         }
         Relationships: [
