@@ -53,6 +53,7 @@ import { Route as AuthenticatedVendedorLeadsRouteImport } from './routes/_authen
 import { Route as AuthenticatedVendedorVendasRouteImport } from './routes/_authenticated/vendedor.vendas'
 import { Route as AuthenticatedAdminClientesIndexRouteImport } from './routes/_authenticated/admin.clientes.index'
 import { Route as AuthenticatedAdminClientesIdRouteImport } from './routes/_authenticated/admin.clientes.$id'
+import { Route as AuthenticatedAdminParceirosIndexRouteImport } from './routes/_authenticated/admin.parceiros.index'
 import { Route as AuthenticatedAdminParceirosIdRouteImport } from './routes/_authenticated/admin.parceiros.$id'
 import { Route as ApiPublicWebhooksInfinitepayRouteImport } from './routes/api/public/webhooks/infinitepay'
 
@@ -300,6 +301,12 @@ const AuthenticatedAdminClientesIdRoute =
     path: '/clientes/$id',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminParceirosIndexRoute =
+  AuthenticatedAdminParceirosIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminParceirosRoute,
+  } as any)
 const AuthenticatedAdminParceirosIdRoute =
   AuthenticatedAdminParceirosIdRouteImport.update({
     id: '/$id',
@@ -359,6 +366,7 @@ export interface FileRoutesByFullPath {
   '/admin/parceiros/$id': typeof AuthenticatedAdminParceirosIdRoute
   '/api/public/webhooks/infinitepay': typeof ApiPublicWebhooksInfinitepayRoute
   '/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
+  '/admin/parceiros/': typeof AuthenticatedAdminParceirosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -374,7 +382,6 @@ export interface FileRoutesByTo {
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/financeiro': typeof AuthenticatedAdminFinanceiroRoute
   '/admin/fluxo-de-caixa': typeof AuthenticatedAdminFluxoDeCaixaRoute
-  '/admin/parceiros': typeof AuthenticatedAdminParceirosRouteWithChildren
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
   '/admin/suporte': typeof AuthenticatedAdminSuporteRoute
   '/admin/vendedores': typeof AuthenticatedAdminVendedoresRoute
@@ -402,6 +409,7 @@ export interface FileRoutesByTo {
   '/admin/parceiros/$id': typeof AuthenticatedAdminParceirosIdRoute
   '/api/public/webhooks/infinitepay': typeof ApiPublicWebhooksInfinitepayRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesIndexRoute
+  '/admin/parceiros': typeof AuthenticatedAdminParceirosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -451,6 +459,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/parceiros/$id': typeof AuthenticatedAdminParceirosIdRoute
   '/api/public/webhooks/infinitepay': typeof ApiPublicWebhooksInfinitepayRoute
   '/_authenticated/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
+  '/_authenticated/admin/parceiros/': typeof AuthenticatedAdminParceirosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -500,6 +509,7 @@ export interface FileRouteTypes {
     | '/admin/parceiros/$id'
     | '/api/public/webhooks/infinitepay'
     | '/admin/clientes/'
+    | '/admin/parceiros/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -515,7 +525,6 @@ export interface FileRouteTypes {
     | '/admin/categorias'
     | '/admin/financeiro'
     | '/admin/fluxo-de-caixa'
-    | '/admin/parceiros'
     | '/admin/planos'
     | '/admin/suporte'
     | '/admin/vendedores'
@@ -543,6 +552,7 @@ export interface FileRouteTypes {
     | '/admin/parceiros/$id'
     | '/api/public/webhooks/infinitepay'
     | '/admin/clientes'
+    | '/admin/parceiros'
   id:
     | '__root__'
     | '/'
@@ -591,6 +601,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/parceiros/$id'
     | '/api/public/webhooks/infinitepay'
     | '/_authenticated/admin/clientes/'
+    | '/_authenticated/admin/parceiros/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -916,6 +927,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminClientesIdRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/parceiros/': {
+      id: '/_authenticated/admin/parceiros/'
+      path: '/'
+      fullPath: '/admin/parceiros/'
+      preLoaderRoute: typeof AuthenticatedAdminParceirosIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminParceirosRoute
+    }
     '/_authenticated/admin/parceiros/$id': {
       id: '/_authenticated/admin/parceiros/$id'
       path: '/$id'
@@ -935,11 +953,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminParceirosRouteChildren {
   AuthenticatedAdminParceirosIdRoute: typeof AuthenticatedAdminParceirosIdRoute
+  AuthenticatedAdminParceirosIndexRoute: typeof AuthenticatedAdminParceirosIndexRoute
 }
 
 const AuthenticatedAdminParceirosRouteChildren: AuthenticatedAdminParceirosRouteChildren =
   {
     AuthenticatedAdminParceirosIdRoute: AuthenticatedAdminParceirosIdRoute,
+    AuthenticatedAdminParceirosIndexRoute:
+      AuthenticatedAdminParceirosIndexRoute,
   }
 
 const AuthenticatedAdminParceirosRouteWithChildren =
