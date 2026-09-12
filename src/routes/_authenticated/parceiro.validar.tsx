@@ -27,6 +27,7 @@ function ValidateCard() {
   const { data: partner } = usePartner();
   const [code, setCode] = useState("");
   const [benefitId, setBenefitId] = useState("");
+  const [purchaseAmount, setPurchaseAmount] = useState("");
   const [amount, setAmount] = useState("");
   const [card, setCard] = useState<Found | null>(null);
   const [busy, setBusy] = useState(false);
@@ -65,13 +66,24 @@ function ValidateCard() {
 
   async function confirm() {
     if (!card || !partner) return;
+    const purchase = Number(purchaseAmount);
+    const discount = Number(amount);
+    if (!purchaseAmount || !Number.isFinite(purchase) || purchase <= 0) {
+      toast.error("Informe o valor total da compra");
+      return;
+    }
+    if (!Number.isFinite(discount) || discount < 0 || discount > purchase) {
+      toast.error("O desconto deve ser menor ou igual ao valor da compra");
+      return;
+    }
     setBusy(true);
     const { error } = await supabase.from("card_usage").insert({
       card_id: card.id,
       customer_id: card.customer_id,
       partner_id: partner.id,
       benefit_id: benefitId || null,
-      amount_saved: amount ? Number(amount) : 0,
+      purchase_amount: purchase,
+      amount_saved: discount,
     });
     setBusy(false);
     if (error) {
@@ -81,6 +93,7 @@ function ValidateCard() {
     toast.success("Benefício validado!");
     setCard(null);
     setCode("");
+    setPurchaseAmount("");
     setAmount("");
   }
 
@@ -136,10 +149,23 @@ function ValidateCard() {
                 </select>
               </div>
               <div>
-                <Label>Valor economizado ({brl(0).replace(/[\d.,\s]/g, "")})</Label>
+                <Label>Valor total da compra ({brl(0).replace(/[\d.,\s]/g, "")})</Label>
                 <Input
                   className="mt-1"
                   type="number"
+                  min="0.01"
+                  step="0.01"
+                  value={purchaseAmount}
+                  onChange={(e) => setPurchaseAmount(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>Desconto aplicado ({brl(0).replace(/[\d.,\s]/g, "")})</Label>
+                <Input
+                  className="mt-1"
+                  type="number"
+                  min="0"
+                  max={purchaseAmount || undefined}
                   step="0.01"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
