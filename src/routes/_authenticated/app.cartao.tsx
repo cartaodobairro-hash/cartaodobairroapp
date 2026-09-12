@@ -7,10 +7,26 @@ import { useCustomer, useProfile } from "@/lib/auth";
 import { useRealtimeCard } from "@/lib/realtime";
 import { dateBR, maskCpf, firstOf, brl } from "@/lib/format";
 import { PageHeader } from "@/components/shells";
-import { BrandLogo } from "@/components/brand";
 import { Button } from "@/components/ui/button";
+import cardArtwork from "@/assets/cartao-do-bairro-cliente.jpeg.asset.json";
 
 export const Route = createFileRoute("/_authenticated/app/cartao")({
+  head: () => ({
+    meta: [
+      { title: "Meu cartão digital — Cartão do Bairro" },
+      {
+        name: "description",
+        content: "Consulte seu cartão digital, QR Code, plano, situação e validade.",
+      },
+      { property: "og:title", content: "Meu cartão digital — Cartão do Bairro" },
+      {
+        property: "og:description",
+        content: "Cartão digital com QR Code para validar benefícios nos parceiros.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: DigitalCard,
 });
 
@@ -83,38 +99,43 @@ function DigitalCard() {
           </Button>
         </div>
       ) : (
-        <div className="surface-ink rounded-3xl p-6 shadow-card">
-          <div className="flex items-start justify-between">
-            <div>
-              <BrandLogo onDark />
-              <p className="mt-3 text-[11px] font-semibold uppercase tracking-widest opacity-70">
-                Associado
-              </p>
-              <p className="text-lg font-extrabold leading-tight">{profile?.name ?? "—"}</p>
-              <p className="text-xs opacity-70">{profile?.cpf ? maskCpf(profile.cpf) : ""}</p>
-            </div>
-            <span className={`rounded-full px-3 py-1 text-[11px] font-bold ${status.tone}`}>
+        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-ink shadow-card">
+          <img
+            src={cardArtwork.url}
+            alt="Cartão do Bairro — desconto de verdade, perto de você"
+            className="absolute inset-0 size-full object-cover"
+          />
+
+          <div className="absolute right-3 top-3 sm:right-5 sm:top-5">
+            <span className={`rounded-full px-3 py-1 text-[11px] font-bold shadow-card ${status.tone}`}>
               {status.label}
             </span>
           </div>
 
-          <div className="mt-6 flex items-end justify-between gap-4">
-            <div>
-              <p className="font-mono text-xl font-bold tracking-widest">{card.card_number}</p>
-              <p className="mt-1 text-xs font-bold uppercase tracking-wide text-primary">
+          <div className="absolute inset-x-3 bottom-3 flex items-end justify-between gap-3 rounded-2xl bg-background/90 p-3 shadow-card backdrop-blur-sm sm:inset-x-5 sm:bottom-5 sm:p-4">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase text-muted-foreground">Associado</p>
+              <p className="truncate text-sm font-extrabold leading-tight sm:text-base">
+                {profile?.name ?? "—"}
+              </p>
+              <p className="text-[10px] text-muted-foreground sm:text-xs">
+                {profile?.cpf ? maskCpf(profile.cpf) : ""}
+              </p>
+              <p className="mt-1 font-mono text-xs font-bold sm:text-sm">{card.card_number}</p>
+              <p className="text-[10px] font-bold uppercase text-primary sm:text-xs">
                 Plano: {planName}
               </p>
-              <p className="text-xs opacity-70">Validade {dateBR(card.expires_at)}</p>
-              <p className="text-[11px] opacity-60">Emitido em {dateBR(card.issued_at)}</p>
+              <p className="text-[10px] text-muted-foreground sm:text-xs">
+                Validade {dateBR(card.expires_at)} • emissão {dateBR(card.issued_at)}
+              </p>
             </div>
-            <div className={`rounded-xl bg-white p-2 ${isActive ? "" : "opacity-40 grayscale"}`}>
-              <QRCodeSVG value={card.qr_token} size={92} />
+            <div
+              className={`shrink-0 rounded-xl bg-card p-2 ${isActive ? "" : "opacity-40 grayscale"}`}
+              aria-label="QR Code do cartão"
+            >
+              <QRCodeSVG value={card.qr_token} className="size-[68px] sm:size-[88px]" />
             </div>
           </div>
-
-          <p className="mt-4 text-[11px] uppercase tracking-widest text-primary">
-            Desconto de verdade. Perto de você.
-          </p>
         </div>
       )}
 
