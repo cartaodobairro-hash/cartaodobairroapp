@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 import { CreditCard, MapPin, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCustomer, useProfile } from "@/lib/auth";
@@ -14,6 +15,8 @@ export const Route = createFileRoute("/_authenticated/app/")({
 });
 
 function ClientHome() {
+  const bannerCarouselRef = useRef<HTMLDivElement>(null);
+  const bannerIndexRef = useRef(0);
   const { data: profile } = useProfile();
   const { data: customer } = useCustomer();
 
@@ -36,6 +39,34 @@ function ClientHome() {
     "banners",
     (banners ?? []).map((b) => b.image_url),
   );
+
+  useEffect(() => {
+    if (!banners?.length || banners.length < 2) {
+      return;
+    }
+
+    const carousel = bannerCarouselRef.current;
+    if (!carousel) {
+      return;
+    }
+
+    bannerIndexRef.current = 0;
+    carousel.scrollTo({ left: 0 });
+
+    const interval = window.setInterval(() => {
+      const nextIndex = (bannerIndexRef.current + 1) % carousel.children.length;
+      const nextBanner = carousel.children[nextIndex] as HTMLElement | undefined;
+
+      if (!nextBanner) {
+        return;
+      }
+
+      bannerIndexRef.current = nextIndex;
+      carousel.scrollTo({ left: nextBanner.offsetLeft, behavior: "smooth" });
+    }, 5000);
+
+    return () => window.clearInterval(interval);
+  }, [banners?.length]);
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
@@ -95,7 +126,11 @@ function ClientHome() {
       </Link>
 
       {banners?.length ? (
-        <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4">
+        <div
+          ref={bannerCarouselRef}
+          aria-label="Banners em destaque"
+          className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4"
+        >
           {banners.map((b) => {
             const url = b.image_url ? bannerMedia?.[b.image_url] : undefined;
             const content = (
@@ -131,7 +166,7 @@ function ClientHome() {
               </div>
             );
             return (
-              <div key={b.id} className="min-w-[80%] max-w-[420px]">
+              <div key={b.id} className="min-w-[80%] max-w-[420px] snap-start">
                 {b.link ? (
                   <a href={b.link} target="_blank" rel="noreferrer" className="block">
                     {content}
