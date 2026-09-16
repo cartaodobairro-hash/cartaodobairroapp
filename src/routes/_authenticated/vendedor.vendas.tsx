@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_authenticated/vendedor/vendas")({
 });
 
 function SellerSales() {
-  const { data: seller } = useSeller();
+  const { data: seller, isLoading: sellerLoading } = useSeller();
 
   const { data: sales } = useQuery({
     queryKey: ["seller-sales", seller?.id],
@@ -48,6 +48,9 @@ function SellerSales() {
   const toReceive = (commissions ?? [])
     .filter((c) => c.status !== "paga" && c.status !== "cancelada")
     .reduce((s, c) => s + Number(c.amount), 0);
+
+  if (sellerLoading) return <p className="text-sm text-muted-foreground">Carregando suas vendas...</p>;
+  if (!seller) return <p className="text-sm text-muted-foreground">Cadastro de vendedor não encontrado.</p>;
 
   return (
     <div>

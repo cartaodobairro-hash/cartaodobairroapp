@@ -39,9 +39,10 @@ function SellerLeads() {
 
   const create = useMutation({
     mutationFn: async () => {
+      if (!form.name.trim()) throw new Error("Informe o nome do cliente.");
       const { error } = await supabase.from("seller_leads").insert({
         seller_id: seller!.id,
-        name: form.name,
+        name: form.name.trim(),
         phone: form.phone || null,
         whatsapp: form.phone || null,
         neighborhood: form.neighborhood || null,
@@ -62,7 +63,8 @@ function SellerLeads() {
       const { error } = await supabase
         .from("seller_leads")
         .update({ status, last_contact_at: new Date().toISOString() })
-        .eq("id", id);
+        .eq("id", id)
+        .eq("seller_id", seller!.id);
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["seller-leads"] }),

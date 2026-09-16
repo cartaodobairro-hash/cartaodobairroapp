@@ -99,6 +99,12 @@ export const createSellerAccount = createServerFn({ method: "POST" })
     if (input.password && input.password.length < 6) {
       throw new Error("A senha deve ter pelo menos 6 caracteres.");
     }
+    if (input.commissionValue !== undefined && (!Number.isFinite(input.commissionValue) || input.commissionValue < 0 || input.commissionValue > 100)) {
+      throw new Error("A comissão deve estar entre 0 e 100%.");
+    }
+    if (input.goal !== undefined && (!Number.isFinite(input.goal) || input.goal < 0)) {
+      throw new Error("A meta mensal não pode ser negativa.");
+    }
     return input;
   })
   .handler(async ({ data, context }) => {
