@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -66,4 +67,90 @@ export const signInWithIdentifier = createServerFn({ method: "POST" })
       access_token: session.session.access_token,
       refresh_token: session.session.refresh_token,
     };
+  });
+
+type CreateSellerInput = {
+  name: string;
+  email: string;
+  password?: string;
+  sellerCode?: string;
+  cpf?: string;
+  phone?: string;
+  whatsapp?: string;
+  city?: string;
+  neighborhood?: string;
+  commissionType?: string;
+  commissionValue?: number;
+  goal?: number;
+};
+
+function cleanOptional(value?: string) {
+  const trimmed = value?.trim();
+  return trimmed || null;
+}
+
+/** Cria uma conta de vendedor sem interromper a sessão do administrador. */
+export const createSellerAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: CreateSellerInput) => {
+    if (!input?.name?.trim() || !input.email?.trim()) {
+      throw new Error("Informe o nome e o e-mail do vendedor.");
+    }
+    if (input.password && input.password.length < 6) {
+      throw new Error("A senha deve ter pelo menos 6 caracteres.");
+    }
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: role, error: roleError } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .in("role", ["super_admin", "admin", "financeiro"])
+      .limit(1)
+      .maybeSingle();
+    if (roleError || !role) throw new Error("Você não tem permissão para cadastrar vendedores.");
+
+    const email = data.email.trim().toLowerCase();
+    const password = data.password?.trim() || `Vnd${crypto.randomUUID().replace(/-/g, "").slice(0, 8)}!`;
+    const sellerCode = cleanOptional(data.sellerCode) || `VND-${crypto.randomUUID().replace(/-/g, "").slice(0, 6).toUpperCase()}`;
+
+    const { data: created, error: createError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        name: data.name.trim(),
+        phone: cleanOptional(data.phone),
+        cpf: cleanOptional(data.cpf),
+        role: "seller",
+      },
+    });
+    if (createError || !created.user) {
+      throw new Error(createError?.message || "Não foi possível criar a conta do vendedor.");
+    }
+
+    const { error: sellerError } = await supabaseAdmin.from("sellers").insert({
+      user_id: created.user.id,
+      seller_code: sellerCode,
+      name: data.name.trim(),
+      cpf: cleanOptional(data.cpf),
+      phone: cleanOptional(data.phone),
+      whatsapp: cleanOptional(data.whatsapp),
+      email,
+      city: cleanOptional(data.city),
+      neighborhood: cleanOptional(data.neighborhood),
+      commission_type: data.commissionType || "percentual",
+      commission_value: Number.isFinite(data.commissionValue) ? data.commissionValue : 10,
+      goal: Number.isFinite(data.goal) ? data.goal : 50,
+      status: "ativo",
+    });
+
+    if (sellerError) {
+      await supabaseAdmin.auth.admin.deleteUser(created.user.id);
+      throw new Error(sellerError.message || "Não foi possível salvar o cadastro do vendedor.");
+    }
+
+    return { email, password, sellerCode };
   });
