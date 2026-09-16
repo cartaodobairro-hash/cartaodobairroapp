@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/shells";
 import { brl } from "@/lib/format";
 import { createSellerAccount, deleteSellerAccount } from "@/lib/account.functions";
+import { isAdminRole, useRoles } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,8 @@ export const Route = createFileRoute("/_authenticated/admin/vendedores")({
 
 function AdminSellers() {
   const queryClient = useQueryClient();
+  const { data: roles, isLoading: isLoadingRoles } = useRoles();
+  const canManageSellers = isAdminRole(roles);
   const [open, setOpen] = useState(false);
   const [credentials, setCredentials] = useState<{ email: string; password: string; sellerCode: string } | null>(null);
   const [sellerToDelete, setSellerToDelete] = useState<{ id: string; name: string } | null>(null);
@@ -106,15 +109,17 @@ function AdminSellers() {
                   <span className="block text-[11px] uppercase text-muted-foreground">Comissão</span>
                   {brl(commission)}
                 </span>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="icon"
-                  aria-label={`Excluir vendedor ${s.name}`}
-                  onClick={() => setSellerToDelete({ id: s.id, name: s.name })}
-                >
-                  <Trash2 className="size-4" />
-                </Button>
+                {canManageSellers && !isLoadingRoles ? (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    aria-label={`Excluir vendedor ${s.name}`}
+                    onClick={() => setSellerToDelete({ id: s.id, name: s.name })}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                ) : null}
               </div>
             </div>
           );

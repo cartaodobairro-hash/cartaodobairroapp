@@ -208,11 +208,11 @@ export const deleteSellerAccount = createServerFn({ method: "POST" })
     if (sellerError) throw new Error(sellerError.message);
     if (!seller) throw new Error("Vendedor não encontrado.");
 
-    const { error: deleteSellerError } = await supabaseAdmin.from("sellers").delete().eq("id", data.sellerId);
-    if (deleteSellerError) throw new Error(deleteSellerError.message || "Não foi possível excluir o vendedor.");
-
     if (seller.user_id) {
       const { error: deleteUserError } = await supabaseAdmin.auth.admin.deleteUser(seller.user_id);
-      if (deleteUserError) throw new Error(deleteUserError.message || "Vendedor excluído, mas não foi possível remover o login.");
+      if (deleteUserError) throw new Error(deleteUserError.message || "Não foi possível remover o login do vendedor.");
     }
+
+    const { error: deleteSellerError } = await supabaseAdmin.from("sellers").delete().eq("id", data.sellerId);
+    if (deleteSellerError) throw new Error(deleteSellerError.message || "Login excluído, mas não foi possível remover o cadastro do vendedor.");
   });
