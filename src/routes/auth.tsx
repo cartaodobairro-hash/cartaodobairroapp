@@ -48,7 +48,7 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!loading && user) navigate({ to: "/app", replace: true });
+    if (!loading && user) void goToAccountHome(user.id);
   }, [user, loading, navigate]);
 
   const [login, setLogin] = useState({ identifier: "", password: "" });

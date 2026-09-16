@@ -163,6 +163,17 @@ export const createSellerAccount = createServerFn({ method: "POST" })
       throw new Error(roleError.message || "Não foi possível liberar o acesso do vendedor.");
     }
 
+    const { error: defaultRoleError } = await supabaseAdmin
+      .from("user_roles")
+      .delete()
+      .eq("user_id", created.user.id)
+      .eq("role", "customer");
+    if (defaultRoleError) {
+      await supabaseAdmin.from("sellers").delete().eq("user_id", created.user.id);
+      await supabaseAdmin.auth.admin.deleteUser(created.user.id);
+      throw new Error(defaultRoleError.message || "Não foi possível configurar o acesso do vendedor.");
+    }
+
     return { email, password, sellerCode };
   });
 
