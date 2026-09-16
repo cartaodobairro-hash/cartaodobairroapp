@@ -1,16 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { KeyRound, Plus, UserRoundPlus } from "lucide-react";
+import { KeyRound, Plus, Trash2, UserRoundPlus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/shells";
 import { brl } from "@/lib/format";
-import { createSellerAccount } from "@/lib/account.functions";
+import { createSellerAccount, deleteSellerAccount } from "@/lib/account.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_authenticated/admin/vendedores")({
   component: AdminSellers,
@@ -20,6 +21,7 @@ function AdminSellers() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [credentials, setCredentials] = useState<{ email: string; password: string; sellerCode: string } | null>(null);
+  const [sellerToDelete, setSellerToDelete] = useState<{ id: string; name: string } | null>(null);
   const [form, setForm] = useState({ name: "", email: "", password: "", sellerCode: "", cpf: "", phone: "", whatsapp: "", city: "", neighborhood: "", commissionValue: "10", goal: "50" });
   const { data: sellers } = useQuery({
     queryKey: ["admin-sellers"],
@@ -48,6 +50,16 @@ function AdminSellers() {
       toast.success("Vendedor cadastrado e login criado");
     },
     onError: (error: Error) => toast.error("Não foi possível cadastrar", { description: error.message }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (sellerId: string) => deleteSellerAccount({ data: { sellerId } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-sellers"] });
+      setSellerToDelete(null);
+      toast.success("Vendedor excluído");
+    },
+    onError: (error: Error) => toast.error("Não foi possível excluir", { description: error.message }),
   });
 
   const update = (field: keyof typeof form, value: string) => setForm((current) => ({ ...current, [field]: value }));
@@ -81,7 +93,7 @@ function AdminSellers() {
                   Código {s.seller_code} • {[s.neighborhood, s.city].filter(Boolean).join(" - ")}
                 </p>
               </div>
-              <div className="flex gap-6 text-sm">
+              <div className="flex items-center gap-6 text-sm">
                 <span>
                   <span className="block text-[11px] uppercase text-muted-foreground">Vendas</span>
                   {sales.length}
@@ -94,6 +106,15 @@ function AdminSellers() {
                   <span className="block text-[11px] uppercase text-muted-foreground">Comissão</span>
                   {brl(commission)}
                 </span>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  aria-label={`Excluir vendedor ${s.name}`}
+                  onClick={() => setSellerToDelete({ id: s.id, name: s.name })}
+                >
+                  <Trash2 className="size-4" />
+                </Button>
               </div>
             </div>
           );
@@ -128,6 +149,29 @@ function AdminSellers() {
           <DialogFooter><Button onClick={() => setCredentials(null)}><KeyRound className="mr-2 size-4" />Concluir</Button></DialogFooter>
         </DialogContent>
       </Dialog>
+      <AlertDialog open={Boolean(sellerToDelete)} onOpenChange={(value) => !value && setSellerToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir vendedor?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {sellerToDelete ? `O cadastro de ${sellerToDelete.name}, seus dados de vendas e o login vinculado serão excluídos. Essa ação não pode ser desfeita.` : null}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleteMutation.isPending}
+              onClick={(event) => {
+                event.preventDefault();
+                if (sellerToDelete) deleteMutation.mutate(sellerToDelete.id);
+              }}
+            >
+              {deleteMutation.isPending ? "Excluindo..." : "Excluir vendedor"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -165,3 +165,37 @@ export const createSellerAccount = createServerFn({ method: "POST" })
 
     return { email, password, sellerCode };
   });
+
+export const deleteSellerAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { sellerId: string }) => {
+    if (!input?.sellerId?.trim()) throw new Error("Vendedor inválido.");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: role, error: roleError } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .in("role", ["super_admin", "admin", "financeiro"])
+      .limit(1)
+      .maybeSingle();
+    if (roleError || !role) throw new Error("Você não tem permissão para excluir vendedores.");
+
+    const { data: seller, error: sellerError } = await supabaseAdmin
+      .from("sellers")
+      .select("user_id")
+      .eq("id", data.sellerId)
+      .maybeSingle();
+    if (sellerError) throw new Error(sellerError.message);
+    if (!seller) throw new Error("Vendedor não encontrado.");
+
+    const { error: deleteSellerError } = await supabaseAdmin.from("sellers").delete().eq("id", data.sellerId);
+    if (deleteSellerError) throw new Error(deleteSellerError.message || "Não foi possível excluir o vendedor.");
+
+    if (seller.user_id) {
+      const { error: deleteUserError } = await supabaseAdmin.auth.admin.deleteUser(seller.user_id);
+      if (deleteUserError) throw new Error(deleteUserError.message || "Vendedor excluído, mas não foi possível remover o login.");
+    }
+  });
