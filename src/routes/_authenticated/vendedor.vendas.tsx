@@ -18,7 +18,7 @@ function SellerSales() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("seller_sales")
-        .select("id, amount, commission_amount, status, created_at, plans(name)")
+        .select("id, amount, commission_amount, status, created_at")
         .eq("seller_id", seller!.id)
         .order("created_at", { ascending: false })
         .limit(100);
@@ -65,7 +65,6 @@ function SellerSales() {
           <thead className="border-b border-border text-left text-xs uppercase text-muted-foreground">
             <tr>
               <th className="p-3">Data</th>
-              <th className="p-3">Plano</th>
               <th className="p-3">Valor</th>
               <th className="p-3">Comissão</th>
               <th className="p-3">Status</th>
@@ -75,7 +74,6 @@ function SellerSales() {
             {rows.map((s) => (
               <tr key={s.id} className="border-b border-border/60 last:border-0">
                 <td className="p-3 text-muted-foreground">{dateBR(s.created_at)}</td>
-                <td className="p-3">{s.plans?.name ?? "—"}</td>
                 <td className="p-3 font-semibold">{brl(s.amount)}</td>
                 <td className="p-3">{brl(s.commission_amount)}</td>
                 <td className="p-3 text-xs uppercase">{s.status}</td>

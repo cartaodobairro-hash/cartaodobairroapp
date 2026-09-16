@@ -50,7 +50,7 @@ function SellerLeads() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Lead adicionado");
+      toast.success("Cliente cadastrado");
       setForm({ name: "", phone: "", neighborhood: "" });
       queryClient.invalidateQueries({ queryKey: ["seller-leads"] });
     },
@@ -73,7 +73,7 @@ function SellerLeads() {
 
   return (
     <div>
-      <PageHeader title="Leads" description="Acompanhe seus contatos e conversões" />
+      <PageHeader title="Cadastro de clientes" description="Cadastre novos clientes e acompanhe o atendimento" />
 
       <form
         className="grid gap-3 rounded-2xl border border-border bg-card p-4 shadow-card md:grid-cols-4"
@@ -108,7 +108,7 @@ function SellerLeads() {
           />
         </div>
         <div className="md:col-span-4">
-          <Button disabled={create.isPending}>Adicionar lead</Button>
+          <Button disabled={create.isPending}>Cadastrar cliente</Button>
         </div>
       </form>
 
@@ -137,7 +137,7 @@ function SellerLeads() {
             </select>
           </div>
         ))}
-        {!leads?.length ? <p className="text-sm text-muted-foreground">Nenhum lead ainda.</p> : null}
+        {!leads?.length ? <p className="text-sm text-muted-foreground">Nenhum cliente ainda.</p> : null}
       </div>
     </div>
   );

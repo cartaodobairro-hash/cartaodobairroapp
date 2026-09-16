@@ -91,7 +91,7 @@ function SellerHome() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Vendas no mês" value={monthSales.length} hint={`${sales.length} no total`} tone="brand" />
         <StatCard label="Faturamento no mês" value={brl(monthTotal)} hint={`${brl(total)} no total`} />
-        <StatCard label="Leads no mês" value={monthLeads.length} hint={`${conversion}% de conversão`} />
+        <StatCard label="Clientes no mês" value={monthLeads.length} hint={`${conversion}% de conversão`} />
         <StatCard label="Comissão a receber" value={brl(pending)} hint={`${brl(paid)} já pagos`} tone="ink" />
       </div>
 
@@ -109,7 +109,7 @@ function SellerHome() {
         </section>
 
         <section className="rounded-2xl border border-border bg-card p-4 shadow-card">
-          <div className="flex items-center justify-between"><div className="flex items-center gap-2"><TrendingUp className="size-4 text-primary" /><h2 className="font-bold">Funil de leads</h2></div><span className="text-xs text-muted-foreground">{leads.length} total</span></div>
+          <div className="flex items-center justify-between"><div className="flex items-center gap-2"><TrendingUp className="size-4 text-primary" /><h2 className="font-bold">Funil de clientes</h2></div><span className="text-xs text-muted-foreground">{leads.length} total</span></div>
           <div className="mt-4 space-y-2.5">
             {funnel.map((item) => {
               const count = counts.get(item.status) ?? 0;
@@ -122,10 +122,10 @@ function SellerHome() {
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         <section className="rounded-2xl border border-border bg-card p-4 shadow-card">
-          <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Users className="size-4 text-primary" /><h2 className="font-bold">Leads recentes</h2></div><Link to="/vendedor/leads" className="flex items-center gap-1 text-xs font-semibold text-primary">Ver todos <ArrowRight className="size-3" /></Link></div>
+          <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Users className="size-4 text-primary" /><h2 className="font-bold">Clientes recentes</h2></div><Link to="/vendedor/leads" className="flex items-center gap-1 text-xs font-semibold text-primary">Ver todos <ArrowRight className="size-3" /></Link></div>
           <div className="mt-3 divide-y divide-border">
             {leads.slice(0, 4).map((lead) => <div key={lead.id} className="flex items-center justify-between gap-3 py-3"><div className="min-w-0"><p className="truncate text-sm font-semibold">{lead.name}</p><p className="text-xs text-muted-foreground">{lead.phone || "Sem telefone"} • {dateBR(lead.created_at)}</p></div><span className="rounded-full bg-muted px-2 py-1 text-[10px] font-semibold uppercase">{lead.status}</span></div>)}
-            {!leads.length && <p className="py-6 text-sm text-muted-foreground">Nenhum lead cadastrado.</p>}
+            {!leads.length && <p className="py-6 text-sm text-muted-foreground">Nenhum cliente cadastrado.</p>}
           </div>
         </section>
 
@@ -139,7 +139,7 @@ function SellerHome() {
       </div>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
-        <Link to="/vendedor/leads" className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 text-sm font-semibold shadow-card transition-colors hover:border-primary"><Users className="size-5 text-primary" />Adicionar lead</Link>
+        <Link to="/vendedor/leads" className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 text-sm font-semibold shadow-card transition-colors hover:border-primary"><Users className="size-5 text-primary" />Cadastrar cliente</Link>
         <Link to="/vendedor/leads" className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 text-sm font-semibold shadow-card transition-colors hover:border-primary"><Phone className="size-5 text-primary" />Atualizar contatos</Link>
         <Link to="/vendedor/vendas" className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 text-sm font-semibold shadow-card transition-colors hover:border-primary"><CheckCircle2 className="size-5 text-primary" />Conferir comissões</Link>
       </div>
