@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth, useCustomer, useProfile, useRoles, isAdminRole } from "@/lib/auth";
+import { useAuth, useCustomer, useProfile, useRoles, useSeller, isAdminRole } from "@/lib/auth";
 import { PageHeader, useSignOut } from "@/components/shells";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,7 @@ function Account() {
   const { data: profile } = useProfile();
   const { data: customer } = useCustomer();
   const { data: roles } = useRoles();
+  const { data: seller } = useSeller();
   const signOut = useSignOut();
   const queryClient = useQueryClient();
   const [saving, setSaving] = useState(false);
@@ -143,7 +144,7 @@ function Account() {
             <Link to="/parceiro">Painel do parceiro</Link>
           </Button>
         ) : null}
-        {roles?.includes("seller") ? (
+        {roles?.includes("seller") || seller ? (
           <Button asChild variant="outline">
             <Link to="/vendedor">Painel do vendedor</Link>
           </Button>

@@ -75,7 +75,12 @@ function AuthPage() {
     } else if (roles.includes("seller")) {
       navigate({ to: "/vendedor" });
     } else {
-      navigate({ to: "/app" });
+      const { data: seller } = await supabase
+        .from("sellers")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+      navigate({ to: seller ? "/vendedor" : "/app" });
     }
   }
 

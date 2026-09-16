@@ -152,5 +152,16 @@ export const createSellerAccount = createServerFn({ method: "POST" })
       throw new Error(sellerError.message || "Não foi possível salvar o cadastro do vendedor.");
     }
 
+    const { error: roleError } = await supabaseAdmin.from("user_roles").insert({
+      user_id: created.user.id,
+      role: "seller",
+    });
+
+    if (roleError) {
+      await supabaseAdmin.from("sellers").delete().eq("user_id", created.user.id);
+      await supabaseAdmin.auth.admin.deleteUser(created.user.id);
+      throw new Error(roleError.message || "Não foi possível liberar o acesso do vendedor.");
+    }
+
     return { email, password, sellerCode };
   });
