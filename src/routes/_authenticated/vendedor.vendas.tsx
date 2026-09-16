@@ -85,6 +85,31 @@ function SellerSales() {
         </table>
         {!rows.length ? <p className="p-4 text-sm text-muted-foreground">Nenhuma venda registrada.</p> : null}
       </div>
+
+      <h2 className="mt-6 mb-2 text-sm font-bold">Histórico de pagamentos de comissão</h2>
+      <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-card">
+        <table className="w-full text-sm">
+          <thead className="border-b border-border text-left text-xs uppercase text-muted-foreground">
+            <tr>
+              <th className="p-3">Valor</th>
+              <th className="p-3">Vencimento</th>
+              <th className="p-3">Pago em</th>
+              <th className="p-3">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(commissions ?? []).map((commission) => (
+              <tr key={commission.id} className="border-b border-border/60 last:border-0">
+                <td className="p-3 font-semibold">{brl(commission.amount)}</td>
+                <td className="p-3 text-muted-foreground">{dateBR(commission.due_date)}</td>
+                <td className="p-3 text-muted-foreground">{commission.paid_at ? dateBR(commission.paid_at) : "—"}</td>
+                <td className="p-3 text-xs uppercase">{commission.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {!commissions?.length ? <p className="p-4 text-sm text-muted-foreground">Nenhum pagamento de comissão registrado.</p> : null}
+      </div>
     </div>
   );
 }
