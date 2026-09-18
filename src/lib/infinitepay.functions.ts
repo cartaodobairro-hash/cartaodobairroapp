@@ -88,8 +88,13 @@ export const createInfinitePayCheckout = createServerFn({ method: "POST" })
           : undefined,
       }),
     });
-    const result = (await response.json()) as { checkout_url?: string; link?: string; message?: string };
-    const checkoutUrl = result.checkout_url ?? result.link;
+    const result = (await response.json()) as {
+      url?: string;
+      checkout_url?: string;
+      link?: string;
+      message?: string;
+    };
+    const checkoutUrl = result.url ?? result.checkout_url ?? result.link;
     if (!response.ok || !checkoutUrl) {
       throw new Error(result.message ?? "Não foi possível abrir o pagamento.");
     }
