@@ -82,7 +82,10 @@ function AppPlans() {
       const sellerCode = localStorage.getItem("cdb_seller_code") ?? undefined;
       const proposalToken = localStorage.getItem("cdb_proposal_token") ?? undefined;
       if (sellerCode || proposalToken) {
-        await claimReferral({ data: { sellerCode, proposalToken } });
+        await claimReferral({ data: {
+          ...(sellerCode ? { sellerCode } : {}),
+          ...(proposalToken ? { proposalToken } : {}),
+        } });
         localStorage.removeItem("cdb_seller_code");
         localStorage.removeItem("cdb_proposal_token");
       }
