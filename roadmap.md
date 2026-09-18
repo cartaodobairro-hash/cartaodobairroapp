@@ -17,3 +17,4 @@
 - [x] Concluir e validar as janelas pendentes de edição/comprovante na ficha do cliente
 - [x] Criar dashboard analítico por parceiro sem impacto no Fluxo de Caixa
 - [x] Registrar valor de compra e desconto separadamente nos atendimentos
+- [x] Adicionar exclusão administrativa de assinatura com todas as mensalidades vinculadas
