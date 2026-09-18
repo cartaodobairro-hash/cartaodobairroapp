@@ -84,6 +84,28 @@ type CreateSellerInput = {
   goal?: number;
 };
 
+type UpdateSellerInput = {
+  sellerId: string;
+  name: string;
+  email?: string;
+  sellerCode: string;
+  cpf?: string;
+  phone?: string;
+  whatsapp?: string;
+  city?: string;
+  neighborhood?: string;
+  commissionType: "percentual" | "fixo";
+  commissionValue: number;
+  goal: number;
+  status: "ativo" | "inativo" | "bloqueado";
+  bankName?: string;
+  bankHolder?: string;
+  bankDocument?: string;
+  bankBranch?: string;
+  bankAccount?: string;
+  bankPixKey?: string;
+};
+
 function cleanOptional(value?: string) {
   const trimmed = value?.trim();
   return trimmed || null;
@@ -181,6 +203,86 @@ export const createSellerAccount = createServerFn({ method: "POST" })
     }
 
     return { email, password, sellerCode };
+  });
+
+/** Atualiza o cadastro e as regras comerciais de um vendedor com autorização administrativa. */
+export const updateSellerAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: UpdateSellerInput) => {
+    if (!input?.sellerId?.trim() || !input.name?.trim() || !input.sellerCode?.trim()) {
+      throw new Error("Informe o nome e o código do vendedor.");
+    }
+    if (!Number.isFinite(input.commissionValue) || input.commissionValue < 0 || (input.commissionType === "percentual" && input.commissionValue > 100)) {
+      throw new Error("Informe uma comissão válida.");
+    }
+    if (!Number.isFinite(input.goal) || input.goal < 0) {
+      throw new Error("A meta mensal não pode ser negativa.");
+    }
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    const { data: role, error: roleError } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .in("role", ["super_admin", "admin", "financeiro"])
+      .limit(1)
+      .maybeSingle();
+    if (roleError || !role) throw new Error("Você não tem permissão para editar vendedores.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: seller, error: sellerLookupError } = await supabaseAdmin
+      .from("sellers")
+      .select("user_id")
+      .eq("id", data.sellerId)
+      .maybeSingle();
+    if (sellerLookupError) throw new Error(sellerLookupError.message);
+    if (!seller) throw new Error("Vendedor não encontrado.");
+
+    const email = cleanOptional(data.email)?.toLowerCase() ?? null;
+    const { error: updateError } = await supabaseAdmin
+      .from("sellers")
+      .update({
+        name: data.name.trim(),
+        email,
+        seller_code: data.sellerCode.trim().toUpperCase(),
+        cpf: cleanOptional(data.cpf),
+        phone: cleanOptional(data.phone),
+        whatsapp: cleanOptional(data.whatsapp),
+        city: cleanOptional(data.city),
+        neighborhood: cleanOptional(data.neighborhood),
+        commission_type: data.commissionType,
+        commission_value: data.commissionValue,
+        goal: data.goal,
+        status: data.status,
+        bank_name: cleanOptional(data.bankName),
+        bank_holder: cleanOptional(data.bankHolder),
+        bank_document: cleanOptional(data.bankDocument),
+        bank_branch: cleanOptional(data.bankBranch),
+        bank_account: cleanOptional(data.bankAccount),
+        bank_pix_key: cleanOptional(data.bankPixKey),
+      })
+      .eq("id", data.sellerId);
+    if (updateError) {
+      if (updateError.code === "23505") throw new Error("Este código de vendedor já está em uso.");
+      throw new Error(updateError.message || "Não foi possível atualizar o vendedor.");
+    }
+
+    if (seller.user_id) {
+      const { error: profileError } = await supabaseAdmin
+        .from("profiles")
+        .update({ name: data.name.trim(), email, phone: cleanOptional(data.phone), cpf: cleanOptional(data.cpf) })
+        .eq("id", seller.user_id);
+      if (profileError) throw new Error("O vendedor foi atualizado, mas não foi possível sincronizar o perfil de acesso.");
+
+      const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(seller.user_id, {
+        ...(email ? { email } : {}),
+        user_metadata: { name: data.name.trim(), phone: cleanOptional(data.phone), cpf: cleanOptional(data.cpf), role: "seller" },
+      });
+      if (authError) throw new Error("O cadastro foi atualizado, mas não foi possível sincronizar o login.");
+    }
+
+    return { ok: true };
   });
 
 export const deleteSellerAccount = createServerFn({ method: "POST" })

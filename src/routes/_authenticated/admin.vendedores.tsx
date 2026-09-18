@@ -1,18 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { KeyRound, Plus, Trash2, UserRoundPlus } from "lucide-react";
+import { KeyRound, Pencil, Plus, Trash2, UserRoundPlus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/shells";
 import { brl } from "@/lib/format";
-import { createSellerAccount, deleteSellerAccount } from "@/lib/account.functions";
+import { createSellerAccount, deleteSellerAccount, updateSellerAccount } from "@/lib/account.functions";
 import { isAdminRole, useRoles } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import type { Tables } from "@/integrations/supabase/types";
 
 export const Route = createFileRoute("/_authenticated/admin/vendedores")({
   head: () => ({ meta: [
@@ -32,7 +34,9 @@ function AdminSellers() {
   const [open, setOpen] = useState(false);
   const [credentials, setCredentials] = useState<{ email: string; password: string; sellerCode: string } | null>(null);
   const [sellerToDelete, setSellerToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [sellerToEdit, setSellerToEdit] = useState<Tables<"sellers"> | null>(null);
   const [form, setForm] = useState({ name: "", email: "", password: "", sellerCode: "", cpf: "", phone: "", whatsapp: "", city: "", neighborhood: "", commissionValue: "10", goal: "50" });
+  const [editForm, setEditForm] = useState({ name: "", email: "", sellerCode: "", cpf: "", phone: "", whatsapp: "", city: "", neighborhood: "", commissionType: "percentual" as "percentual" | "fixo", commissionValue: "10", goal: "50", status: "ativo" as "ativo" | "inativo" | "bloqueado", bankName: "", bankHolder: "", bankDocument: "", bankBranch: "", bankAccount: "", bankPixKey: "" });
   const { data: sellers } = useQuery({
     queryKey: ["admin-sellers"],
     queryFn: async () => {
@@ -72,10 +76,51 @@ function AdminSellers() {
     onError: (error: Error) => toast.error("Não foi possível excluir", { description: error.message }),
   });
 
+  const editMutation = useMutation({
+    mutationFn: () => updateSellerAccount({ data: {
+      sellerId: sellerToEdit?.id ?? "",
+      ...editForm,
+      commissionValue: Number(editForm.commissionValue),
+      goal: Number(editForm.goal),
+    } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-sellers"] });
+      setSellerToEdit(null);
+      toast.success("Vendedor atualizado");
+    },
+    onError: (error: Error) => toast.error("Não foi possível salvar", { description: error.message }),
+  });
+
   const update = (field: keyof typeof form, value: string) => setForm((current) => ({ ...current, [field]: value }));
   const field = (label: string, name: keyof typeof form, type = "text", placeholder?: string) => (
     <div className="space-y-1.5"><Label htmlFor={`seller-${name}`}>{label}</Label><Input id={`seller-${name}`} type={type} placeholder={placeholder} value={form[name]} onChange={(event) => update(name, event.target.value)} /></div>
   );
+  const editField = (label: string, name: keyof typeof editForm, type = "text", placeholder?: string) => (
+    <div className="space-y-1.5"><Label htmlFor={`edit-seller-${name}`}>{label}</Label><Input id={`edit-seller-${name}`} type={type} placeholder={placeholder} value={editForm[name]} onChange={(event) => setEditForm((current) => ({ ...current, [name]: event.target.value }))} /></div>
+  );
+  const openEdit = (seller: Tables<"sellers">) => {
+    setEditForm({
+      name: seller.name,
+      email: seller.email ?? "",
+      sellerCode: seller.seller_code,
+      cpf: seller.cpf ?? "",
+      phone: seller.phone ?? "",
+      whatsapp: seller.whatsapp ?? "",
+      city: seller.city ?? "",
+      neighborhood: seller.neighborhood ?? "",
+      commissionType: seller.commission_type === "fixo" ? "fixo" : "percentual",
+      commissionValue: String(seller.commission_value),
+      goal: String(seller.goal),
+      status: seller.status === "bloqueado" || seller.status === "inativo" ? seller.status : "ativo",
+      bankName: seller.bank_name ?? "",
+      bankHolder: seller.bank_holder ?? "",
+      bankDocument: seller.bank_document ?? "",
+      bankBranch: seller.bank_branch ?? "",
+      bankAccount: seller.bank_account ?? "",
+      bankPixKey: seller.bank_pix_key ?? "",
+    });
+    setSellerToEdit(seller);
+  };
   const monthStart = new Date();
   monthStart.setDate(1);
   monthStart.setHours(0, 0, 0, 0);
@@ -138,15 +183,14 @@ function AdminSellers() {
                   {brl(commission)}
                 </span>
                 {canManageSellers && !isLoadingRoles ? (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    aria-label={`Excluir vendedor ${s.name}`}
-                    onClick={() => setSellerToDelete({ id: s.id, name: s.name })}
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button type="button" variant="outline" size="icon" aria-label={`Editar vendedor ${s.name}`} title="Editar vendedor" onClick={() => openEdit(s)}>
+                      <Pencil className="size-4" />
+                    </Button>
+                    <Button type="button" variant="destructive" size="icon" aria-label={`Excluir vendedor ${s.name}`} title="Excluir vendedor" onClick={() => setSellerToDelete({ id: s.id, name: s.name })}>
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
                 ) : null}
               </div>
             </div>
@@ -173,6 +217,33 @@ function AdminSellers() {
             {field("Meta mensal (vendas)", "goal", "number", "50")}
           </form>
           <DialogFooter><Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button><Button type="submit" form="seller-form" disabled={createMutation.isPending}>{createMutation.isPending ? "Criando acesso..." : "Cadastrar vendedor"}</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={Boolean(sellerToEdit)} onOpenChange={(value) => !value && setSellerToEdit(null)}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader><DialogTitle>Editar vendedor</DialogTitle><DialogDescription>Atualize o cadastro, as regras comerciais e os dados para recebimento.</DialogDescription></DialogHeader>
+          <form id="edit-seller-form" className="grid gap-3 sm:grid-cols-2" onSubmit={(event) => { event.preventDefault(); editMutation.mutate(); }}>
+            <div className="sm:col-span-2">{editField("Nome completo *", "name")}</div>
+            {editField("E-mail de login", "email", "email")}
+            {editField("Código de vendedor *", "sellerCode")}
+            {editField("CPF", "cpf")}
+            {editField("Telefone", "phone")}
+            {editField("WhatsApp", "whatsapp")}
+            {editField("Cidade", "city")}
+            {editField("Bairro", "neighborhood")}
+            <div className="space-y-1.5"><Label>Tipo de comissão</Label><Select value={editForm.commissionType} onValueChange={(value: "percentual" | "fixo") => setEditForm((current) => ({ ...current, commissionType: value }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="percentual">Percentual (%)</SelectItem><SelectItem value="fixo">Valor fixo (R$)</SelectItem></SelectContent></Select></div>
+            {editField(editForm.commissionType === "percentual" ? "Comissão (%)" : "Comissão fixa (R$)", "commissionValue", "number")}
+            {editField("Meta mensal (vendas)", "goal", "number")}
+            <div className="space-y-1.5"><Label>Status</Label><Select value={editForm.status} onValueChange={(value: "ativo" | "inativo" | "bloqueado") => setEditForm((current) => ({ ...current, status: value }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ativo">Ativo</SelectItem><SelectItem value="inativo">Inativo</SelectItem><SelectItem value="bloqueado">Bloqueado</SelectItem></SelectContent></Select></div>
+            <div className="sm:col-span-2 border-t pt-3"><p className="text-sm font-semibold">Dados bancários</p></div>
+            {editField("Banco", "bankName")}
+            {editField("Titular da conta", "bankHolder")}
+            {editField("CPF/CNPJ do titular", "bankDocument")}
+            {editField("Agência", "bankBranch")}
+            {editField("Conta", "bankAccount")}
+            {editField("Chave Pix", "bankPixKey")}
+          </form>
+          <DialogFooter><Button type="button" variant="outline" onClick={() => setSellerToEdit(null)}>Cancelar</Button><Button type="submit" form="edit-seller-form" disabled={editMutation.isPending}>{editMutation.isPending ? "Salvando..." : "Salvar alterações"}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
       <Dialog open={Boolean(credentials)} onOpenChange={(value) => !value && setCredentials(null)}>
