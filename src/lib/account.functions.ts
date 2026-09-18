@@ -368,3 +368,46 @@ export const deleteCustomerAccount = createServerFn({ method: "POST" })
       if (leadsError) throw new Error("O cliente foi excluído, mas não foi possível limpar suas propostas.");
     }
   });
+
+export const deletePartnerAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { partnerId: string }) => {
+    if (!input?.partnerId?.trim()) throw new Error("Parceiro inválido.");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    const { data: role, error: roleError } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .in("role", ["super_admin", "admin", "financeiro"])
+      .limit(1)
+      .maybeSingle();
+    if (roleError || !role) throw new Error("Você não tem permissão para excluir parceiros.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: partner, error: partnerError } = await supabaseAdmin
+      .from("partners")
+      .select("user_id")
+      .eq("id", data.partnerId)
+      .maybeSingle();
+    if (partnerError) throw new Error(partnerError.message);
+    if (!partner) throw new Error("Parceiro não encontrado.");
+
+    const { error: deletePartnerError } = await supabaseAdmin
+      .from("partners")
+      .delete()
+      .eq("id", data.partnerId);
+    if (deletePartnerError) {
+      throw new Error(deletePartnerError.message || "Não foi possível remover o cadastro do parceiro.");
+    }
+
+    if (partner.user_id) {
+      const { error: deleteUserError } = await supabaseAdmin.auth.admin.deleteUser(partner.user_id);
+      if (deleteUserError) {
+        throw new Error(deleteUserError.message || "O parceiro foi excluído, mas não foi possível remover seu login.");
+      }
+    }
+
+    return { ok: true };
+  });
