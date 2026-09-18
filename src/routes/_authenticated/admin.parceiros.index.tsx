@@ -2,13 +2,25 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowRight, Search } from "lucide-react";
+import { ArrowRight, Search, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/shells";
 import { Button } from "@/components/ui/button";
 import { brl, dateBR } from "@/lib/format";
 import { Input } from "@/components/ui/input";
 import { StatCard } from "@/components/shells";
+import { deletePartnerAccount } from "@/lib/account.functions";
+import { isAdminRole, useRoles } from "@/lib/auth";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { Database } from "@/integrations/supabase/types";
 
 type PartnerStatus = Database["public"]["Enums"]["partner_status"];
@@ -29,7 +41,10 @@ export const Route = createFileRoute("/_authenticated/admin/parceiros/")({
 
 function AdminPartners() {
   const queryClient = useQueryClient();
+  const { data: roles, isLoading: isLoadingRoles } = useRoles();
+  const canDeletePartners = isAdminRole(roles);
   const [search, setSearch] = useState("");
+  const [partnerToDelete, setPartnerToDelete] = useState<{ id: string; name: string } | null>(null);
 
   const { data: partners } = useQuery({
     queryKey: ["admin-partners"],
@@ -88,6 +103,16 @@ function AdminPartners() {
       queryClient.invalidateQueries({ queryKey: ["admin-partners"] });
     },
     onError: (e: Error) => toast.error("Erro ao atualizar", { description: e.message }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (partnerId: string) => deletePartnerAccount({ data: { partnerId } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-partners"] });
+      setPartnerToDelete(null);
+      toast.success("Parceiro excluído definitivamente");
+    },
+    onError: (error: Error) => toast.error("Não foi possível excluir o parceiro", { description: error.message }),
   });
 
   return (
@@ -150,6 +175,18 @@ function AdminPartners() {
                   Suspender
                 </Button>
               ) : null}
+               {canDeletePartners && !isLoadingRoles ? (
+                 <Button
+                   type="button"
+                   size="icon"
+                   variant="destructive"
+                   aria-label={`Excluir parceiro ${p.trade_name}`}
+                   title="Excluir parceiro"
+                   onClick={() => setPartnerToDelete({ id: p.id, name: p.trade_name })}
+                 >
+                   <Trash2 className="size-4" />
+                 </Button>
+               ) : null}
             </div>
           </div>
         ))}
@@ -157,6 +194,31 @@ function AdminPartners() {
           <p className="text-sm text-muted-foreground">Nenhum parceiro encontrado.</p>
         ) : null}
       </div>
+       <AlertDialog open={Boolean(partnerToDelete)} onOpenChange={(open) => !open && setPartnerToDelete(null)}>
+         <AlertDialogContent>
+           <AlertDialogHeader>
+             <AlertDialogTitle>Excluir parceiro definitivamente?</AlertDialogTitle>
+             <AlertDialogDescription>
+               {partnerToDelete
+                 ? `${partnerToDelete.name} perderá o acesso. Benefícios, funcionários, atendimentos, avaliações e favoritos vinculados serão removidos. Essa ação não pode ser desfeita.`
+                 : null}
+             </AlertDialogDescription>
+           </AlertDialogHeader>
+           <AlertDialogFooter>
+             <AlertDialogCancel>Voltar</AlertDialogCancel>
+             <AlertDialogAction
+               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+               disabled={deleteMutation.isPending}
+               onClick={(event) => {
+                 event.preventDefault();
+                 if (partnerToDelete) deleteMutation.mutate(partnerToDelete.id);
+               }}
+             >
+               {deleteMutation.isPending ? "Excluindo..." : "Excluir parceiro"}
+             </AlertDialogAction>
+           </AlertDialogFooter>
+         </AlertDialogContent>
+       </AlertDialog>
     </div>
   );
 }

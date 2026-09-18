@@ -21,3 +21,4 @@
 - [x] Concluir painel completo do vendedor e fluxo de propostas por WhatsApp
 - [x] Adicionar exclusão definitiva de cliente com acesso exclusivo da administração
 - [x] Adicionar edição completa de vendedor com acesso exclusivo da administração
+- [x] Adicionar exclusão definitiva de parceiro com acesso exclusivo da administração
