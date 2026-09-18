@@ -6,6 +6,9 @@ import { useSeller } from "@/lib/auth";
 import { PageHeader, StatCard } from "@/components/shells";
 import { brl, dateBR } from "@/lib/format";
 import type { Database } from "@/integrations/supabase/types";
+import { useState } from "react";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Button } from "@/components/ui/button";
 
 type LeadStatus = Database["public"]["Enums"]["lead_status"];
 
@@ -19,11 +22,19 @@ const funnel: { status: LeadStatus; label: string; color: string }[] = [
 ];
 
 export const Route = createFileRoute("/_authenticated/vendedor/")({
+  head: () => ({ meta: [
+    { title: "Dashboard do vendedor | Cartão do Bairro" },
+    { name: "description", content: "Indicadores, vendas, clientes e metas do vendedor." },
+    { property: "og:title", content: "Dashboard do vendedor | Cartão do Bairro" },
+    { property: "og:description", content: "Acompanhe seu desempenho comercial." },
+    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+  ] }),
   component: SellerHome,
 });
 
 function SellerHome() {
   const { data: seller, isLoading: sellerLoading } = useSeller();
+  const [period, setPeriod] = useState<"hoje" | "semana" | "mes">("mes");
 
   const { data, isLoading } = useQuery({
     queryKey: ["seller-dashboard", seller?.id],
@@ -83,16 +94,37 @@ function SellerHome() {
   const conversion = leads.length ? Math.round((convertedLeads / leads.length) * 100) : 0;
   const counts = new Map<LeadStatus, number>();
   leads.forEach((lead) => counts.set(lead.status, (counts.get(lead.status) ?? 0) + 1));
+  const cutoff = new Date();
+  if (period === "hoje") cutoff.setHours(0, 0, 0, 0);
+  else if (period === "semana") cutoff.setDate(cutoff.getDate() - 6);
+  else cutoff.setDate(1);
+  const periodSales = sales.filter((sale) => new Date(sale.created_at) >= cutoff);
+  const periodLeads = leads.filter((lead) => new Date(lead.created_at) >= cutoff);
+  const chartDays = Array.from({ length: period === "hoje" ? 1 : period === "semana" ? 7 : 30 }, (_, index) => {
+    const date = new Date(); date.setDate(date.getDate() - (period === "hoje" ? 0 : (period === "semana" ? 6 : 29) - index));
+    const key = date.toISOString().slice(0, 10);
+    const daily = sales.filter((sale) => sale.created_at.slice(0, 10) === key);
+    return { label: date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }), vendas: daily.length, comissao: daily.reduce((sum, sale) => sum + Number(sale.commission_amount), 0) };
+  });
+  const activeSubscriptions = leads.filter((lead) => lead.status === "ativo").length;
+  const pendingSales = leads.filter((lead) => ["cadastro", "pagamento"].includes(lead.status)).length;
 
   return (
     <div>
-      <PageHeader title={`Olá, ${seller.name.split(" ")[0]}`} description={`Código de indicação: ${seller.seller_code}`} />
+      <PageHeader title={`Olá, ${seller.name.split(" ")[0]}`} description={`Vendedor Ativo • Código ${seller.seller_code}`} action={<div className="flex rounded-md border bg-card p-1">{(["hoje","semana","mes"] as const).map((value)=><Button key={value} size="sm" variant={period===value?"default":"ghost"} onClick={()=>setPeriod(value)}>{value==="hoje"?"Hoje":value==="semana"?"Semana":"Mês"}</Button>)}</div>} />
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Vendas no mês" value={monthSales.length} hint={`${sales.length} no total`} tone="brand" />
-        <StatCard label="Faturamento no mês" value={brl(monthTotal)} hint={`${brl(total)} no total`} />
-        <StatCard label="Clientes no mês" value={monthLeads.length} hint={`${conversion}% de conversão`} />
-        <StatCard label="Comissão a receber" value={brl(pending)} hint={`${brl(paid)} já pagos`} tone="ink" />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <StatCard label="Clientes cadastrados" value={periodLeads.length} hint={`${leads.length} no total`} tone="brand" />
+        <StatCard label="Vendas realizadas" value={periodSales.length} hint={brl(periodSales.reduce((s,r)=>s+Number(r.amount),0))} />
+        <StatCard label="Assinaturas ativas" value={activeSubscriptions} />
+        <StatCard label="Vendas pendentes" value={pendingSales} />
+        <StatCard label="Comissão gerada" value={brl(periodSales.reduce((s,r)=>s+Number(r.commission_amount),0))} />
+        <StatCard label="Comissão a receber" value={brl(pending)} hint={`${brl(paid)} pagos`} tone="ink" />
+      </div>
+
+      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+        <section className="rounded-lg border bg-card p-4 shadow-card"><h2 className="font-bold">Vendas por dia</h2><div className="mt-4 h-56"><ResponsiveContainer width="100%" height="100%"><BarChart data={chartDays}><CartesianGrid strokeDasharray="3 3" vertical={false}/><XAxis dataKey="label" tick={{fontSize:10}}/><YAxis allowDecimals={false}/><Tooltip/><Bar dataKey="vendas" fill="var(--primary)" radius={[4,4,0,0]}/></BarChart></ResponsiveContainer></div></section>
+        <section className="rounded-lg border bg-card p-4 shadow-card"><h2 className="font-bold">Evolução das comissões</h2><div className="mt-4 h-56"><ResponsiveContainer width="100%" height="100%"><AreaChart data={chartDays}><CartesianGrid strokeDasharray="3 3" vertical={false}/><XAxis dataKey="label" tick={{fontSize:10}}/><YAxis/><Tooltip formatter={(value)=>brl(Number(value))}/><Area type="monotone" dataKey="comissao" stroke="var(--primary)" fill="var(--accent)"/></AreaChart></ResponsiveContainer></div></section>
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[1.35fr_1fr]">
