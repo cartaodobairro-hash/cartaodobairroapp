@@ -41,7 +41,7 @@ function AdminSellers() {
   const createMutation = useMutation({
     mutationFn: () => createSellerAccount({ data: {
       ...form,
-      password: form.password || undefined,
+      ...(form.password ? { password: form.password } : {}),
       commissionValue: Number(form.commissionValue),
       goal: Number(form.goal),
     } }),
