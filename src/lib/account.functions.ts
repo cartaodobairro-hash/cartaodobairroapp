@@ -148,8 +148,8 @@ export const createSellerAccount = createServerFn({ method: "POST" })
       city: cleanOptional(data.city),
       neighborhood: cleanOptional(data.neighborhood),
       commission_type: data.commissionType || "percentual",
-      commission_value: Number.isFinite(data.commissionValue) ? data.commissionValue : 10,
-      goal: Number.isFinite(data.goal) ? data.goal : 50,
+      commission_value: data.commissionValue ?? 10,
+      goal: data.goal ?? 50,
       status: "ativo",
     });
 
@@ -158,15 +158,15 @@ export const createSellerAccount = createServerFn({ method: "POST" })
       throw new Error(sellerError.message || "Não foi possível salvar o cadastro do vendedor.");
     }
 
-    const { error: roleError } = await supabaseAdmin.from("user_roles").insert({
+    const { error: sellerRoleError } = await supabaseAdmin.from("user_roles").insert({
       user_id: created.user.id,
       role: "seller",
     });
 
-    if (roleError) {
+    if (sellerRoleError) {
       await supabaseAdmin.from("sellers").delete().eq("user_id", created.user.id);
       await supabaseAdmin.auth.admin.deleteUser(created.user.id);
-      throw new Error(roleError.message || "Não foi possível liberar o acesso do vendedor.");
+      throw new Error(sellerRoleError.message || "Não foi possível liberar o acesso do vendedor.");
     }
 
     const { error: defaultRoleError } = await supabaseAdmin
