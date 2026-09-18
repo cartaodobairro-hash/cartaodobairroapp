@@ -49,7 +49,14 @@ import { Route as AuthenticatedParceiroPerfilRouteImport } from './routes/_authe
 import { Route as AuthenticatedParceiroRelatoriosRouteImport } from './routes/_authenticated/parceiro.relatorios'
 import { Route as AuthenticatedParceiroValidarRouteImport } from './routes/_authenticated/parceiro.validar'
 import { Route as AuthenticatedVendedorIndexRouteImport } from './routes/_authenticated/vendedor.index'
+import { Route as AuthenticatedVendedorComissoesRouteImport } from './routes/_authenticated/vendedor.comissoes'
 import { Route as AuthenticatedVendedorLeadsRouteImport } from './routes/_authenticated/vendedor.leads'
+import { Route as AuthenticatedVendedorLinkRouteImport } from './routes/_authenticated/vendedor.link'
+import { Route as AuthenticatedVendedorMetasRouteImport } from './routes/_authenticated/vendedor.metas'
+import { Route as AuthenticatedVendedorNotificacoesRouteImport } from './routes/_authenticated/vendedor.notificacoes'
+import { Route as AuthenticatedVendedorNovaVendaRouteImport } from './routes/_authenticated/vendedor.nova-venda'
+import { Route as AuthenticatedVendedorPerfilRouteImport } from './routes/_authenticated/vendedor.perfil'
+import { Route as AuthenticatedVendedorQrCodeRouteImport } from './routes/_authenticated/vendedor.qr-code'
 import { Route as AuthenticatedVendedorVendasRouteImport } from './routes/_authenticated/vendedor.vendas'
 import { Route as AuthenticatedAdminClientesIndexRouteImport } from './routes/_authenticated/admin.clientes.index'
 import { Route as AuthenticatedAdminClientesIdRouteImport } from './routes/_authenticated/admin.clientes.$id'
@@ -277,10 +284,52 @@ const AuthenticatedVendedorIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedVendedorRoute,
   } as any)
+const AuthenticatedVendedorComissoesRoute =
+  AuthenticatedVendedorComissoesRouteImport.update({
+    id: '/comissoes',
+    path: '/comissoes',
+    getParentRoute: () => AuthenticatedVendedorRoute,
+  } as any)
 const AuthenticatedVendedorLeadsRoute =
   AuthenticatedVendedorLeadsRouteImport.update({
     id: '/leads',
     path: '/leads',
+    getParentRoute: () => AuthenticatedVendedorRoute,
+  } as any)
+const AuthenticatedVendedorLinkRoute =
+  AuthenticatedVendedorLinkRouteImport.update({
+    id: '/link',
+    path: '/link',
+    getParentRoute: () => AuthenticatedVendedorRoute,
+  } as any)
+const AuthenticatedVendedorMetasRoute =
+  AuthenticatedVendedorMetasRouteImport.update({
+    id: '/metas',
+    path: '/metas',
+    getParentRoute: () => AuthenticatedVendedorRoute,
+  } as any)
+const AuthenticatedVendedorNotificacoesRoute =
+  AuthenticatedVendedorNotificacoesRouteImport.update({
+    id: '/notificacoes',
+    path: '/notificacoes',
+    getParentRoute: () => AuthenticatedVendedorRoute,
+  } as any)
+const AuthenticatedVendedorNovaVendaRoute =
+  AuthenticatedVendedorNovaVendaRouteImport.update({
+    id: '/nova-venda',
+    path: '/nova-venda',
+    getParentRoute: () => AuthenticatedVendedorRoute,
+  } as any)
+const AuthenticatedVendedorPerfilRoute =
+  AuthenticatedVendedorPerfilRouteImport.update({
+    id: '/perfil',
+    path: '/perfil',
+    getParentRoute: () => AuthenticatedVendedorRoute,
+  } as any)
+const AuthenticatedVendedorQrCodeRoute =
+  AuthenticatedVendedorQrCodeRouteImport.update({
+    id: '/qr-code',
+    path: '/qr-code',
     getParentRoute: () => AuthenticatedVendedorRoute,
   } as any)
 const AuthenticatedVendedorVendasRoute =
@@ -356,7 +405,14 @@ export interface FileRoutesByFullPath {
   '/parceiro/perfil': typeof AuthenticatedParceiroPerfilRoute
   '/parceiro/relatorios': typeof AuthenticatedParceiroRelatoriosRoute
   '/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
+  '/vendedor/comissoes': typeof AuthenticatedVendedorComissoesRoute
   '/vendedor/leads': typeof AuthenticatedVendedorLeadsRoute
+  '/vendedor/link': typeof AuthenticatedVendedorLinkRoute
+  '/vendedor/metas': typeof AuthenticatedVendedorMetasRoute
+  '/vendedor/notificacoes': typeof AuthenticatedVendedorNotificacoesRoute
+  '/vendedor/nova-venda': typeof AuthenticatedVendedorNovaVendaRoute
+  '/vendedor/perfil': typeof AuthenticatedVendedorPerfilRoute
+  '/vendedor/qr-code': typeof AuthenticatedVendedorQrCodeRoute
   '/vendedor/vendas': typeof AuthenticatedVendedorVendasRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/app/': typeof AuthenticatedAppIndexRoute
@@ -399,7 +455,14 @@ export interface FileRoutesByTo {
   '/parceiro/perfil': typeof AuthenticatedParceiroPerfilRoute
   '/parceiro/relatorios': typeof AuthenticatedParceiroRelatoriosRoute
   '/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
+  '/vendedor/comissoes': typeof AuthenticatedVendedorComissoesRoute
   '/vendedor/leads': typeof AuthenticatedVendedorLeadsRoute
+  '/vendedor/link': typeof AuthenticatedVendedorLinkRoute
+  '/vendedor/metas': typeof AuthenticatedVendedorMetasRoute
+  '/vendedor/notificacoes': typeof AuthenticatedVendedorNotificacoesRoute
+  '/vendedor/nova-venda': typeof AuthenticatedVendedorNovaVendaRoute
+  '/vendedor/perfil': typeof AuthenticatedVendedorPerfilRoute
+  '/vendedor/qr-code': typeof AuthenticatedVendedorQrCodeRoute
   '/vendedor/vendas': typeof AuthenticatedVendedorVendasRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/app': typeof AuthenticatedAppIndexRoute
@@ -449,7 +512,14 @@ export interface FileRoutesById {
   '/_authenticated/parceiro/perfil': typeof AuthenticatedParceiroPerfilRoute
   '/_authenticated/parceiro/relatorios': typeof AuthenticatedParceiroRelatoriosRoute
   '/_authenticated/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
+  '/_authenticated/vendedor/comissoes': typeof AuthenticatedVendedorComissoesRoute
   '/_authenticated/vendedor/leads': typeof AuthenticatedVendedorLeadsRoute
+  '/_authenticated/vendedor/link': typeof AuthenticatedVendedorLinkRoute
+  '/_authenticated/vendedor/metas': typeof AuthenticatedVendedorMetasRoute
+  '/_authenticated/vendedor/notificacoes': typeof AuthenticatedVendedorNotificacoesRoute
+  '/_authenticated/vendedor/nova-venda': typeof AuthenticatedVendedorNovaVendaRoute
+  '/_authenticated/vendedor/perfil': typeof AuthenticatedVendedorPerfilRoute
+  '/_authenticated/vendedor/qr-code': typeof AuthenticatedVendedorQrCodeRoute
   '/_authenticated/vendedor/vendas': typeof AuthenticatedVendedorVendasRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
@@ -499,7 +569,14 @@ export interface FileRouteTypes {
     | '/parceiro/perfil'
     | '/parceiro/relatorios'
     | '/parceiro/validar'
+    | '/vendedor/comissoes'
     | '/vendedor/leads'
+    | '/vendedor/link'
+    | '/vendedor/metas'
+    | '/vendedor/notificacoes'
+    | '/vendedor/nova-venda'
+    | '/vendedor/perfil'
+    | '/vendedor/qr-code'
     | '/vendedor/vendas'
     | '/admin/'
     | '/app/'
@@ -542,7 +619,14 @@ export interface FileRouteTypes {
     | '/parceiro/perfil'
     | '/parceiro/relatorios'
     | '/parceiro/validar'
+    | '/vendedor/comissoes'
     | '/vendedor/leads'
+    | '/vendedor/link'
+    | '/vendedor/metas'
+    | '/vendedor/notificacoes'
+    | '/vendedor/nova-venda'
+    | '/vendedor/perfil'
+    | '/vendedor/qr-code'
     | '/vendedor/vendas'
     | '/admin'
     | '/app'
@@ -591,7 +675,14 @@ export interface FileRouteTypes {
     | '/_authenticated/parceiro/perfil'
     | '/_authenticated/parceiro/relatorios'
     | '/_authenticated/parceiro/validar'
+    | '/_authenticated/vendedor/comissoes'
     | '/_authenticated/vendedor/leads'
+    | '/_authenticated/vendedor/link'
+    | '/_authenticated/vendedor/metas'
+    | '/_authenticated/vendedor/notificacoes'
+    | '/_authenticated/vendedor/nova-venda'
+    | '/_authenticated/vendedor/perfil'
+    | '/_authenticated/vendedor/qr-code'
     | '/_authenticated/vendedor/vendas'
     | '/_authenticated/admin/'
     | '/_authenticated/app/'
@@ -899,11 +990,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVendedorIndexRouteImport
       parentRoute: typeof AuthenticatedVendedorRoute
     }
+    '/_authenticated/vendedor/comissoes': {
+      id: '/_authenticated/vendedor/comissoes'
+      path: '/comissoes'
+      fullPath: '/vendedor/comissoes'
+      preLoaderRoute: typeof AuthenticatedVendedorComissoesRouteImport
+      parentRoute: typeof AuthenticatedVendedorRoute
+    }
     '/_authenticated/vendedor/leads': {
       id: '/_authenticated/vendedor/leads'
       path: '/leads'
       fullPath: '/vendedor/leads'
       preLoaderRoute: typeof AuthenticatedVendedorLeadsRouteImport
+      parentRoute: typeof AuthenticatedVendedorRoute
+    }
+    '/_authenticated/vendedor/link': {
+      id: '/_authenticated/vendedor/link'
+      path: '/link'
+      fullPath: '/vendedor/link'
+      preLoaderRoute: typeof AuthenticatedVendedorLinkRouteImport
+      parentRoute: typeof AuthenticatedVendedorRoute
+    }
+    '/_authenticated/vendedor/metas': {
+      id: '/_authenticated/vendedor/metas'
+      path: '/metas'
+      fullPath: '/vendedor/metas'
+      preLoaderRoute: typeof AuthenticatedVendedorMetasRouteImport
+      parentRoute: typeof AuthenticatedVendedorRoute
+    }
+    '/_authenticated/vendedor/notificacoes': {
+      id: '/_authenticated/vendedor/notificacoes'
+      path: '/notificacoes'
+      fullPath: '/vendedor/notificacoes'
+      preLoaderRoute: typeof AuthenticatedVendedorNotificacoesRouteImport
+      parentRoute: typeof AuthenticatedVendedorRoute
+    }
+    '/_authenticated/vendedor/nova-venda': {
+      id: '/_authenticated/vendedor/nova-venda'
+      path: '/nova-venda'
+      fullPath: '/vendedor/nova-venda'
+      preLoaderRoute: typeof AuthenticatedVendedorNovaVendaRouteImport
+      parentRoute: typeof AuthenticatedVendedorRoute
+    }
+    '/_authenticated/vendedor/perfil': {
+      id: '/_authenticated/vendedor/perfil'
+      path: '/perfil'
+      fullPath: '/vendedor/perfil'
+      preLoaderRoute: typeof AuthenticatedVendedorPerfilRouteImport
+      parentRoute: typeof AuthenticatedVendedorRoute
+    }
+    '/_authenticated/vendedor/qr-code': {
+      id: '/_authenticated/vendedor/qr-code'
+      path: '/qr-code'
+      fullPath: '/vendedor/qr-code'
+      preLoaderRoute: typeof AuthenticatedVendedorQrCodeRouteImport
       parentRoute: typeof AuthenticatedVendedorRoute
     }
     '/_authenticated/vendedor/vendas': {
@@ -1055,13 +1195,28 @@ const AuthenticatedParceiroRouteWithChildren =
   )
 
 interface AuthenticatedVendedorRouteChildren {
+  AuthenticatedVendedorComissoesRoute: typeof AuthenticatedVendedorComissoesRoute
   AuthenticatedVendedorLeadsRoute: typeof AuthenticatedVendedorLeadsRoute
+  AuthenticatedVendedorLinkRoute: typeof AuthenticatedVendedorLinkRoute
+  AuthenticatedVendedorMetasRoute: typeof AuthenticatedVendedorMetasRoute
+  AuthenticatedVendedorNotificacoesRoute: typeof AuthenticatedVendedorNotificacoesRoute
+  AuthenticatedVendedorNovaVendaRoute: typeof AuthenticatedVendedorNovaVendaRoute
+  AuthenticatedVendedorPerfilRoute: typeof AuthenticatedVendedorPerfilRoute
+  AuthenticatedVendedorQrCodeRoute: typeof AuthenticatedVendedorQrCodeRoute
   AuthenticatedVendedorVendasRoute: typeof AuthenticatedVendedorVendasRoute
   AuthenticatedVendedorIndexRoute: typeof AuthenticatedVendedorIndexRoute
 }
 
 const AuthenticatedVendedorRouteChildren: AuthenticatedVendedorRouteChildren = {
+  AuthenticatedVendedorComissoesRoute: AuthenticatedVendedorComissoesRoute,
   AuthenticatedVendedorLeadsRoute: AuthenticatedVendedorLeadsRoute,
+  AuthenticatedVendedorLinkRoute: AuthenticatedVendedorLinkRoute,
+  AuthenticatedVendedorMetasRoute: AuthenticatedVendedorMetasRoute,
+  AuthenticatedVendedorNotificacoesRoute:
+    AuthenticatedVendedorNotificacoesRoute,
+  AuthenticatedVendedorNovaVendaRoute: AuthenticatedVendedorNovaVendaRoute,
+  AuthenticatedVendedorPerfilRoute: AuthenticatedVendedorPerfilRoute,
+  AuthenticatedVendedorQrCodeRoute: AuthenticatedVendedorQrCodeRoute,
   AuthenticatedVendedorVendasRoute: AuthenticatedVendedorVendasRoute,
   AuthenticatedVendedorIndexRoute: AuthenticatedVendedorIndexRoute,
 }
