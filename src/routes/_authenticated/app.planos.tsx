@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PlanCard, PlanComparison, PlanSteps, type PlanRow } from "@/components/plans";
 import { brl, dateBR } from "@/lib/format";
+import { claimSellerReferral } from "@/lib/seller.functions";
 
 export const Route = createFileRoute("/_authenticated/app/planos")({
   component: AppPlans,
@@ -21,6 +23,7 @@ function AppPlans() {
   const navigate = useNavigate();
   const [accepted, setAccepted] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const claimReferral = useServerFn(claimSellerReferral);
 
   const { data: plans } = useQuery({
     queryKey: ["plans-active"],
@@ -74,6 +77,14 @@ function AppPlans() {
           .update({ plan_id: plan.id, terms_accepted_at: new Date().toISOString() })
           .eq("id", customerId);
         if (error) throw error;
+      }
+
+      const sellerCode = localStorage.getItem("cdb_seller_code") ?? undefined;
+      const proposalToken = localStorage.getItem("cdb_proposal_token") ?? undefined;
+      if (sellerCode || proposalToken) {
+        await claimReferral({ data: { sellerCode, proposalToken } });
+        localStorage.removeItem("cdb_seller_code");
+        localStorage.removeItem("cdb_proposal_token");
       }
 
       const next = new Date();

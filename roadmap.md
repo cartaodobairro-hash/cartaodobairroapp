@@ -18,3 +18,4 @@
 - [x] Criar dashboard analítico por parceiro sem impacto no Fluxo de Caixa
 - [x] Registrar valor de compra e desconto separadamente nos atendimentos
 - [x] Adicionar exclusão administrativa de assinatura com todas as mensalidades vinculadas
+- [ ] Concluir painel completo do vendedor e fluxo de propostas por WhatsApp

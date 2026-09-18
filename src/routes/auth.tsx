@@ -22,12 +22,13 @@ import {
 } from "@/lib/biometric";
 
 
-type Search = { modo?: "login" | "cadastro"; vendedor?: string };
+type Search = { modo?: "login" | "cadastro"; vendedor?: string; proposta?: string };
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (search: Record<string, unknown>): Search => ({
     modo: search["modo"] === "cadastro" ? "cadastro" : "login",
     ...(typeof search["vendedor"] === "string" ? { vendedor: search["vendedor"] } : {}),
+    ...(typeof search["proposta"] === "string" ? { proposta: search["proposta"] } : {}),
   }),
   head: () => ({
     meta: [
@@ -41,7 +42,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const { modo, vendedor } = Route.useSearch();
+  const { modo, vendedor, proposta } = Route.useSearch();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [tab, setTab] = useState<"login" | "cadastro">(modo === "cadastro" ? "cadastro" : "login");
@@ -188,11 +189,14 @@ function AuthPage() {
       return;
     }
     if (vendedor) localStorage.setItem("cdb_seller_code", vendedor);
+    if (proposta) localStorage.setItem("cdb_proposal_token", proposta);
     toast.success("Conta criada!", { description: "Confirme seu e-mail para ativar o acesso." });
     setTab("login");
   }
 
   async function handleGoogle() {
+    if (vendedor) localStorage.setItem("cdb_seller_code", vendedor);
+    if (proposta) localStorage.setItem("cdb_proposal_token", proposta);
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
     });
