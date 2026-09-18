@@ -15,6 +15,13 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_authenticated/admin/vendedores")({
+  head: () => ({ meta: [
+    { title: "Vendedores e ranking | Cartão do Bairro" },
+    { name: "description", content: "Equipe comercial, ranking, comissões e acessos." },
+    { property: "og:title", content: "Vendedores e ranking | Cartão do Bairro" },
+    { property: "og:description", content: "Gestão interna da equipe comercial." },
+    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+  ] }),
   component: AdminSellers,
 });
 
@@ -69,6 +76,23 @@ function AdminSellers() {
   const field = (label: string, name: keyof typeof form, type = "text", placeholder?: string) => (
     <div className="space-y-1.5"><Label htmlFor={`seller-${name}`}>{label}</Label><Input id={`seller-${name}`} type={type} placeholder={placeholder} value={form[name]} onChange={(event) => update(name, event.target.value)} /></div>
   );
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
+  const ranking = [...(sellers ?? [])]
+    .map((seller) => {
+      const sales = (seller.seller_sales ?? []).filter((sale) => {
+        const createdAt = "created_at" in sale ? String(sale.created_at) : "";
+        return createdAt ? new Date(createdAt) >= monthStart : true;
+      });
+      return {
+        id: seller.id,
+        name: seller.name,
+        sales: sales.length,
+        commission: sales.reduce((total, sale) => total + Number(sale.commission_amount ?? 0), 0),
+      };
+    })
+    .sort((a, b) => b.sales - a.sales || b.commission - a.commission);
 
   return (
     <div>
@@ -80,6 +104,10 @@ function AdminSellers() {
       <div className="mb-4 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground">
         <div className="flex items-start gap-3"><UserRoundPlus className="mt-0.5 size-5 text-primary" /><p><strong className="text-foreground">Crie o acesso do vendedor</strong><br />O cadastro gera a conta de login e vincula automaticamente o vendedor ao painel de vendas.</p></div>
       </div>
+      <section className="mb-5 overflow-x-auto rounded-lg border border-border bg-card shadow-card">
+        <div className="border-b border-border p-4"><h2 className="font-bold">Ranking mensal</h2><p className="text-xs text-muted-foreground">Visualização exclusiva da administração</p></div>
+        <table className="w-full text-sm"><thead className="border-b text-left text-xs uppercase text-muted-foreground"><tr><th className="p-3">Posição</th><th className="p-3">Vendedor</th><th className="p-3">Vendas</th><th className="p-3">Comissão gerada</th></tr></thead><tbody>{ranking.map((seller,index)=><tr key={seller.id} className="border-b last:border-0"><td className="p-3 font-bold text-primary">{index+1}º</td><td className="p-3 font-medium">{seller.name}</td><td className="p-3">{seller.sales}</td><td className="p-3">{brl(seller.commission)}</td></tr>)}</tbody></table>
+      </section>
       <div className="space-y-2">
         {(sellers ?? []).map((s) => {
           const sales = s.seller_sales ?? [];

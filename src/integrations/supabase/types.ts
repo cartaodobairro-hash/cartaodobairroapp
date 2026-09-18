@@ -1133,8 +1133,12 @@ export type Database = {
       }
       seller_leads: {
         Row: {
+          address: string | null
+          birth_date: string | null
           city: string | null
+          cpf: string | null
           created_at: string
+          customer_id: string | null
           email: string | null
           id: string
           last_contact_at: string | null
@@ -1142,15 +1146,23 @@ export type Database = {
           neighborhood: string | null
           next_contact_at: string | null
           notes: string | null
+          payment_method: string | null
           phone: string | null
+          plan_id: string | null
+          proposal_token: string
+          sale_date: string
           seller_id: string
           source: string | null
           status: Database["public"]["Enums"]["lead_status"]
           whatsapp: string | null
         }
         Insert: {
+          address?: string | null
+          birth_date?: string | null
           city?: string | null
+          cpf?: string | null
           created_at?: string
+          customer_id?: string | null
           email?: string | null
           id?: string
           last_contact_at?: string | null
@@ -1158,15 +1170,23 @@ export type Database = {
           neighborhood?: string | null
           next_contact_at?: string | null
           notes?: string | null
+          payment_method?: string | null
           phone?: string | null
+          plan_id?: string | null
+          proposal_token?: string
+          sale_date?: string
           seller_id: string
           source?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
           whatsapp?: string | null
         }
         Update: {
+          address?: string | null
+          birth_date?: string | null
           city?: string | null
+          cpf?: string | null
           created_at?: string
+          customer_id?: string | null
           email?: string | null
           id?: string
           last_contact_at?: string | null
@@ -1174,13 +1194,31 @@ export type Database = {
           neighborhood?: string | null
           next_contact_at?: string | null
           notes?: string | null
+          payment_method?: string | null
           phone?: string | null
+          plan_id?: string | null
+          proposal_token?: string
+          sale_date?: string
           seller_id?: string
           source?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
           whatsapp?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "seller_leads_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seller_leads_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "seller_leads_seller_id_fkey"
             columns: ["seller_id"]
@@ -1201,6 +1239,7 @@ export type Database = {
           seller_id: string
           source: string | null
           status: Database["public"]["Enums"]["payment_status"]
+          subscription_id: string | null
         }
         Insert: {
           amount?: number
@@ -1212,6 +1251,7 @@ export type Database = {
           seller_id: string
           source?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
+          subscription_id?: string | null
         }
         Update: {
           amount?: number
@@ -1223,6 +1263,7 @@ export type Database = {
           seller_id?: string
           source?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
+          subscription_id?: string | null
         }
         Relationships: [
           {
@@ -1246,10 +1287,23 @@ export type Database = {
             referencedRelation: "sellers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "seller_sales_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
         ]
       }
       sellers: {
         Row: {
+          bank_account: string | null
+          bank_branch: string | null
+          bank_document: string | null
+          bank_holder: string | null
+          bank_name: string | null
+          bank_pix_key: string | null
           city: string | null
           commission_type: string
           commission_value: number
@@ -1269,6 +1323,12 @@ export type Database = {
           whatsapp: string | null
         }
         Insert: {
+          bank_account?: string | null
+          bank_branch?: string | null
+          bank_document?: string | null
+          bank_holder?: string | null
+          bank_name?: string | null
+          bank_pix_key?: string | null
           city?: string | null
           commission_type?: string
           commission_value?: number
@@ -1288,6 +1348,12 @@ export type Database = {
           whatsapp?: string | null
         }
         Update: {
+          bank_account?: string | null
+          bank_branch?: string | null
+          bank_document?: string | null
+          bank_holder?: string | null
+          bank_name?: string | null
+          bank_pix_key?: string | null
           city?: string | null
           commission_type?: string
           commission_value?: number
@@ -1432,6 +1498,10 @@ export type Database = {
           _transaction_id?: string
         }
         Returns: boolean
+      }
+      claim_seller_proposal: {
+        Args: { _proposal_token?: string; _seller_code?: string }
+        Returns: string
       }
       delete_subscription_with_payments: {
         Args: { _subscription_id: string }

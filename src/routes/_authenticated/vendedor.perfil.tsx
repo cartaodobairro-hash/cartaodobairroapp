@@ -1,0 +1,16 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Save } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { QRCodeCanvas } from "qrcode.react";
+import { supabase } from "@/integrations/supabase/client";
+import { useSeller } from "@/lib/auth";
+import { maskCpf, maskPhone } from "@/lib/format";
+import { PageHeader } from "@/components/shells";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import type { TablesUpdate } from "@/integrations/supabase/types";
+export const Route=createFileRoute("/_authenticated/vendedor/perfil")({head:()=>({meta:[{title:"Meu perfil | Cartão do Bairro"},{name:"description",content:"Perfil e dados de recebimento do vendedor."},{property:"og:title",content:"Meu perfil | Cartão do Bairro"},{property:"og:description",content:"Gerencie seu perfil de vendedor."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}),component:SellerProfile});
+function SellerProfile(){const{data:seller}=useSeller();const qc=useQueryClient();const[form,setForm]=useState<Record<string,string>>({});const val=(key:string)=>form[key]??String((seller as Record<string,unknown>|null)?.[key]??"");const set=(key:string,value:string)=>setForm((f)=>({...f,[key]:value}));const save=useMutation({mutationFn:async()=>{if(!seller)throw new Error("Cadastro não encontrado");const{error}=await supabase.from("sellers").update(form as TablesUpdate<"sellers">).eq("id",seller.id);if(error)throw error;},onSuccess:()=>{setForm({});qc.invalidateQueries({queryKey:["my-seller"]});toast.success("Perfil atualizado")},onError:(e:Error)=>toast.error("Não foi possível salvar",{description:e.message})});const fields=[['name','Nome'],['cpf','CPF'],['whatsapp','WhatsApp'],['email','E-mail'],['photo_url','URL da foto'],['bank_name','Banco'],['bank_holder','Titular da conta'],['bank_document','CPF/CNPJ do titular'],['bank_branch','Agência'],['bank_account','Conta'],['bank_pix_key','Chave Pix']] as const;const link=typeof window!=="undefined"&&seller?`${window.location.origin}/auth?modo=cadastro&vendedor=${encodeURIComponent(seller.seller_code)}`:"";return <div><PageHeader title="Meu perfil" description="Dados pessoais e de recebimento" action={<Button disabled={!Object.keys(form).length||save.isPending} onClick={()=>save.mutate()}><Save className="size-4"/>Salvar</Button>}/><div className="grid gap-4 lg:grid-cols-[1fr_280px]"><section className="grid gap-4 rounded-lg border bg-card p-5 sm:grid-cols-2">{fields.map(([key,label])=><div key={key}><Label>{label}</Label><Input className="mt-1" type={key==='email'?'email':'text'} value={key==='cpf'?maskCpf(val(key)):key==='whatsapp'?maskPhone(val(key)):val(key)} onChange={(e)=>set(key,e.target.value)}/></div>)}</section><aside className="rounded-lg border bg-card p-5 text-center"><QRCodeCanvas value={link||"Cartão do Bairro"} size={176} className="mx-auto"/><p className="mt-4 text-xs font-bold uppercase text-muted-foreground">Link exclusivo</p><p className="mt-2 break-all text-xs">{link}</p></aside></div></div>}
