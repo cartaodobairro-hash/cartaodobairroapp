@@ -1,91 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSeller } from "@/lib/auth";
-import { PageHeader, StatCard } from "@/components/shells";
 import { brl, dateBR } from "@/lib/format";
-
-export const Route = createFileRoute("/_authenticated/vendedor/vendas")({
-  component: SellerSales,
-});
-
-function SellerSales() {
-  const { data: seller, isLoading: sellerLoading } = useSeller();
-
-  const { data: sales } = useQuery({
-    queryKey: ["seller-sales", seller?.id],
-    enabled: !!seller?.id,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("seller_sales")
-        .select("id, amount, commission_amount, status, created_at")
-        .eq("seller_id", seller!.id)
-        .order("created_at", { ascending: false })
-        .limit(100);
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const { data: commissions } = useQuery({
-    queryKey: ["seller-commissions", seller?.id],
-    enabled: !!seller?.id,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("seller_commissions")
-        .select("id, amount, status, due_date, paid_at")
-        .eq("seller_id", seller!.id)
-        .order("created_at", { ascending: false })
-        .limit(100);
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const rows = sales ?? [];
-  const total = rows.reduce((s, r) => s + Number(r.amount), 0);
-  const paid = (commissions ?? []).filter((c) => c.status === "paga").reduce((s, c) => s + Number(c.amount), 0);
-  const toReceive = (commissions ?? [])
-    .filter((c) => c.status !== "paga" && c.status !== "cancelada")
-    .reduce((s, c) => s + Number(c.amount), 0);
-
-  if (sellerLoading) return <p className="text-sm text-muted-foreground">Carregando suas vendas...</p>;
-  if (!seller) return <p className="text-sm text-muted-foreground">Cadastro de vendedor não encontrado.</p>;
-
-  return (
-    <div>
-      <PageHeader title="Vendas e comissões" description="Acompanhe seus resultados" />
-
-      <div className="grid gap-3 sm:grid-cols-3">
-        <StatCard label="Vendas" value={rows.length} hint={brl(total)} tone="brand" />
-        <StatCard label="Comissões a receber" value={brl(toReceive)} />
-        <StatCard label="Comissões pagas" value={brl(paid)} tone="ink" />
-      </div>
-
-      <h2 className="mt-6 mb-2 text-sm font-bold">Histórico de vendas</h2>
-      <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-card">
-        <table className="w-full text-sm">
-          <thead className="border-b border-border text-left text-xs uppercase text-muted-foreground">
-            <tr>
-              <th className="p-3">Data</th>
-              <th className="p-3">Valor</th>
-              <th className="p-3">Comissão</th>
-              <th className="p-3">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((s) => (
-              <tr key={s.id} className="border-b border-border/60 last:border-0">
-                <td className="p-3 text-muted-foreground">{dateBR(s.created_at)}</td>
-                <td className="p-3 font-semibold">{brl(s.amount)}</td>
-                <td className="p-3">{brl(s.commission_amount)}</td>
-                <td className="p-3 text-xs uppercase">{s.status}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {!rows.length ? <p className="p-4 text-sm text-muted-foreground">Nenhuma venda registrada.</p> : null}
-      </div>
-    </div>
-  );
-}
+import { PageHeader, StatCard } from "@/components/shells";
+import { Input } from "@/components/ui/input";
+import { SellerStatus } from "@/components/seller-status";
+export const Route=createFileRoute("/_authenticated/vendedor/vendas")({head:()=>({meta:[{title:"Minhas vendas | Cartão do Bairro"},{name:"description",content:"Histórico de vendas do vendedor."},{property:"og:title",content:"Minhas vendas | Cartão do Bairro"},{property:"og:description",content:"Acompanhe vendas e comissões."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}),component:SellerSales});
+function SellerSales(){const{data:seller}=useSeller();const[period,setPeriod]=useState("mes");const[search,setSearch]=useState("");const{data:sales}=useQuery({queryKey:["seller-sales",seller?.id],enabled:!!seller?.id,queryFn:async()=>{const{data,error}=await supabase.from("seller_sales").select("id, amount, commission_amount, status, created_at, customers(user_id), plans(name)").eq("seller_id",seller!.id).order("created_at",{ascending:false}).limit(300);if(error)throw error;const ids=(data??[]).map((r)=>r.customers?.user_id).filter((id):id is string=>!!id);const{data:profiles}=ids.length?await supabase.from("profiles").select("id,name").in("id",ids):{data:[]};const names=new Map((profiles??[]).map((p)=>[p.id,p.name]));return(data??[]).map((r)=>({...r,customerName:names.get(r.customers?.user_id??"")??"Cliente"}));}});const rows=useMemo(()=>{const now=new Date();return(sales??[]).filter((r)=>{const d=new Date(r.created_at);const inPeriod=period==="todos"||period==="hoje"&&d.toDateString()===now.toDateString()||period==="semana"&&d>=new Date(now.getTime()-7*864e5)||period==="mes"&&d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();return inPeriod&&r.customerName.toLowerCase().includes(search.toLowerCase())})},[sales,period,search]);return <div><PageHeader title="Minhas vendas" description="Histórico atualizado das suas vendas"/><div className="grid gap-3 sm:grid-cols-3"><StatCard label="Vendas" value={rows.length} tone="brand"/><StatCard label="Valor vendido" value={brl(rows.reduce((s,r)=>s+Number(r.amount),0))}/><StatCard label="Comissão gerada" value={brl(rows.reduce((s,r)=>s+Number(r.commission_amount),0))} tone="ink"/></div><div className="mt-5 flex flex-col gap-3 sm:flex-row"><div className="relative flex-1"><Search className="absolute left-3 top-3 size-4 text-muted-foreground"/><Input className="pl-9" placeholder="Buscar cliente" value={search} onChange={(e)=>setSearch(e.target.value)}/></div><select className="h-10 rounded-md border bg-background px-3 text-sm" value={period} onChange={(e)=>setPeriod(e.target.value)}><option value="hoje">Hoje</option><option value="semana">Semana</option><option value="mes">Mês</option><option value="todos">Todo período</option></select></div><div className="mt-3 overflow-x-auto rounded-lg border bg-card"><table className="w-full text-sm"><thead className="border-b text-left text-xs uppercase text-muted-foreground"><tr>{["Cliente","Plano","Valor","Data","Status","Comissão"].map((h)=><th className="p-3" key={h}>{h}</th>)}</tr></thead><tbody>{rows.map((r)=><tr key={r.id} className="border-b last:border-0"><td className="p-3 font-medium">{r.customerName}</td><td className="p-3">{r.plans?.name??"—"}</td><td className="p-3">{brl(r.amount)}</td><td className="p-3">{dateBR(r.created_at)}</td><td className="p-3"><SellerStatus value={r.status}/></td><td className="p-3 font-bold">{brl(r.commission_amount)}</td></tr>)}</tbody></table>{!rows.length&&<p className="p-5 text-sm text-muted-foreground">Nenhuma venda neste período.</p>}</div></div>}
