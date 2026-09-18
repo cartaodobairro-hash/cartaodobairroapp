@@ -1433,6 +1433,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      delete_subscription_with_payments: {
+        Args: { _subscription_id: string }
+        Returns: boolean
+      }
       generate_card_number: { Args: never; Returns: string }
       has_role: {
         Args: {
