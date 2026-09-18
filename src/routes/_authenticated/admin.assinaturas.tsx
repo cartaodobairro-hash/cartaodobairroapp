@@ -1,13 +1,24 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ChevronRight, Search } from "lucide-react";
+import { ChevronRight, Search, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, StatCard } from "@/components/shells";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { brl, dateBR } from "@/lib/format";
+import { isAdminRole, useRoles } from "@/lib/auth";
 import { StatusPill } from "./admin.clientes.index";
 
 export const Route = createFileRoute("/_authenticated/admin/assinaturas")({
@@ -45,6 +56,12 @@ function AdminSubscriptions() {
   const [term, setTerm] = useState("");
   const [filter, setFilter] = useState<Filter>("todas");
   const [busy, setBusy] = useState<string | null>(null);
+  const [subscriptionToDelete, setSubscriptionToDelete] = useState<{
+    id: string;
+    customerName: string;
+  } | null>(null);
+  const { data: roles, isLoading: isLoadingRoles } = useRoles();
+  const canDeleteSubscriptions = isAdminRole(roles);
 
   const { data: subscriptions } = useQuery({
     queryKey: ["admin-subscriptions"],
@@ -86,6 +103,24 @@ function AdminSubscriptions() {
     queryClient.invalidateQueries({ queryKey: ["admin-customers"] });
     queryClient.invalidateQueries({ queryKey: ["admin-payments"] });
   };
+
+  const deleteMutation = useMutation({
+    mutationFn: async (subscriptionId: string) => {
+      const { data, error } = await supabase.rpc("delete_subscription_with_payments", {
+        _subscription_id: subscriptionId,
+      });
+      if (error) throw error;
+      if (!data) throw new Error("Assinatura não encontrada.");
+    },
+    onSuccess: () => {
+      invalidate();
+      setSubscriptionToDelete(null);
+      toast.success("Assinatura e mensalidades excluídas");
+    },
+    onError: (error: Error) => {
+      toast.error("Não foi possível excluir a assinatura", { description: error.message });
+    },
+  });
 
   const all = subscriptions ?? [];
   const isOverdue = (s: (typeof all)[number]) =>
@@ -253,6 +288,23 @@ function AdminSubscriptions() {
                 >
                   Cancelar
                 </Button>
+                {canDeleteSubscriptions && !isLoadingRoles ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="destructive"
+                    disabled={busy === s.id || deleteMutation.isPending}
+                    onClick={() =>
+                      setSubscriptionToDelete({
+                        id: s.id,
+                        customerName: profile?.name ?? "Cliente sem cadastro",
+                      })
+                    }
+                  >
+                    <Trash2 />
+                    Excluir assinatura
+                  </Button>
+                ) : null}
               </div>
             </div>
           );
@@ -261,6 +313,35 @@ function AdminSubscriptions() {
           <p className="text-sm text-muted-foreground">Nenhuma assinatura encontrada.</p>
         ) : null}
       </div>
+
+      <AlertDialog
+        open={Boolean(subscriptionToDelete)}
+        onOpenChange={(open) => !open && setSubscriptionToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir assinatura?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {subscriptionToDelete
+                ? `A assinatura de ${subscriptionToDelete.customerName} e todas as mensalidades vinculadas serão excluídas definitivamente. O cadastro do cliente e o cartão serão mantidos.`
+                : null}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteMutation.isPending}>Voltar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleteMutation.isPending}
+              onClick={(event) => {
+                event.preventDefault();
+                if (subscriptionToDelete) deleteMutation.mutate(subscriptionToDelete.id);
+              }}
+            >
+              {deleteMutation.isPending ? "Excluindo..." : "Excluir assinatura e mensalidades"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
