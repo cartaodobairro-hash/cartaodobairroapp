@@ -1,0 +1,1 @@
+ALTER FUNCTION public.delete_subscription_with_payments(uuid) SECURITY INVOKER;
