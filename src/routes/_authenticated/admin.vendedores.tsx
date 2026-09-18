@@ -38,7 +38,7 @@ function AdminSellers() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("sellers")
-        .select("*, seller_sales(amount, commission_amount)")
+        .select("*, seller_sales(amount, commission_amount, created_at)")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
