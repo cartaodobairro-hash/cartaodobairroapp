@@ -1,13 +1,35 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Search } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ChevronRight, Search, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/shells";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { brl, dateBR, firstOf, maskCpf } from "@/lib/format";
+import { isAdminRole, useRoles } from "@/lib/auth";
+import { deleteCustomerAccount } from "@/lib/account.functions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_authenticated/admin/clientes/")({
+  head: () => ({ meta: [
+    { title: "Clientes | Cartão do Bairro" },
+    { name: "description", content: "Gestão administrativa de clientes, planos e cobranças." },
+    { property: "og:title", content: "Clientes | Cartão do Bairro" },
+    { property: "og:description", content: "Gestão administrativa de clientes, planos e cobranças." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: AdminCustomers,
 });
 
@@ -33,7 +55,21 @@ export function StatusPill({ status }: { status?: string | null }) {
 }
 
 function AdminCustomers() {
+  const queryClient = useQueryClient();
+  const { data: roles, isLoading: isLoadingRoles } = useRoles();
+  const canDeleteCustomers = isAdminRole(roles);
   const [term, setTerm] = useState("");
+  const [customerToDelete, setCustomerToDelete] = useState<{ id: string; name: string } | null>(null);
+
+  const deleteMutation = useMutation({
+    mutationFn: (customerId: string) => deleteCustomerAccount({ data: { customerId } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-customers"] });
+      setCustomerToDelete(null);
+      toast.success("Cliente excluído definitivamente");
+    },
+    onError: (error: Error) => toast.error("Não foi possível excluir o cliente", { description: error.message }),
+  });
 
   const { data: customers } = useQuery({
     queryKey: ["admin-customers"],
@@ -143,13 +179,27 @@ function AdminCustomers() {
                   </td>
                   <td className="p-3 text-muted-foreground">{dateBR(c.created_at)}</td>
                   <td className="p-3 text-right">
-                    <Link
-                      to="/admin/clientes/$id"
-                      params={{ id: c.id }}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-primary"
-                    >
-                      Gerenciar <ChevronRight className="size-3" />
-                    </Link>
+                    <div className="flex items-center justify-end gap-1">
+                      <Link
+                        to="/admin/clientes/$id"
+                        params={{ id: c.id }}
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-primary"
+                      >
+                        Gerenciar <ChevronRight className="size-3" />
+                      </Link>
+                      {canDeleteCustomers && !isLoadingRoles ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive"
+                          aria-label={`Excluir cliente ${p?.name || "sem nome"}`}
+                          onClick={() => setCustomerToDelete({ id: c.id, name: p?.name || "Sem nome" })}
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      ) : null}
+                    </div>
                   </td>
                 </tr>
               );
@@ -160,6 +210,31 @@ function AdminCustomers() {
           <p className="p-4 text-sm text-muted-foreground">Nenhum cliente encontrado.</p>
         ) : null}
       </div>
+      <AlertDialog open={Boolean(customerToDelete)} onOpenChange={(open) => !open && setCustomerToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir cliente definitivamente?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {customerToDelete
+                ? `${customerToDelete.name} perderá o acesso. Perfil, cartão, dependentes, assinaturas, mensalidades, vendas e propostas serão removidos. Essa ação não pode ser desfeita.`
+                : null}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Voltar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleteMutation.isPending}
+              onClick={(event) => {
+                event.preventDefault();
+                if (customerToDelete) deleteMutation.mutate(customerToDelete.id);
+              }}
+            >
+              {deleteMutation.isPending ? "Excluindo..." : "Excluir cliente"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

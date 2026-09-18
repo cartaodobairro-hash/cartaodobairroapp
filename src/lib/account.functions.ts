@@ -216,3 +216,53 @@ export const deleteSellerAccount = createServerFn({ method: "POST" })
     const { error: deleteSellerError } = await supabaseAdmin.from("sellers").delete().eq("id", data.sellerId);
     if (deleteSellerError) throw new Error(deleteSellerError.message || "Login excluído, mas não foi possível remover o cadastro do vendedor.");
   });
+
+export const deleteCustomerAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { customerId: string }) => {
+    if (!input?.customerId?.trim()) throw new Error("Cliente inválido.");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    const { data: role, error: roleError } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .in("role", ["super_admin", "admin", "financeiro"])
+      .limit(1)
+      .maybeSingle();
+    if (roleError || !role) throw new Error("Você não tem permissão para excluir clientes.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: customer, error: customerError } = await supabaseAdmin
+      .from("customers")
+      .select("user_id, seller_leads(id), seller_sales(id)")
+      .eq("id", data.customerId)
+      .maybeSingle();
+    if (customerError) throw new Error(customerError.message);
+    if (!customer) throw new Error("Cliente não encontrado.");
+
+    const saleIds = (customer.seller_sales ?? []).map((sale) => sale.id);
+    const leadIds = (customer.seller_leads ?? []).map((lead) => lead.id);
+
+    const { error: deleteUserError } = await supabaseAdmin.auth.admin.deleteUser(customer.user_id);
+    if (deleteUserError) {
+      throw new Error(deleteUserError.message || "Não foi possível remover o acesso do cliente.");
+    }
+
+    if (saleIds.length) {
+      const { error: commissionError } = await supabaseAdmin
+        .from("seller_commissions")
+        .delete()
+        .in("sale_id", saleIds);
+      if (commissionError) throw new Error("O cliente foi excluído, mas não foi possível limpar suas comissões.");
+
+      const { error: salesError } = await supabaseAdmin.from("seller_sales").delete().in("id", saleIds);
+      if (salesError) throw new Error("O cliente foi excluído, mas não foi possível limpar suas vendas.");
+    }
+
+    if (leadIds.length) {
+      const { error: leadsError } = await supabaseAdmin.from("seller_leads").delete().in("id", leadIds);
+      if (leadsError) throw new Error("O cliente foi excluído, mas não foi possível limpar suas propostas.");
+    }
+  });

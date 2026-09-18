@@ -19,3 +19,4 @@
 - [x] Registrar valor de compra e desconto separadamente nos atendimentos
 - [x] Adicionar exclusão administrativa de assinatura com todas as mensalidades vinculadas
 - [x] Concluir painel completo do vendedor e fluxo de propostas por WhatsApp
+- [x] Adicionar exclusão definitiva de cliente com acesso exclusivo da administração
