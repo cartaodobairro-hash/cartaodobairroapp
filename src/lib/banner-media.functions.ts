@@ -30,7 +30,7 @@ export const getActiveBannerMedia = createServerFn({ method: "POST" })
 
     return Object.fromEntries(
       (data ?? []).flatMap((item, index) =>
-        item.signedUrl && !item.error ? [[item.path ?? allowed[index], item.signedUrl]] : [],
+        item.signedUrl && !item.error ? [[allowed[index], item.signedUrl]] : [],
       ),
     ) as Record<string, string>;
   });
