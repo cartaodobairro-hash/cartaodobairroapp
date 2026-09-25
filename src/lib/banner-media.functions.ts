@@ -29,8 +29,8 @@ export const getActiveBannerMedia = createServerFn({ method: "POST" })
     if (signError) throw new Error("Não foi possível carregar as imagens dos banners.");
 
     return Object.fromEntries(
-      (data ?? []).flatMap((item, index) =>
-        item.signedUrl && !item.error ? [[allowed[index], item.signedUrl]] : [],
+      (data ?? []).flatMap((item) =>
+        item.path && item.signedUrl && !item.error ? [[item.path, item.signedUrl]] : [],
       ),
     ) as Record<string, string>;
   });
