@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { BrandLogo } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -241,7 +242,11 @@ function Field({
   return (
     <div>
       <Label>{label}</Label>
-      <Input className="mt-1" type={type} autoComplete={autoComplete} minLength={minLength} maxLength={255} value={value} required={required} onChange={(e) => onChange(e.target.value)} />
+      {type === "password" ? (
+        <PasswordInput className="mt-1" autoComplete={autoComplete} minLength={minLength} maxLength={255} value={value} required={required} onChange={(e) => onChange(e.target.value)} />
+      ) : (
+        <Input className="mt-1" type={type} autoComplete={autoComplete} minLength={minLength} maxLength={255} value={value} required={required} onChange={(e) => onChange(e.target.value)} />
+      )}
     </div>
   );
 }
