@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth";
 import { BrandLogo } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { maskCpf, maskPhone, onlyDigits } from "@/lib/format";
@@ -281,9 +282,8 @@ function AuthPage() {
               </div>
               <div>
                 <Label htmlFor="senha">Senha</Label>
-                <Input
+                <PasswordInput
                   id="senha"
-                  type="password"
                   required
                   autoComplete="current-password"
                   value={login.password}
@@ -382,9 +382,8 @@ function AuthPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="s1">Senha</Label>
-                  <Input
+                  <PasswordInput
                     id="s1"
-                    type="password"
                     required
                     value={signup.password}
                     onChange={(e) => setSignup({ ...signup, password: e.target.value })}
@@ -392,9 +391,8 @@ function AuthPage() {
                 </div>
                 <div>
                   <Label htmlFor="s2">Confirmar</Label>
-                  <Input
+                  <PasswordInput
                     id="s2"
-                    type="password"
                     required
                     value={signup.confirm}
                     onChange={(e) => setSignup({ ...signup, confirm: e.target.value })}

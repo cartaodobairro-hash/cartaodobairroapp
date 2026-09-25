@@ -11,3 +11,4 @@
 
 - Banner media links for customers are issued by an authenticated server function after checking active banner records; keep storage SELECT admin-only so arbitrary signed-in users cannot browse private files.
 - Seller referral attribution occurs at account creation for email signup and at authenticated login for OAuth/existing accounts; proposal ownership must match the customer's email and CPF before linking, so unpaid referrals are visible immediately without exposing leads publicly.
+- Use the shared PasswordInput for password entry screens so show/hide behavior remains consistent without altering authentication logic.

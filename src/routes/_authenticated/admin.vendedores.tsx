@@ -10,6 +10,7 @@ import { createSellerAccount, deleteSellerAccount, updateSellerAccount } from "@
 import { isAdminRole, useRoles } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -93,7 +94,7 @@ function AdminSellers() {
 
   const update = (field: keyof typeof form, value: string) => setForm((current) => ({ ...current, [field]: value }));
   const field = (label: string, name: keyof typeof form, type = "text", placeholder?: string) => (
-    <div className="space-y-1.5"><Label htmlFor={`seller-${name}`}>{label}</Label><Input id={`seller-${name}`} type={type} placeholder={placeholder} value={form[name]} onChange={(event) => update(name, event.target.value)} /></div>
+    <div className="space-y-1.5"><Label htmlFor={`seller-${name}`}>{label}</Label>{type === "password" ? <PasswordInput id={`seller-${name}`} placeholder={placeholder} value={form[name]} onChange={(event) => update(name, event.target.value)} /> : <Input id={`seller-${name}`} type={type} placeholder={placeholder} value={form[name]} onChange={(event) => update(name, event.target.value)} />}</div>
   );
   const editField = (label: string, name: keyof typeof editForm, type = "text", placeholder?: string) => (
     <div className="space-y-1.5"><Label htmlFor={`edit-seller-${name}`}>{label}</Label><Input id={`edit-seller-${name}`} type={type} placeholder={placeholder} value={editForm[name]} onChange={(event) => setEditForm((current) => ({ ...current, [name]: event.target.value }))} /></div>
