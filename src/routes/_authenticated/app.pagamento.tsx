@@ -73,7 +73,8 @@ function PaymentStep() {
       let query = supabase.from("payments")
         .select("id, amount, status")
         .eq("subscription_id", subscription.id);
-      if ((search.order_nsu && search.order_nsu !== subscription.id) || checkoutPaymentId) query = query.eq("id", search.order_nsu !== subscription.id ? search.order_nsu ?? "" : checkoutPaymentId ?? "");
+      const selectedPaymentId = search.order_nsu && search.order_nsu !== subscription.id ? search.order_nsu : checkoutPaymentId;
+      if (selectedPaymentId) query = query.eq("id", selectedPaymentId);
       else query = query.eq("status", "pendente").order("created_at", { ascending: true }).limit(1);
       const { data, error } = await query.maybeSingle();
       if (error) throw error;
