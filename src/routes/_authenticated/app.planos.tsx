@@ -78,12 +78,6 @@ function AppPlans() {
           .single();
         if (error) throw error;
         customerId = data.id;
-      } else {
-        const { error } = await supabase
-          .from("customers")
-          .update({ plan_id: plan.id, terms_accepted_at: new Date().toISOString() })
-          .eq("id", customerId);
-        if (error) throw error;
       }
 
       const sellerCode = localStorage.getItem("cdb_seller_code") ?? undefined;
@@ -96,6 +90,17 @@ function AppPlans() {
         localStorage.removeItem("cdb_seller_code");
         localStorage.removeItem("cdb_proposal_token");
       }
+
+      if (customerId && subscription?.plan_id === plan.id && subscription.status === "pendente") {
+        await queryClient.invalidateQueries();
+        navigate({ to: "/app/pagamento" });
+        return;
+      }
+
+      const { error: customerError } = await supabase.from("customers")
+        .update({ plan_id: plan.id, terms_accepted_at: new Date().toISOString() })
+        .eq("id", customerId);
+      if (customerError) throw customerError;
 
       const next = new Date();
       if (plan.period === "anual") next.setFullYear(next.getFullYear() + 1);
