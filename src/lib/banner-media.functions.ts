@@ -19,7 +19,9 @@ export const getActiveBannerMedia = createServerFn({ method: "POST" })
       .in("image_url", requested);
     if (error) throw new Error("Não foi possível carregar as imagens dos banners.");
 
-    const allowed = [...new Set((banners ?? []).map((banner) => banner.image_url).filter((path): path is string => !!path && requested.includes(path)))];
+    const allowed = [...new Set((banners ?? [])
+      .map((banner) => banner.image_url)
+      .filter((path): path is string => !!path && requested.includes(path)))];
     if (!allowed.length) return {} as Record<string, string>;
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
