@@ -31,7 +31,7 @@ export const claimSellerReferral = createServerFn({ method: "POST" })
         .neq("status", "perdido")
         .eq("sellers.status", "ativo")
         .maybeSingle();
-      if (error || !lead || lead.customer_id ||
+      if (error || !lead ||
         lead.email?.trim().toLowerCase() !== profile.email?.trim().toLowerCase() ||
         lead.cpf?.replace(/\D/g, "") !== profile.cpf?.replace(/\D/g, "") ||
         (code && lead.sellers?.seller_code?.toLowerCase() !== code.toLowerCase())) {
@@ -57,6 +57,11 @@ export const claimSellerReferral = createServerFn({ method: "POST" })
       .from("customers").select("id, seller_id").eq("user_id", context.userId).maybeSingle();
     if (existingError) throw existingError;
     if (existing?.seller_id && existing.seller_id !== sellerId) throw new Error("Este cadastro já pertence a outro vendedor.");
+    if (leadId && leadId && token) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: leadOwner } = await supabaseAdmin.from("seller_leads").select("customer_id").eq("id", leadId).single();
+      if (leadOwner?.customer_id && leadOwner.customer_id !== existing?.id) throw new Error("Esta proposta já foi utilizada.");
+    }
     const { data: customer, error: customerError } = existing
       ? await context.supabase.from("customers").update({ seller_id: sellerId, ...(planId ? { plan_id: planId } : {}) }).eq("id", existing.id).select("id").single()
       : await context.supabase.from("customers").insert({ user_id: context.userId, seller_id: sellerId, ...(planId ? { plan_id: planId } : {}) }).select("id").single();
