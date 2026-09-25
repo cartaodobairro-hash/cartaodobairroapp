@@ -57,7 +57,7 @@ export const claimSellerReferral = createServerFn({ method: "POST" })
       .from("customers").select("id, seller_id").eq("user_id", context.userId).maybeSingle();
     if (existingError) throw existingError;
     if (existing?.seller_id && existing.seller_id !== sellerId) throw new Error("Este cadastro já pertence a outro vendedor.");
-    if (leadId && leadId && token) {
+    if (leadId) {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const { data: leadOwner } = await supabaseAdmin.from("seller_leads").select("customer_id").eq("id", leadId).single();
       if (leadOwner?.customer_id && leadOwner.customer_id !== existing?.id) throw new Error("Esta proposta já foi utilizada.");
