@@ -103,6 +103,9 @@ function Account() {
           <Button asChild size="sm" variant="outline">
             <Link to="/app/planos">{customer?.plans ? "Trocar de plano" : "Escolher plano"}</Link>
           </Button>
+          {customer?.plan_id ? (
+            <Button asChild size="sm"><Link to="/app/pagamento">Pagar mensalidade</Link></Button>
+          ) : null}
           {(customer?.plans?.max_dependents ?? 0) > 0 ? (
             <Button asChild size="sm" variant="outline">
               <Link to="/app/dependentes">Dependentes</Link>

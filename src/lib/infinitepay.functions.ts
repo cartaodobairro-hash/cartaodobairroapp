@@ -48,7 +48,7 @@ export const createInfinitePayCheckout = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: subscription, error } = await context.supabase
       .from("subscriptions")
-      .select("id, amount, status, customers!inner(user_id), plans(name)")
+      .select("id, amount, status, customers!inner(id, user_id), plans(name)")
       .eq("id", data.subscriptionId)
       .eq("customers.user_id", context.userId)
       .single();

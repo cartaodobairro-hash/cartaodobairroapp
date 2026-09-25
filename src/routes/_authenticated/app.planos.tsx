@@ -13,6 +13,13 @@ import { brl, dateBR } from "@/lib/format";
 import { claimSellerReferral } from "@/lib/seller.functions";
 
 export const Route = createFileRoute("/_authenticated/app/planos")({
+  head: () => ({ meta: [
+    { title: "Escolher plano | Cartão do Bairro" },
+    { name: "description", content: "Escolha ou renove seu plano Individual ou Família do Cartão do Bairro." },
+    { property: "og:title", content: "Escolher plano | Cartão do Bairro" },
+    { property: "og:description", content: "Planos Individual e Família do Cartão do Bairro." },
+    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+  ] }),
   component: AppPlans,
 });
 
@@ -151,6 +158,9 @@ function AppPlans() {
           <p className="text-xs text-muted-foreground">
             {brl(subscription.amount)} • próximo vencimento {dateBR(subscription.next_due_date)}
           </p>
+          {subscription.status !== "cancelado" ? (
+            <Button asChild size="sm" className="mt-2"><Link to="/app/pagamento">Pagar mensalidade</Link></Button>
+          ) : null}
           {(subscription.plans?.max_dependents ?? 0) > 0 ? (
             <Button asChild size="sm" variant="outline" className="mt-2">
               <Link to="/app/dependentes">Gerenciar dependentes</Link>
