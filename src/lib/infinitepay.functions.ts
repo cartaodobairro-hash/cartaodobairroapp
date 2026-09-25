@@ -118,7 +118,7 @@ export const createInfinitePayCheckout = createServerFn({ method: "POST" })
     if (!response.ok || !checkoutUrl) {
       throw new Error(result.message ?? "Não foi possível abrir o pagamento.");
     }
-    return { alreadyPaid: false, checkoutUrl };
+    return { checkoutUrl, paymentId: payment.id };
   });
 
 export const confirmInfinitePayReturn = createServerFn({ method: "POST" })
@@ -133,6 +133,7 @@ export const confirmInfinitePayReturn = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!payment?.subscription_id) throw new Error("Mensalidade não encontrada.");
     if (payment.status === "pago") return { paid: true };
+    if (payment.status !== "pendente") return { paid: false };
 
     const confirmation = await verifyInfinitePayPayment({
       orderNsu: payment.id,

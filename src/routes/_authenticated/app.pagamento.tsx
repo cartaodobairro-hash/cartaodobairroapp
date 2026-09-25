@@ -40,6 +40,7 @@ function PaymentStep() {
   const confirmReturn = useServerFn(confirmInfinitePayReturn);
   const [openingCheckout, setOpeningCheckout] = useState(false);
   const [renewalConfirmed, setRenewalConfirmed] = useState(false);
+  const [checkoutPaymentId, setCheckoutPaymentId] = useState<string | null>(null);
 
   const { data: subscription, isFetching } = useQuery({
     queryKey: ["subscription-payment", customer?.id],
@@ -64,7 +65,7 @@ function PaymentStep() {
   const paid = subscription?.status === "ativo";
 
   const { data: pendingPayment } = useQuery({
-    queryKey: ["pending-payment", subscription?.id, search.order_nsu],
+    queryKey: ["pending-payment", subscription?.id, search.order_nsu, checkoutPaymentId],
     enabled: !!subscription?.id,
     refetchInterval: 6000,
     queryFn: async () => {
@@ -72,7 +73,7 @@ function PaymentStep() {
       let query = supabase.from("payments")
         .select("id, amount, status")
         .eq("subscription_id", subscription.id);
-      if (search.order_nsu) query = query.eq("id", search.order_nsu);
+      if (search.order_nsu || checkoutPaymentId) query = query.eq("id", search.order_nsu ?? checkoutPaymentId ?? "");
       else query = query.eq("status", "pendente").order("created_at", { ascending: true }).limit(1);
       const { data, error } = await query.maybeSingle();
       if (error) throw error;
@@ -81,11 +82,11 @@ function PaymentStep() {
   });
 
   useEffect(() => {
-    if (search.order_nsu && pendingPayment?.status === "pago") {
+    if ((search.order_nsu || checkoutPaymentId) && pendingPayment?.status === "pago") {
       setRenewalConfirmed(true);
       void queryClient.invalidateQueries({ queryKey: ["subscription-payment"] });
     }
-  }, [search.order_nsu, pendingPayment?.status, queryClient]);
+  }, [search.order_nsu, checkoutPaymentId, pendingPayment?.status, queryClient]);
 
   useEffect(() => {
     if (!pendingPayment?.id || pendingPayment.status === "pago" || !search.transaction_nsu || !search.slug) return;
@@ -111,7 +112,10 @@ function PaymentStep() {
     setOpeningCheckout(true);
     try {
       const result = await createCheckout({ data: { subscriptionId: subscription.id } });
-      if (result.checkoutUrl) window.location.assign(result.checkoutUrl);
+      if (result.checkoutUrl) {
+        setCheckoutPaymentId(result.paymentId);
+        window.location.assign(result.checkoutUrl);
+      }
     } catch (error) {
       toast.error("Não foi possível abrir o pagamento", {
         description: error instanceof Error ? error.message : undefined,
