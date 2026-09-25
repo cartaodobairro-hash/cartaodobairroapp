@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Banner media links for customers are issued by an authenticated server function after checking active banner records; keep storage SELECT admin-only so arbitrary signed-in users cannot browse private files.

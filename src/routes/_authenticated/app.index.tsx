@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef } from "react";
 import { CreditCard, MapPin, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,7 +8,7 @@ import { useCustomer, useProfile } from "@/lib/auth";
 import { BrandLogo } from "@/components/brand";
 import { brl, dateBR, firstOf } from "@/lib/format";
 import { useRealtimeCard } from "@/lib/realtime";
-import { useMediaUrls } from "@/lib/media";
+import { getActiveBannerMedia } from "@/lib/banner-media.functions";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/app/")({
@@ -35,10 +36,17 @@ function ClientHome() {
     },
   });
 
-  const { data: bannerMedia } = useMediaUrls(
-    "banners",
-    (banners ?? []).map((b) => b.image_url),
-  );
+  const fetchBannerMedia = useServerFn(getActiveBannerMedia);
+  const mediaPaths = (banners ?? []).map((b) => b.image_url).filter((path): path is string => !!path);
+  const { data: bannerMedia } = useQuery({
+    queryKey: ["active-banner-media", mediaPaths.slice().sort().join("|")],
+    enabled: mediaPaths.length > 0,
+    staleTime: 1000 * 60 * 30,
+    queryFn: async () => {
+      const external = Object.fromEntries(mediaPaths.filter((path) => /^https?:\/\//i.test(path)).map((path) => [path, path]));
+      return { ...external, ...await fetchBannerMedia({ data: mediaPaths.filter((path) => !/^https?:\/\//i.test(path)) }) };
+    },
+  });
 
   useEffect(() => {
     if (!banners?.length || banners.length < 2) {
