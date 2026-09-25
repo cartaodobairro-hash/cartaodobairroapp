@@ -44,7 +44,7 @@ function ClientHome() {
     staleTime: 1000 * 60 * 30,
     queryFn: async () => {
       const external = Object.fromEntries(mediaPaths.filter((path) => /^https?:\/\//i.test(path)).map((path) => [path, path]));
-      return { ...external, ...await fetchBannerMedia({ data: mediaPaths }) };
+      return { ...external, ...await fetchBannerMedia({ data: mediaPaths.filter((path) => !/^https?:\/\//i.test(path)) }) };
     },
   });
 
