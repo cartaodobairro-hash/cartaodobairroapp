@@ -135,8 +135,12 @@ export const confirmInfinitePayReturn = createServerFn({ method: "POST" })
     if (payment.status === "pago") return { paid: true };
     if (payment.status !== "pendente") return { paid: false };
 
+    const request = getRequest();
+    const returnUrl = request?.headers.get("referer");
+    const returnedOrder = returnUrl ? new URL(returnUrl).searchParams.get("order_nsu") : null;
+    const orderNsu = returnedOrder === payment.subscription_id ? payment.subscription_id : payment.id;
     const confirmation = await verifyInfinitePayPayment({
-      orderNsu: payment.id,
+      orderNsu,
       transactionNsu: data.transactionNsu,
       slug: data.slug,
     });
