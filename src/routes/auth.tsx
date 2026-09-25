@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { maskCpf, maskPhone, onlyDigits } from "@/lib/format";
 import { signInWithIdentifier } from "@/lib/account.functions";
+import { claimSellerReferral } from "@/lib/seller.functions";
 import {
   biometricAvailable,
   biometricEnroll,
@@ -36,6 +37,8 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Acesse sua conta do Cartão do Bairro ou crie seu cadastro." },
       { property: "og:title", content: "Entrar — Cartão do Bairro" },
       { property: "og:description", content: "Acesse sua conta do Cartão do Bairro." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: AuthPage,
@@ -76,6 +79,20 @@ function AuthPage() {
     } else if (roles.includes("seller")) {
       navigate({ to: "/vendedor" });
     } else {
+      const sellerCode = localStorage.getItem("cdb_seller_code") ?? vendedor;
+      const proposalToken = localStorage.getItem("cdb_proposal_token") ?? proposta;
+      if (sellerCode || proposalToken) {
+        try {
+          await claimSellerReferral({ data: {
+            ...(sellerCode ? { sellerCode } : {}),
+            ...(proposalToken ? { proposalToken } : {}),
+          } });
+          localStorage.removeItem("cdb_seller_code");
+          localStorage.removeItem("cdb_proposal_token");
+        } catch (error) {
+          toast.error("Não foi possível vincular sua indicação", { description: error instanceof Error ? error.message : undefined });
+        }
+      }
       const { data: seller } = await supabase
         .from("sellers")
         .select("id")
@@ -180,6 +197,7 @@ function AuthPage() {
           cpf: onlyDigits(signup.cpf),
           phone: onlyDigits(signup.phone),
           seller_code: vendedor ?? null,
+           proposal_token: proposta ?? null,
         },
       },
     });
@@ -188,8 +206,6 @@ function AuthPage() {
       toast.error("Não foi possível criar a conta", { description: error.message });
       return;
     }
-    if (vendedor) localStorage.setItem("cdb_seller_code", vendedor);
-    if (proposta) localStorage.setItem("cdb_proposal_token", proposta);
     toast.success("Conta criada!", { description: "Confirme seu e-mail para ativar o acesso." });
     setTab("login");
   }

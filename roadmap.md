@@ -1,5 +1,9 @@
 # Roadmap
 
+- [x] Registrar imediatamente clientes indicados pelo link ou QR Code para acompanhamento administrativo antes do pagamento
+- [x] Vincular proposta ao cadastro pelo e-mail e CPF e mostrar vendedor na lista administrativa
+- [ ] Enviar aviso adicional de cadastro por e-mail — aguarda domínio de envio próprio; validação de e-mail usa o envio padrão
+
 - [x] Integrar retorno e confirmação automática do pagamento InfinitePay
 - [x] Dar baixa na mensalidade e ativar cliente, assinatura e cartão automaticamente
 

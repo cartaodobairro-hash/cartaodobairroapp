@@ -77,7 +77,7 @@ function AdminCustomers() {
       const { data, error } = await supabase
         .from("customers")
         .select(
-          "id, user_id, city, neighborhood, status, created_at, plans(name, price, period, max_dependents), cards(card_number, status), dependents(id, removed_at, status), subscriptions(id, status, amount, next_due_date, created_at)",
+          "id, user_id, seller_id, city, neighborhood, status, created_at, sellers(name, seller_code), plans(name, price, period, max_dependents), cards(card_number, status), dependents(id, removed_at, status), subscriptions(id, status, amount, next_due_date, created_at)",
         )
         .order("created_at", { ascending: false })
         .limit(200);
@@ -118,7 +118,7 @@ function AdminCustomers() {
 
   return (
     <div>
-      <PageHeader title="Clientes" description="Associados, planos, dependentes e financeiro" />
+      <PageHeader title="Clientes" description="Cadastros, indicações, planos e pagamentos pendentes" />
 
       <div className="relative mb-3 max-w-sm">
         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -135,6 +135,7 @@ function AdminCustomers() {
           <thead className="border-b border-border text-left text-xs uppercase text-muted-foreground">
             <tr>
               <th className="p-3">Cliente</th>
+              <th className="p-3">Vendedor</th>
               <th className="p-3">CPF</th>
               <th className="p-3">Cartão</th>
               <th className="p-3">Plano</th>
@@ -161,6 +162,7 @@ function AdminCustomers() {
                     <p className="font-semibold">{p?.name || "Sem nome"}</p>
                     <p className="text-xs text-muted-foreground">{p?.email ?? "—"}</p>
                   </td>
+                  <td className="p-3 text-xs">{c.sellers?.name ?? "—"}</td>
                   <td className="p-3 font-mono text-xs">{p?.cpf ? maskCpf(p.cpf) : "—"}</td>
                   <td className="p-3 font-mono text-xs">
                     {firstOf(c.cards)?.card_number ?? "—"}
