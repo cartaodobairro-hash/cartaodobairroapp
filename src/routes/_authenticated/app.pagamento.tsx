@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, ExternalLink, Loader2 } from "lucide-react";
@@ -34,12 +34,10 @@ type PlanInfo = { name: string; price: number; period: string; payment_link: str
 
 function PaymentStep() {
   const { data: customer } = useCustomer();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const search = Route.useSearch();
   const createCheckout = useServerFn(createInfinitePayCheckout);
   const confirmReturn = useServerFn(confirmInfinitePayReturn);
-  const [finishing, setFinishing] = useState(false);
   const [openingCheckout, setOpeningCheckout] = useState(false);
   const [renewalConfirmed, setRenewalConfirmed] = useState(false);
 
@@ -66,25 +64,31 @@ function PaymentStep() {
   const paid = subscription?.status === "ativo";
 
   const { data: pendingPayment } = useQuery({
-    queryKey: ["pending-payment", subscription?.id],
+    queryKey: ["pending-payment", subscription?.id, search.order_nsu],
     enabled: !!subscription?.id,
     refetchInterval: 6000,
     queryFn: async () => {
       if (!subscription?.id) return null;
-      const { data, error } = await supabase.from("payments")
+      let query = supabase.from("payments")
         .select("id, amount, status")
-        .eq("subscription_id", subscription.id)
-        .eq("status", "pendente")
-        .order("created_at", { ascending: true })
-        .limit(1)
-        .maybeSingle();
+        .eq("subscription_id", subscription.id);
+      if (search.order_nsu) query = query.eq("id", search.order_nsu);
+      else query = query.eq("status", "pendente").order("created_at", { ascending: true }).limit(1);
+      const { data, error } = await query.maybeSingle();
       if (error) throw error;
       return data;
     },
   });
 
   useEffect(() => {
-    if (!pendingPayment?.id || !search.transaction_nsu || !search.slug) return;
+    if (search.order_nsu && pendingPayment?.status === "pago") {
+      setRenewalConfirmed(true);
+      void queryClient.invalidateQueries({ queryKey: ["subscription-payment"] });
+    }
+  }, [search.order_nsu, pendingPayment?.status, queryClient]);
+
+  useEffect(() => {
+    if (!pendingPayment?.id || pendingPayment.status === "pago" || !search.transaction_nsu || !search.slug) return;
     void confirmReturn({
       data: {
         paymentId: pendingPayment.id,
@@ -116,20 +120,6 @@ function PaymentStep() {
       setOpeningCheckout(false);
     }
   }
-
-  useEffect(() => {
-    if (!paid || !renewalConfirmed || finishing || subscription?.status === "ativo") return;
-    setFinishing(true);
-    void (async () => {
-      toast.success("Pagamento confirmado!", {
-        description: "Seu acesso foi liberado. Entre novamente para usar o cartão.",
-      });
-      await queryClient.cancelQueries();
-      queryClient.clear();
-      await supabase.auth.signOut();
-      navigate({ to: "/auth", search: { modo: "login" }, replace: true });
-    })();
-  }, [paid, renewalConfirmed, finishing, navigate, queryClient, subscription?.status]);
 
   return (
     <div className="px-4 pt-5">
