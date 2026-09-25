@@ -89,7 +89,7 @@ function PaymentStep() {
   }, [search.order_nsu, checkoutPaymentId, pendingPayment?.status, queryClient]);
 
   useEffect(() => {
-    if (!pendingPayment?.id || pendingPayment.status === "pago" || !search.transaction_nsu || !search.slug) return;
+    if (!pendingPayment?.id || pendingPayment.status === "pago" || !search.order_nsu || !search.transaction_nsu || !search.slug) return;
     void confirmReturn({
       data: {
         paymentId: pendingPayment.id,

@@ -14,13 +14,6 @@ function pick(obj: unknown, keys: string[]): string | null {
   return null;
 }
 
-function amountInReais(payload: unknown): number | null {
-  if (!payload || typeof payload !== "object") return null;
-  const raw = (payload as Record<string, unknown>)["amount"];
-  const cents = typeof raw === "number" ? raw : typeof raw === "string" ? Number(raw) : NaN;
-  return Number.isFinite(cents) ? cents / 100 : null;
-}
-
 export const Route = createFileRoute("/api/public/webhooks/infinitepay")({
   server: {
     handlers: {
