@@ -131,6 +131,7 @@ export type Database = {
           discount_percentage: number
           discount_price: number | null
           id: string
+          image_url: string | null
           normal_price: number | null
           partner_id: string
           requires_scheduling: boolean
@@ -146,6 +147,7 @@ export type Database = {
           discount_percentage?: number
           discount_price?: number | null
           id?: string
+          image_url?: string | null
           normal_price?: number | null
           partner_id: string
           requires_scheduling?: boolean
@@ -161,6 +163,7 @@ export type Database = {
           discount_percentage?: number
           discount_price?: number | null
           id?: string
+          image_url?: string | null
           normal_price?: number | null
           partner_id?: string
           requires_scheduling?: boolean
