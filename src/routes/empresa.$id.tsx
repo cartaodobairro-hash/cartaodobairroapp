@@ -7,6 +7,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { brl, mapsDirectionsUrl, mapsEmbedUrl, partnerAddress } from "@/lib/format";
+import { useMediaUrls } from "@/lib/media";
 
 type PartnerView = Pick<
   Database["public"]["Tables"]["partners"]["Row"],
@@ -39,6 +40,8 @@ export const Route = createFileRoute("/empresa/$id")({
       },
       { property: "og:title", content: "Empresa parceira — Cartão do Bairro" },
       { property: "og:description", content: "Benefícios exclusivos para associados." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: PartnerPage,
@@ -80,6 +83,8 @@ function PartnerPage() {
       return data;
     },
   });
+
+  const { data: benefitImages } = useMediaUrls("benefit-images", (partner?.benefits ?? []).filter((b) => b.status === "ativo").map((b) => b.image_url));
 
   async function toggleFavorite() {
     if (!user) {
@@ -135,6 +140,9 @@ function PartnerPage() {
         <div className="space-y-3">
           {activeBenefits.map((b) => (
             <div key={b.id} className="rounded-2xl border border-border bg-card p-4 shadow-card">
+              {b.image_url && benefitImages?.[b.image_url] ? (
+                <img src={benefitImages[b.image_url]} alt={b.title} className="mb-3 aspect-[16/9] w-full rounded-md object-cover" />
+              ) : null}
               <div className="flex items-start justify-between gap-3">
                 <p className="font-bold">{b.title}</p>
                 <span className="rounded-full surface-brand px-3 py-1 text-xs font-bold">
