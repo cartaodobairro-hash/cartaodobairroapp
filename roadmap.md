@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Mostrar imediatamente cada cadastro de cliente no painel administrativo e, quando indicado, no painel do vendedor, sem exigir pagamento
+- [x] Mostrar imediatamente cada cadastro de cliente no painel administrativo e, quando indicado, no painel do vendedor, sem exigir pagamento
 - [x] Manter pagamento InfinitePay acessível a novos cadastros e clientes existentes, inclusive renovação de assinatura ativa
 - [ ] Confirmar liberação/renovação automática com uma transação real — aguarda pagamento de teste de um cliente; a conta disponível para validação não possui assinatura
 
