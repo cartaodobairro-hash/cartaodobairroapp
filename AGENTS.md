@@ -15,3 +15,4 @@
 - InfinitePay checkout orders identify a specific pending payment; verification and activation must match that payment and its amount before extending a subscription, so renewals cannot double-count or credit the wrong installment.
 - Create a pending customer record at registration, independently of plan/payment; seller client lists merge registered customers with unconverted proposals so both panels show unpaid signups.
 - Partner logos live in the private partner-logos bucket under the owning partner ID; storage access is owner-scoped so one partner cannot browse another's uploads.
+- Benefit product images live in the private benefit-images bucket under the owning partner ID; active benefits of approved partners may be viewed by visitors through signed links, avoiding public access to unrelated files.
