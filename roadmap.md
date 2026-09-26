@@ -1,7 +1,7 @@
 # Roadmap
 
-- [ ] Manter pagamento InfinitePay acessível a novos cadastros e clientes existentes, inclusive renovação de assinatura ativa
-- [ ] Confirmar liberação/renovação automática e testar os caminhos de pagamento
+- [x] Manter pagamento InfinitePay acessível a novos cadastros e clientes existentes, inclusive renovação de assinatura ativa
+- [ ] Confirmar liberação/renovação automática com uma transação real — aguarda pagamento de teste de um cliente; a conta disponível para validação não possui assinatura
 
 - [x] Registrar imediatamente clientes indicados pelo link ou QR Code para acompanhamento administrativo antes do pagamento
 - [x] Vincular proposta ao cadastro pelo e-mail e CPF e mostrar vendedor na lista administrativa
