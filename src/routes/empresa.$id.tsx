@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, Heart, MapPin, Phone, Star } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,7 +8,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { brl, mapsDirectionsUrl, mapsEmbedUrl, partnerAddress } from "@/lib/format";
-import { useMediaUrls } from "@/lib/media";
+import { getActiveBenefitImages } from "@/lib/benefit-image.functions";
 
 type PartnerView = Pick<
   Database["public"]["Tables"]["partners"]["Row"],
@@ -84,7 +85,14 @@ function PartnerPage() {
     },
   });
 
-  const { data: benefitImages } = useMediaUrls("benefit-images", (partner?.benefits ?? []).filter((b) => b.status === "ativo").map((b) => b.image_url));
+  const fetchBenefitImages = useServerFn(getActiveBenefitImages);
+  const imagePaths = [...new Set((partner?.benefits ?? []).filter((b) => b.status === "ativo").map((b) => b.image_url).filter((path): path is string => !!path))];
+  const { data: benefitImages } = useQuery({
+    queryKey: ["active-benefit-images", imagePaths.slice().sort().join("|")],
+    enabled: imagePaths.length > 0,
+    staleTime: 30 * 60 * 1000,
+    queryFn: () => fetchBenefitImages({ data: imagePaths }),
+  });
 
   async function toggleFavorite() {
     if (!user) {
