@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Mostrar a logo cadastrada antes do nome do parceiro nas listas de empresas, destaques e favoritos
+
 - [x] Permitir foto JPG/PNG de produto nos benefícios do parceiro e exibi-la para clientes
 
 - [x] Mostrar imediatamente cada cadastro de cliente no painel administrativo e, quando indicado, no painel do vendedor, sem exigir pagamento
