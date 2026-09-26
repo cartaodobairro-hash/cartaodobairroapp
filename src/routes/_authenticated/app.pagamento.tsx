@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, ExternalLink, Loader2 } from "lucide-react";
@@ -134,7 +134,12 @@ function PaymentStep() {
       />
 
       <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
-        {renewalConfirmed ? (
+        {!subscription && !isFetching ? (
+          <div className="space-y-3 text-sm">
+            <p>Escolha um plano para continuar com o pagamento.</p>
+            <Button asChild><Link to="/app/planos">Escolher plano</Link></Button>
+          </div>
+        ) : renewalConfirmed ? (
           <div className="flex items-center gap-3 text-sm font-semibold">
             <CheckCircle2 className="size-5 text-primary" />
             Pagamento confirmado! Sua assinatura está em dia.

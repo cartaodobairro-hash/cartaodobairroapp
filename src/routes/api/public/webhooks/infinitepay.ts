@@ -53,10 +53,22 @@ export const Route = createFileRoute("/api/public/webhooks/infinitepay")({
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data: payment, error: lookupError } = await supabaseAdmin.from("payments")
+        let { data: payment, error: lookupError } = await supabaseAdmin.from("payments")
           .select("id, amount, subscription_id")
           .eq("id", paymentId)
           .maybeSingle();
+        // Checkouts generated before individual installment IDs used the subscription ID.
+        if (!lookupError && !payment) {
+          const legacy = await supabaseAdmin.from("payments")
+            .select("id, amount, subscription_id")
+            .eq("subscription_id", paymentId)
+            .eq("status", "pendente")
+            .order("created_at", { ascending: true })
+            .limit(1)
+            .maybeSingle();
+          payment = legacy.data;
+          lookupError = legacy.error;
+        }
         if (lookupError || !payment?.subscription_id) return new Response("Payment not found", { status: 404 });
         if (checked.amount !== Math.round(Number(payment.amount) * 100)) return new Response("Amount mismatch", { status: 400 });
         const args: { _subscription_id: string; _amount: number; _transaction_id: string; _payment_id: string } = {
