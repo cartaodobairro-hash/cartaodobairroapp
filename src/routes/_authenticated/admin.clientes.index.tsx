@@ -89,7 +89,7 @@ function AdminCustomers() {
   const userIds = (customers ?? []).map((c) => c.user_id).filter(Boolean);
 
   const { data: profiles } = useQuery({
-    queryKey: ["admin-customer-profiles", userIds.length],
+    queryKey: ["admin-customer-profiles", userIds.join(",")],
     enabled: userIds.length > 0,
     queryFn: async () => {
       const { data, error } = await supabase

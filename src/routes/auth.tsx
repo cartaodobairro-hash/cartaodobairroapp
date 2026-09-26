@@ -215,14 +215,15 @@ function AuthPage() {
     if (vendedor) localStorage.setItem("cdb_seller_code", vendedor);
     if (proposta) localStorage.setItem("cdb_proposal_token", proposta);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: `${window.location.origin}/auth`,
     });
     if (result.error) {
       toast.error("Falha no login com Google");
       return;
     }
     if (result.redirected) return;
-    navigate({ to: "/app" });
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (sessionData.session) await goToAccountHome(sessionData.session.user.id);
   }
 
   return (

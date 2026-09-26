@@ -40,7 +40,7 @@ function SellerHome() {
     queryKey: ["seller-dashboard", seller?.id],
     enabled: !!seller?.id,
     queryFn: async () => {
-      const [salesResult, leadsResult, commissionsResult] = await Promise.all([
+      const [salesResult, leadsResult, commissionsResult, customersResult] = await Promise.all([
         supabase
           .from("seller_sales")
           .select("id, amount, commission_amount, status, created_at")
@@ -57,13 +57,37 @@ function SellerHome() {
           .from("seller_commissions")
           .select("amount, status")
           .eq("seller_id", seller!.id),
+        supabase.from("customers").select("id, user_id, status, created_at, subscriptions(status)")
+          .eq("seller_id", seller!.id).order("created_at", { ascending: false }).limit(100),
       ]);
       if (salesResult.error) throw salesResult.error;
       if (leadsResult.error) throw leadsResult.error;
       if (commissionsResult.error) throw commissionsResult.error;
+      if (customersResult.error) throw customersResult.error;
+      const customers = customersResult.data ?? [];
+      const [profilesResult, linkedLeadsResult] = await Promise.all([
+        customers.length
+          ? supabase.from("profiles").select("id, name, phone").in("id", customers.map((customer) => customer.user_id))
+          : Promise.resolve({ data: [], error: null }),
+        customers.length
+          ? supabase.from("seller_leads").select("customer_id").eq("seller_id", seller!.id).in("customer_id", customers.map((customer) => customer.id))
+          : Promise.resolve({ data: [], error: null }),
+      ]);
+      if (profilesResult.error) throw profilesResult.error;
+      if (linkedLeadsResult.error) throw linkedLeadsResult.error;
+      const profiles = new Map((profilesResult.data ?? []).map((profile) => [profile.id, profile]));
+      const linked = new Set((linkedLeadsResult.data ?? []).map((lead) => lead.customer_id));
+      const directRegistrations = customers.filter((customer) => !linked.has(customer.id)).map((customer) => ({
+        id: customer.id,
+        name: profiles.get(customer.user_id)?.name || "Sem nome",
+        phone: profiles.get(customer.user_id)?.phone ?? null,
+        status: (customer.subscriptions?.some((subscription) => subscription.status === "ativo") || customer.status === "ativo" ? "ativo" : "cadastro") as LeadStatus,
+        created_at: customer.created_at,
+        last_contact_at: null,
+      }));
       return {
         sales: salesResult.data ?? [],
-        leads: leadsResult.data ?? [],
+        leads: [...(leadsResult.data ?? []), ...directRegistrations].sort((a, b) => b.created_at.localeCompare(a.created_at)),
         commissions: commissionsResult.data ?? [],
       };
     },

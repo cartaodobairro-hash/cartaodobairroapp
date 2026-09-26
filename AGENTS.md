@@ -13,3 +13,4 @@
 - Seller referral attribution occurs at account creation for email signup and at authenticated login for OAuth/existing accounts; proposal ownership must match the customer's email and CPF before linking, so unpaid referrals are visible immediately without exposing leads publicly.
 - Use the shared PasswordInput for password entry screens so show/hide behavior remains consistent without altering authentication logic.
 - InfinitePay checkout orders identify a specific pending payment; verification and activation must match that payment and its amount before extending a subscription, so renewals cannot double-count or credit the wrong installment.
+- Create a pending customer record at registration, independently of plan/payment; seller client lists merge registered customers with unconverted proposals so both panels show unpaid signups.
