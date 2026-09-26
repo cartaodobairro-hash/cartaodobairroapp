@@ -17,7 +17,7 @@ export function useApprovedPartnerLogos(paths: (string | null | undefined)[]) {
   });
 }
 
-export function PartnerLogo({ name, url }: { name: string; url?: string }) {
+export function PartnerLogo({ name, url }: { name: string; url: string | undefined }) {
   if (!url) return null;
   return <img src={url} alt={`Logo de ${name}`} loading="lazy" className="size-11 shrink-0 rounded-md border border-border bg-card object-contain" />;
 }
