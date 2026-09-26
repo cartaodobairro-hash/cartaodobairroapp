@@ -83,11 +83,11 @@ function PaymentStep() {
   });
 
   useEffect(() => {
-    if ((search.order_nsu || checkoutPaymentId) && pendingPayment?.status === "pago") {
+    if (!renewalConfirmed && (search.order_nsu || checkoutPaymentId) && pendingPayment?.status === "pago") {
       setRenewalConfirmed(true);
       void queryClient.invalidateQueries({ queryKey: ["subscription-payment"] });
     }
-  }, [search.order_nsu, checkoutPaymentId, pendingPayment?.status, queryClient]);
+  }, [search.order_nsu, checkoutPaymentId, pendingPayment?.status, queryClient, renewalConfirmed]);
 
   useEffect(() => {
     if (!pendingPayment?.id || pendingPayment.status === "pago" || !search.order_nsu || !search.transaction_nsu || !search.slug) return;
@@ -134,7 +134,7 @@ function PaymentStep() {
       />
 
       <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
-        {!subscription && !isFetching ? (
+        {!customer || (!subscription && !isFetching) ? (
           <div className="space-y-3 text-sm">
             <p>Escolha um plano para continuar com o pagamento.</p>
             <Button asChild><Link to="/app/planos">Escolher plano</Link></Button>

@@ -63,6 +63,7 @@ export const Route = createFileRoute("/api/public/webhooks/infinitepay")({
             .select("id, amount, subscription_id")
             .eq("subscription_id", paymentId)
             .eq("status", "pendente")
+            .eq("amount", checked.amount / 100)
             .order("created_at", { ascending: true })
             .limit(1)
             .maybeSingle();
