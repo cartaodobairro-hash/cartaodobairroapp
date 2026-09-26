@@ -14,13 +14,6 @@ function pick(obj: unknown, keys: string[]): string | null {
   return null;
 }
 
-function amountInReais(payload: unknown): number | null {
-  if (!payload || typeof payload !== "object") return null;
-  const raw = (payload as Record<string, unknown>)["amount"];
-  const cents = typeof raw === "number" ? raw : typeof raw === "string" ? Number(raw) : NaN;
-  return Number.isFinite(cents) ? cents / 100 : null;
-}
-
 export const Route = createFileRoute("/api/public/webhooks/infinitepay")({
   server: {
     handlers: {
@@ -32,10 +25,10 @@ export const Route = createFileRoute("/api/public/webhooks/infinitepay")({
           return new Response("Invalid payload", { status: 400 });
         }
 
-        const subscriptionId = pick(payload, ["order_nsu"]);
+        const paymentId = pick(payload, ["order_nsu"]);
         const transactionId = pick(payload, ["transaction_nsu"]);
         const slug = pick(payload, ["invoice_slug", "slug"]);
-        if (!subscriptionId || !transactionId || !slug) {
+        if (!paymentId || !transactionId || !slug) {
           return new Response("Missing payment identifiers", { status: 400 });
         }
 
@@ -44,7 +37,7 @@ export const Route = createFileRoute("/api/public/webhooks/infinitepay")({
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             handle: "cartao-do-bairro",
-            order_nsu: subscriptionId,
+            order_nsu: paymentId,
             transaction_nsu: transactionId,
             slug,
           }),
@@ -55,17 +48,36 @@ export const Route = createFileRoute("/api/public/webhooks/infinitepay")({
           paid?: boolean;
           amount?: number;
         };
-        if (checked.success !== true || checked.paid !== true) {
+        if (checked.success !== true || checked.paid !== true || typeof checked.amount !== "number") {
           return new Response("Payment not confirmed", { status: 400 });
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const args: { _subscription_id: string; _amount?: number; _transaction_id: string } = {
-          _subscription_id: subscriptionId,
+        let { data: payment, error: lookupError } = await supabaseAdmin.from("payments")
+          .select("id, amount, subscription_id")
+          .eq("id", paymentId)
+          .maybeSingle();
+        // Checkouts generated before individual installment IDs used the subscription ID.
+        if (!lookupError && !payment) {
+          const legacy = await supabaseAdmin.from("payments")
+            .select("id, amount, subscription_id")
+            .eq("subscription_id", paymentId)
+            .eq("status", "pendente")
+            .eq("amount", checked.amount / 100)
+            .order("created_at", { ascending: true })
+            .limit(1)
+            .maybeSingle();
+          payment = legacy.data;
+          lookupError = legacy.error;
+        }
+        if (lookupError || !payment?.subscription_id) return new Response("Payment not found", { status: 404 });
+        if (checked.amount !== Math.round(Number(payment.amount) * 100)) return new Response("Amount mismatch", { status: 400 });
+        const args: { _subscription_id: string; _amount: number; _transaction_id: string; _payment_id: string } = {
+          _subscription_id: payment.subscription_id,
+          _payment_id: payment.id,
+          _amount: checked.amount / 100,
           _transaction_id: transactionId,
         };
-        const amount = typeof checked.amount === "number" ? checked.amount / 100 : amountInReais(payload);
-        if (amount !== null) args._amount = amount;
         const { data, error } = await supabaseAdmin.rpc("activate_subscription_by_id", args);
 
         if (error) return new Response(error.message, { status: 500 });

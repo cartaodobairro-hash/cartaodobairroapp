@@ -29,6 +29,8 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "Benefícios e descontos reais em empresas parceiras do seu bairro.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Landing,

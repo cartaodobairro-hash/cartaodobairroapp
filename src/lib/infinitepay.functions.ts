@@ -11,7 +11,7 @@ const checkoutInput = z.object({
 });
 
 const confirmationInput = z.object({
-  subscriptionId: z.string().uuid(),
+  paymentId: z.string().uuid(),
   transactionNsu: z.string().min(1).max(200),
   slug: z.string().min(1).max(200),
 });
@@ -39,7 +39,7 @@ async function verifyInfinitePayPayment(input: {
   });
   if (!response.ok) throw new Error("Não foi possível confirmar o pagamento no InfinitePay.");
   const result = (await response.json()) as PaymentCheck;
-  return result.success === true && result.paid === true ? result : null;
+  return result.success === true && result.paid === true && typeof result.amount === "number" ? result : null;
 }
 
 export const createInfinitePayCheckout = createServerFn({ method: "POST" })
@@ -48,12 +48,32 @@ export const createInfinitePayCheckout = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: subscription, error } = await context.supabase
       .from("subscriptions")
-      .select("id, amount, status, customers!inner(user_id), plans(name)")
+      .select("id, amount, status, customers!inner(id, user_id), plans(name)")
       .eq("id", data.subscriptionId)
       .eq("customers.user_id", context.userId)
       .single();
     if (error || !subscription) throw new Error("Assinatura não encontrada.");
-    if (subscription.status === "ativo") return { alreadyPaid: true, checkoutUrl: null };
+    if (subscription.status === "cancelado") throw new Error("Esta assinatura foi cancelada. Escolha um plano novamente.");
+
+    const { data: pending, error: pendingError } = await context.supabase
+      .from("payments")
+      .select("id, amount")
+      .eq("subscription_id", subscription.id)
+      .eq("status", "pendente")
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    if (pendingError) throw pendingError;
+    let payment = pending;
+    if (!payment) {
+      const { data: created, error: createError } = await context.supabase
+        .from("payments")
+        .insert({ customer_id: subscription.customers.id, subscription_id: subscription.id, amount: subscription.amount, method: "infinitepay", status: "pendente" })
+        .select("id, amount")
+        .single();
+      if (createError || !created) throw new Error("Não foi possível preparar a mensalidade.");
+      payment = created;
+    }
 
     const request = getRequest();
     const requestOrigin = request ? new URL(request.url).origin : PUBLISHED_ORIGIN;
@@ -69,13 +89,13 @@ export const createInfinitePayCheckout = createServerFn({ method: "POST" })
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         handle: INFINITEPAY_HANDLE,
-        order_nsu: subscription.id,
+        order_nsu: payment.id,
         redirect_url: `${publicOrigin}/app/pagamento?retorno=infinitepay`,
         webhook_url: `${publicOrigin}/api/public/webhooks/infinitepay`,
         items: [
           {
             quantity: 1,
-            price: Math.round(Number(subscription.amount) * 100),
+            price: Math.round(Number(payment.amount) * 100),
             description: `Cartão do Bairro — ${subscription.plans?.name ?? "Plano"}`,
           },
         ],
@@ -98,36 +118,45 @@ export const createInfinitePayCheckout = createServerFn({ method: "POST" })
     if (!response.ok || !checkoutUrl) {
       throw new Error(result.message ?? "Não foi possível abrir o pagamento.");
     }
-    return { alreadyPaid: false, checkoutUrl };
+    return { checkoutUrl, paymentId: payment.id };
   });
 
 export const confirmInfinitePayReturn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => confirmationInput.parse(input))
   .handler(async ({ data, context }) => {
-    const { data: subscription } = await context.supabase
-      .from("subscriptions")
-      .select("id, customers!inner(user_id)")
-      .eq("id", data.subscriptionId)
-      .eq("customers.user_id", context.userId)
+    const { data: payment } = await context.supabase
+      .from("payments")
+      .select("id, amount, status, subscription_id, subscriptions!inner(id, customers!inner(user_id))")
+      .eq("id", data.paymentId)
+      .eq("subscriptions.customers.user_id", context.userId)
       .maybeSingle();
-    if (!subscription) throw new Error("Assinatura não encontrada.");
+    if (!payment?.subscription_id) throw new Error("Mensalidade não encontrada.");
+    if (payment.status === "pago") return { paid: true };
+    if (payment.status !== "pendente") return { paid: false };
 
+    const request = getRequest();
+    const returnUrl = request?.headers.get("referer");
+    const returnedOrder = returnUrl ? new URL(returnUrl).searchParams.get("order_nsu") : null;
+    const orderNsu = returnedOrder === payment.subscription_id ? payment.subscription_id : payment.id;
     const confirmation = await verifyInfinitePayPayment({
-      orderNsu: subscription.id,
+      orderNsu,
       transactionNsu: data.transactionNsu,
       slug: data.slug,
     });
     if (!confirmation) return { paid: false };
+    if (confirmation.amount !== Math.round(Number(payment.amount) * 100)) throw new Error("O valor pago não corresponde à mensalidade.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const activationArgs: {
       _subscription_id: string;
       _transaction_id: string;
       _amount?: number;
+      _payment_id: string;
     } = {
-      _subscription_id: subscription.id,
+      _subscription_id: payment.subscription_id,
       _transaction_id: data.transactionNsu,
+      _payment_id: payment.id,
     };
     if (typeof confirmation.amount === "number") activationArgs._amount = confirmation.amount / 100;
     const { data: activated, error } = await supabaseAdmin.rpc(

@@ -1494,6 +1494,7 @@ export type Database = {
       activate_subscription_by_id: {
         Args: {
           _amount?: number
+          _payment_id?: string
           _subscription_id: string
           _transaction_id?: string
         }

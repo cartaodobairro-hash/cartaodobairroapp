@@ -13,6 +13,13 @@ import { brl, dateBR } from "@/lib/format";
 import { claimSellerReferral } from "@/lib/seller.functions";
 
 export const Route = createFileRoute("/_authenticated/app/planos")({
+  head: () => ({ meta: [
+    { title: "Escolher plano | Cartão do Bairro" },
+    { name: "description", content: "Escolha ou renove seu plano Individual ou Família do Cartão do Bairro." },
+    { property: "og:title", content: "Escolher plano | Cartão do Bairro" },
+    { property: "og:description", content: "Planos Individual e Família do Cartão do Bairro." },
+    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+  ] }),
   component: AppPlans,
 });
 
@@ -71,12 +78,6 @@ function AppPlans() {
           .single();
         if (error) throw error;
         customerId = data.id;
-      } else {
-        const { error } = await supabase
-          .from("customers")
-          .update({ plan_id: plan.id, terms_accepted_at: new Date().toISOString() })
-          .eq("id", customerId);
-        if (error) throw error;
       }
 
       const sellerCode = localStorage.getItem("cdb_seller_code") ?? undefined;
@@ -89,6 +90,22 @@ function AppPlans() {
         localStorage.removeItem("cdb_seller_code");
         localStorage.removeItem("cdb_proposal_token");
       }
+
+      if (customerId && subscription?.plan_id === plan.id && subscription.status === "pendente") {
+        await queryClient.invalidateQueries();
+        navigate({ to: "/app/pagamento" });
+        return;
+      }
+
+      if (customerId && subscription?.plan_id === plan.id && subscription.status === "ativo") {
+        navigate({ to: "/app/pagamento" });
+        return;
+      }
+
+      const { error: customerError } = await supabase.from("customers")
+        .update({ plan_id: plan.id, terms_accepted_at: new Date().toISOString() })
+        .eq("id", customerId);
+      if (customerError) throw customerError;
 
       const next = new Date();
       if (plan.period === "anual") next.setFullYear(next.getFullYear() + 1);
@@ -151,6 +168,9 @@ function AppPlans() {
           <p className="text-xs text-muted-foreground">
             {brl(subscription.amount)} • próximo vencimento {dateBR(subscription.next_due_date)}
           </p>
+          {subscription.status !== "cancelado" ? (
+            <Button asChild size="sm" className="mt-2"><Link to="/app/pagamento">Pagar mensalidade</Link></Button>
+          ) : null}
           {(subscription.plans?.max_dependents ?? 0) > 0 ? (
             <Button asChild size="sm" variant="outline" className="mt-2">
               <Link to="/app/dependentes">Gerenciar dependentes</Link>
