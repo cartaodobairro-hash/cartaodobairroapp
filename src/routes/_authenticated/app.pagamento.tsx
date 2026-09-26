@@ -33,7 +33,7 @@ export const Route = createFileRoute("/_authenticated/app/pagamento")({
 type PlanInfo = { name: string; price: number; period: string; payment_link: string | null };
 
 function PaymentStep() {
-  const { data: customer } = useCustomer();
+  const { data: customer, isLoading: customerLoading } = useCustomer();
   const queryClient = useQueryClient();
   const search = Route.useSearch();
   const createCheckout = useServerFn(createInfinitePayCheckout);
@@ -134,18 +134,16 @@ function PaymentStep() {
       />
 
       <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
-        {!customer || (!subscription && !isFetching) ? (
+        {customerLoading || (customer && isFetching && !subscription) ? (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" /> Carregando seu plano...</div>
+        ) : !subscription ? (
           <div className="space-y-3 text-sm">
             <p>Escolha um plano para continuar com o pagamento.</p>
             <Button asChild><Link to="/app/planos">Escolher plano</Link></Button>
           </div>
-        ) : renewalConfirmed ? (
-          <div className="flex items-center gap-3 text-sm font-semibold">
-            <CheckCircle2 className="size-5 text-primary" />
-            Pagamento confirmado! Sua assinatura está em dia.
-          </div>
         ) : (
           <>
+            {renewalConfirmed ? <div className="mb-4 flex items-center gap-3 text-sm font-semibold"><CheckCircle2 className="size-5 text-primary" />Pagamento confirmado! Sua assinatura está em dia.</div> : null}
             <p className="text-sm font-semibold">{plan?.name ?? "Seu plano"}</p>
             <p className="text-xs text-muted-foreground">
               {plan ? `${brl(pendingPayment?.amount ?? subscription?.amount ?? plan.price)} / ${plan.period === "anual" ? "ano" : "mês"}` : ""}
