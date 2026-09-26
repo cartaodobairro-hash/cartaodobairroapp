@@ -4,10 +4,19 @@ import { MapPin, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/shells";
+import { PartnerLogo, useApprovedPartnerLogos } from "@/components/partner-logo";
 
 type Search = { q: string; categoria: string };
 
 export const Route = createFileRoute("/_authenticated/app/explorar")({
+  head: () => ({ meta: [
+    { title: "Explorar empresas — Cartão do Bairro" },
+    { name: "description", content: "Encontre empresas parceiras e benefícios perto de você." },
+    { property: "og:title", content: "Explorar empresas — Cartão do Bairro" },
+    { property: "og:description", content: "Encontre empresas parceiras e benefícios perto de você." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   validateSearch: (s: Record<string, unknown>): Search => ({
     q: typeof s["q"] === "string" ? s["q"] : "",
     categoria: typeof s["categoria"] === "string" ? s["categoria"] : "",
@@ -37,7 +46,7 @@ function Explore() {
     queryFn: async () => {
       let query = supabase
         .from("partners")
-        .select("id, trade_name, description, neighborhood, city, rating, sponsored, category_id, categories(name, icon, slug)")
+        .select("id, trade_name, logo_url, description, neighborhood, city, rating, sponsored, category_id, categories(name, icon, slug)")
         .eq("status", "aprovado")
         .order("sponsored", { ascending: false })
         .order("rating", { ascending: false })
@@ -48,6 +57,7 @@ function Explore() {
       return (data ?? []).filter((p) => !categoria || p.categories?.slug === categoria);
     },
   });
+  const { data: logoUrls } = useApprovedPartnerLogos((partners ?? []).map((p) => p.logo_url));
 
   return (
     <div className="px-4 pt-5">
@@ -84,11 +94,14 @@ function Explore() {
             className="rounded-2xl border border-border bg-card p-4 shadow-card"
           >
             <div className="flex items-start justify-between gap-2">
-              <div>
+              <div className="flex min-w-0 items-start gap-3">
+                <PartnerLogo name={p.trade_name} url={p.logo_url ? logoUrls?.[p.logo_url] : undefined} />
+                <div className="min-w-0">
                 <p className="font-bold">{p.trade_name}</p>
                 <p className="text-xs text-muted-foreground">
                   {p.categories?.icon} {p.categories?.name}
                 </p>
+                </div>
               </div>
               <span className="flex items-center gap-1 text-xs font-semibold">
                 <Star className="size-3 fill-primary text-primary" />

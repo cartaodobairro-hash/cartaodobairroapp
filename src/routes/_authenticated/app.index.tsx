@@ -10,8 +10,17 @@ import { brl, dateBR, firstOf } from "@/lib/format";
 import { useRealtimeCard } from "@/lib/realtime";
 import { getActiveBannerMedia } from "@/lib/banner-media.functions";
 import { Button } from "@/components/ui/button";
+import { PartnerLogo, useApprovedPartnerLogos } from "@/components/partner-logo";
 
 export const Route = createFileRoute("/_authenticated/app/")({
+  head: () => ({ meta: [
+    { title: "Início — Cartão do Bairro" },
+    { name: "description", content: "Seu cartão digital e empresas parceiras em destaque." },
+    { property: "og:title", content: "Início — Cartão do Bairro" },
+    { property: "og:description", content: "Seu cartão digital e empresas parceiras em destaque." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: ClientHome,
 });
 
@@ -94,7 +103,7 @@ function ClientHome() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("partners")
-        .select("id, trade_name, neighborhood, city, rating, sponsored, categories(name, icon)")
+        .select("id, trade_name, logo_url, neighborhood, city, rating, sponsored, categories(name, icon)")
         .eq("status", "aprovado")
         .order("sponsored", { ascending: false })
         .order("rating", { ascending: false })
@@ -103,6 +112,7 @@ function ClientHome() {
       return data;
     },
   });
+  const { data: partnerLogos } = useApprovedPartnerLogos((highlights ?? []).map((p) => p.logo_url));
 
   const card = firstOf(customer?.cards);
   const firstName = profile?.name?.split(" ")[0] ?? "associado";
@@ -226,8 +236,11 @@ function ClientHome() {
               params={{ id: p.id }}
               className="rounded-2xl border border-border bg-card p-4 shadow-card"
             >
-              <div className="flex items-center justify-between">
-                <p className="font-bold">{p.trade_name}</p>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-3">
+                  <PartnerLogo name={p.trade_name} url={p.logo_url ? partnerLogos?.[p.logo_url] : undefined} />
+                  <p className="font-bold">{p.trade_name}</p>
+                </div>
                 {p.sponsored ? <Sparkles className="size-4 text-primary" /> : null}
               </div>
               <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
