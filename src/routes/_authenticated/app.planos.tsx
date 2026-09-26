@@ -97,6 +97,11 @@ function AppPlans() {
         return;
       }
 
+      if (customerId && subscription?.plan_id === plan.id && subscription.status === "ativo") {
+        navigate({ to: "/app/pagamento" });
+        return;
+      }
+
       const { error: customerError } = await supabase.from("customers")
         .update({ plan_id: plan.id, terms_accepted_at: new Date().toISOString() })
         .eq("id", customerId);
