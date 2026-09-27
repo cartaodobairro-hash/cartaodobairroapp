@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
+import { createHmac } from "node:crypto";
 
 const uuid = z.string().uuid();
 const providerIdentifier = z.string().min(1).max(200).regex(/^[a-zA-Z0-9_-]+$/);
@@ -41,24 +42,22 @@ export const Route = createFileRoute("/api/public/webhooks/infinitepay")({
         if (!identifiers.success) return new Response("Invalid payment identifiers", { status: 400 });
         const { paymentId, transactionId, slug } = identifiers.data;
 
+        const webhookSecret = process.env["INFINITEPAY_WEBHOOK_SECRET"];
+        const callback = new URL(request.url);
+        const signature = callback.searchParams.get("signature");
+        const signedOrder = callback.searchParams.get("order");
+        if (!webhookSecret || signedOrder !== paymentId || !signature ||
+          !/^[a-f0-9]{64}$/.test(signature) ||
+          createHmac("sha256", webhookSecret).update(paymentId).digest("hex") !== signature) {
+          return new Response("Unauthorized", { status: 401 });
+        }
+
         // Only verify orders that belong to a locally issued, pending installment.
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         let { data: payment, error: lookupError } = await supabaseAdmin.from("payments")
           .select("id, amount, subscription_id, status")
           .eq("id", paymentId)
           .maybeSingle();
-        // Older checkout links used the subscription ID as the order identifier.
-        if (!lookupError && !payment) {
-          const legacy = await supabaseAdmin.from("payments")
-            .select("id, amount, subscription_id, status")
-            .eq("subscription_id", paymentId)
-            .eq("status", "pendente")
-            .order("created_at", { ascending: true })
-            .limit(1)
-            .maybeSingle();
-          payment = legacy.data;
-          lookupError = legacy.error;
-        }
         if (lookupError || !payment?.subscription_id || payment.status !== "pendente") {
           return new Response("Payment not found", { status: 404 });
         }
@@ -82,7 +81,6 @@ export const Route = createFileRoute("/api/public/webhooks/infinitepay")({
         if (checked.success !== true || checked.paid !== true || typeof checked.amount !== "number") {
           return new Response("Payment not confirmed", { status: 400 });
         }
-
         if (checked.amount !== Math.round(Number(payment.amount) * 100)) return new Response("Amount mismatch", { status: 400 });
         const args: { _subscription_id: string; _amount: number; _transaction_id: string; _payment_id: string } = {
           _subscription_id: payment.subscription_id,

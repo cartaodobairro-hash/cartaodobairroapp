@@ -17,3 +17,4 @@
 - Partner logos live in the private partner-logos bucket under the owning partner ID; storage access is owner-scoped so one partner cannot browse another's uploads.
 - Customer-facing partner lists obtain signed logos through an authenticated function that checks approved partner records; this preserves owner-only storage browsing while showing approved brands.
 - Benefit product images live in the private benefit-images bucket under the owning partner ID; direct storage reads are owner/admin-only, while public pages get short-lived signed links from a server function that checks active benefits and approved partners.
+- InfinitePay webhook URLs carry a server-generated order-bound signature; reject unsigned callbacks before querying the payment provider, while old orders rely on authenticated return confirmation, because public callbacks must not become an arbitrary payment-check proxy.
