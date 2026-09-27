@@ -279,6 +279,9 @@ function AdminCustomerDetail() {
 
   function printReceipt() {
     if (!receipt) return;
+    const escapeHtml = (value: unknown) => String(value ?? "—").replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+    })[char]!);
     const win = window.open("", "_blank", "width=520,height=680");
     if (!win) {
       toast.error("Permita janelas pop-up para imprimir o comprovante");
@@ -297,13 +300,13 @@ function AdminCustomerDetail() {
       </style></head><body>
       <h1>Comprovante de pagamento — Cartão do Bairro</h1>
       <div class="sub">Emitido em ${new Date().toLocaleString("pt-BR")}</div>
-      <div class="row"><span>Cliente</span><strong>${profile?.name ?? "—"}</strong></div>
-      <div class="row"><span>CPF</span><strong>${profile?.cpf ? maskCpf(profile.cpf) : "—"}</strong></div>
-      <div class="row"><span>Plano</span><strong>${subscription?.plans?.name ?? customer.plans?.name ?? "—"}</strong></div>
-      <div class="row"><span>Data do pagamento</span><strong>${dateBR(receipt.date)}</strong></div>
-      <div class="row"><span>Forma de pagamento</span><strong>${receipt.method}</strong></div>
+       <div class="row"><span>Cliente</span><strong>${escapeHtml(profile?.name)}</strong></div>
+       <div class="row"><span>CPF</span><strong>${escapeHtml(profile?.cpf ? maskCpf(profile.cpf) : "—")}</strong></div>
+       <div class="row"><span>Plano</span><strong>${escapeHtml(subscription?.plans?.name ?? customer.plans?.name)}</strong></div>
+       <div class="row"><span>Data do pagamento</span><strong>${escapeHtml(dateBR(receipt.date))}</strong></div>
+       <div class="row"><span>Forma de pagamento</span><strong>${escapeHtml(receipt.method)}</strong></div>
       <div class="row"><span>Situação</span><strong>${receipt.status === "pago" ? "PAGO" : "PENDENTE"}</strong></div>
-      <div class="total">${brl(receipt.amount)}</div>
+       <div class="total">${escapeHtml(brl(receipt.amount))}</div>
       <div class="foot">Documento gerado eletronicamente pelo painel Cartão do Bairro.</div>
       <script>window.onload=()=>window.print()<\/script>
       </body></html>`);

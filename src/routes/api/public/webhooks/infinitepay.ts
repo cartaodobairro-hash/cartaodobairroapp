@@ -1,4 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
+
+const uuid = z.string().uuid();
+const providerIdentifier = z.string().min(1).max(200).regex(/^[a-zA-Z0-9_-]+$/);
 
 function pick(obj: unknown, keys: string[]): string | null {
   if (!obj || typeof obj !== "object") return null;
@@ -25,11 +29,38 @@ export const Route = createFileRoute("/api/public/webhooks/infinitepay")({
           return new Response("Invalid payload", { status: 400 });
         }
 
-        const paymentId = pick(payload, ["order_nsu"]);
-        const transactionId = pick(payload, ["transaction_nsu"]);
-        const slug = pick(payload, ["invoice_slug", "slug"]);
-        if (!paymentId || !transactionId || !slug) {
-          return new Response("Missing payment identifiers", { status: 400 });
+        const identifiers = z.object({
+          paymentId: uuid,
+          transactionId: providerIdentifier,
+          slug: providerIdentifier,
+        }).safeParse({
+          paymentId: pick(payload, ["order_nsu"]),
+          transactionId: pick(payload, ["transaction_nsu"]),
+          slug: pick(payload, ["invoice_slug", "slug"]),
+        });
+        if (!identifiers.success) return new Response("Invalid payment identifiers", { status: 400 });
+        const { paymentId, transactionId, slug } = identifiers.data;
+
+        // Only verify orders that belong to a locally issued, pending installment.
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        let { data: payment, error: lookupError } = await supabaseAdmin.from("payments")
+          .select("id, amount, subscription_id, status")
+          .eq("id", paymentId)
+          .maybeSingle();
+        // Older checkout links used the subscription ID as the order identifier.
+        if (!lookupError && !payment) {
+          const legacy = await supabaseAdmin.from("payments")
+            .select("id, amount, subscription_id, status")
+            .eq("subscription_id", paymentId)
+            .eq("status", "pendente")
+            .order("created_at", { ascending: true })
+            .limit(1)
+            .maybeSingle();
+          payment = legacy.data;
+          lookupError = legacy.error;
+        }
+        if (lookupError || !payment?.subscription_id || payment.status !== "pendente") {
+          return new Response("Payment not found", { status: 404 });
         }
 
         const verification = await fetch("https://api.checkout.infinitepay.io/payment_check", {
@@ -52,25 +83,6 @@ export const Route = createFileRoute("/api/public/webhooks/infinitepay")({
           return new Response("Payment not confirmed", { status: 400 });
         }
 
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        let { data: payment, error: lookupError } = await supabaseAdmin.from("payments")
-          .select("id, amount, subscription_id")
-          .eq("id", paymentId)
-          .maybeSingle();
-        // Checkouts generated before individual installment IDs used the subscription ID.
-        if (!lookupError && !payment) {
-          const legacy = await supabaseAdmin.from("payments")
-            .select("id, amount, subscription_id")
-            .eq("subscription_id", paymentId)
-            .eq("status", "pendente")
-            .eq("amount", checked.amount / 100)
-            .order("created_at", { ascending: true })
-            .limit(1)
-            .maybeSingle();
-          payment = legacy.data;
-          lookupError = legacy.error;
-        }
-        if (lookupError || !payment?.subscription_id) return new Response("Payment not found", { status: 404 });
         if (checked.amount !== Math.round(Number(payment.amount) * 100)) return new Response("Amount mismatch", { status: 400 });
         const args: { _subscription_id: string; _amount: number; _transaction_id: string; _payment_id: string } = {
           _subscription_id: payment.subscription_id,
@@ -80,7 +92,10 @@ export const Route = createFileRoute("/api/public/webhooks/infinitepay")({
         };
         const { data, error } = await supabaseAdmin.rpc("activate_subscription_by_id", args);
 
-        if (error) return new Response(error.message, { status: 500 });
+        if (error) {
+          console.error("Payment activation failed", error);
+          return new Response("Payment activation failed", { status: 500 });
+        }
         if (!data) return new Response("Subscription not found", { status: 404 });
 
         return Response.json({ ok: true });
