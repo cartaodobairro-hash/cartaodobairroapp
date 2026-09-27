@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
+import { createHmac } from "node:crypto";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -78,6 +79,9 @@ export const createInfinitePayCheckout = createServerFn({ method: "POST" })
     const request = getRequest();
     const requestOrigin = request ? new URL(request.url).origin : PUBLISHED_ORIGIN;
     const publicOrigin = requestOrigin.includes("localhost") ? PUBLISHED_ORIGIN : requestOrigin;
+    const webhookSecret = process.env["INFINITEPAY_WEBHOOK_SECRET"];
+    if (!webhookSecret) throw new Error("A confirmação automática do pagamento está indisponível.");
+    const webhookSignature = createHmac("sha256", webhookSecret).update(payment.id).digest("hex");
     const { data: profile } = await context.supabase
       .from("profiles")
       .select("name, email, phone")
@@ -91,7 +95,7 @@ export const createInfinitePayCheckout = createServerFn({ method: "POST" })
         handle: INFINITEPAY_HANDLE,
         order_nsu: payment.id,
         redirect_url: `${publicOrigin}/app/pagamento?retorno=infinitepay`,
-        webhook_url: `${publicOrigin}/api/public/webhooks/infinitepay`,
+        webhook_url: `${publicOrigin}/api/public/webhooks/infinitepay?order=${encodeURIComponent(payment.id)}&signature=${webhookSignature}`,
         items: [
           {
             quantity: 1,

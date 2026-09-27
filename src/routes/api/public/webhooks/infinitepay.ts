@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
+import { createHmac } from "node:crypto";
 
 const uuid = z.string().uuid();
 const providerIdentifier = z.string().min(1).max(200).regex(/^[a-zA-Z0-9_-]+$/);
@@ -40,6 +41,16 @@ export const Route = createFileRoute("/api/public/webhooks/infinitepay")({
         });
         if (!identifiers.success) return new Response("Invalid payment identifiers", { status: 400 });
         const { paymentId, transactionId, slug } = identifiers.data;
+
+        const webhookSecret = process.env["INFINITEPAY_WEBHOOK_SECRET"];
+        const callback = new URL(request.url);
+        const signature = callback.searchParams.get("signature");
+        const signedOrder = callback.searchParams.get("order");
+        if (!webhookSecret || signedOrder !== paymentId || !signature ||
+          !/^[a-f0-9]{64}$/.test(signature) ||
+          createHmac("sha256", webhookSecret).update(paymentId).digest("hex") !== signature) {
+          return new Response("Unauthorized", { status: 401 });
+        }
 
         // Only verify orders that belong to a locally issued, pending installment.
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
