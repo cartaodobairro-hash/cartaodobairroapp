@@ -39,7 +39,7 @@ export const signInWithIdentifier = createServerFn({ method: "POST" })
         .limit(2);
       if (error) throw new Error("Não foi possível validar seu acesso.");
       const match = (rows ?? []).find((r) => r.email);
-      if (!match?.email) throw new Error("Não encontramos uma conta com esses dados.");
+      if (!match?.email) throw new Error("Acesso ou senha incorretos.");
       email = match.email.toLowerCase();
     }
 
@@ -307,16 +307,25 @@ export const deleteSellerAccount = createServerFn({ method: "POST" })
       .select("user_id")
       .eq("id", data.sellerId)
       .maybeSingle();
-    if (sellerError) throw new Error(sellerError.message);
+    if (sellerError) {
+      console.error("Seller lookup failed during deletion", sellerError);
+      throw new Error("Não foi possível consultar o vendedor.");
+    }
     if (!seller) throw new Error("Vendedor não encontrado.");
 
     if (seller.user_id) {
       const { error: deleteUserError } = await supabaseAdmin.auth.admin.deleteUser(seller.user_id);
-      if (deleteUserError) throw new Error(deleteUserError.message || "Não foi possível remover o login do vendedor.");
+      if (deleteUserError) {
+        console.error("Seller login deletion failed", deleteUserError);
+        throw new Error("Não foi possível remover o login do vendedor.");
+      }
     }
 
     const { error: deleteSellerError } = await supabaseAdmin.from("sellers").delete().eq("id", data.sellerId);
-    if (deleteSellerError) throw new Error(deleteSellerError.message || "Login excluído, mas não foi possível remover o cadastro do vendedor.");
+    if (deleteSellerError) {
+      console.error("Seller record deletion failed", deleteSellerError);
+      throw new Error("Login excluído, mas não foi possível remover o cadastro do vendedor.");
+    }
   });
 
 export const deleteCustomerAccount = createServerFn({ method: "POST" })

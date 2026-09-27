@@ -365,7 +365,12 @@ function CashFlowPage() {
 
   function exportCsv() {
     const lines = [["Data", "Tipo", "Descrição", "Categoria", "Pessoa/Empresa", "Status", "Forma", "Valor"], ...filteredAccounts.map((r) => [dateBR(r.date), r.type, r.description, r.category, r.counterparty, r.status, r.method, r.amount.toFixed(2).replace(".", ",")])];
-    const csv = lines.map((line) => line.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(";")).join("\n");
+    // Quoting alone does not stop spreadsheet applications from evaluating formulas.
+    const csv = lines.map((line) => line.map((cell) => {
+      const value = String(cell ?? "");
+      const safe = /^[\s\x00-\x1f]*[=+\-@]/.test(value) ? `'${value}` : value;
+      return `"${safe.replaceAll('"', '""')}"`;
+    }).join(";")).join("\n");
     const url = URL.createObjectURL(new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8" }));
     const anchor = document.createElement("a");
     anchor.href = url;
