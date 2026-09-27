@@ -58,20 +58,6 @@ export const Route = createFileRoute("/api/public/webhooks/infinitepay")({
           .select("id, amount, subscription_id, status")
           .eq("id", paymentId)
           .maybeSingle();
-        // Older checkout links used the subscription ID as the order identifier.
-        let legacyOrder = false;
-        if (!lookupError && !payment) {
-          legacyOrder = true;
-          const legacy = await supabaseAdmin.from("payments")
-            .select("id, amount, subscription_id, status")
-            .eq("subscription_id", paymentId)
-            .eq("status", "pendente")
-            .order("created_at", { ascending: true })
-            .limit(1)
-            .maybeSingle();
-          payment = legacy.data;
-          lookupError = legacy.error;
-        }
         if (lookupError || !payment?.subscription_id || payment.status !== "pendente") {
           return new Response("Payment not found", { status: 404 });
         }
@@ -95,19 +81,6 @@ export const Route = createFileRoute("/api/public/webhooks/infinitepay")({
         if (checked.success !== true || checked.paid !== true || typeof checked.amount !== "number") {
           return new Response("Payment not confirmed", { status: 400 });
         }
-        if (legacyOrder && checked.amount !== Math.round(Number(payment.amount) * 100)) {
-          const legacy = await supabaseAdmin.from("payments")
-            .select("id, amount, subscription_id, status")
-            .eq("subscription_id", paymentId)
-            .eq("status", "pendente")
-            .eq("amount", checked.amount / 100)
-            .order("created_at", { ascending: true })
-            .limit(1)
-            .maybeSingle();
-          if (legacy.error || !legacy.data) return new Response("Payment not found", { status: 404 });
-          payment = legacy.data;
-        }
-
         if (checked.amount !== Math.round(Number(payment.amount) * 100)) return new Response("Amount mismatch", { status: 400 });
         const args: { _subscription_id: string; _amount: number; _transaction_id: string; _payment_id: string } = {
           _subscription_id: payment.subscription_id,
