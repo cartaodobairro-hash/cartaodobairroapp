@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Permitir entrada imediata do cliente após cadastro por e-mail e senha, sem confirmação de e-mail
+- [x] Permitir entrada imediata do cliente após cadastro por e-mail e senha, sem confirmação de e-mail
 
 - [x] Mostrar a logo cadastrada antes do nome do parceiro nas listas de empresas, destaques e favoritos
 

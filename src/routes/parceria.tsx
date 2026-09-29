@@ -87,6 +87,7 @@ function PartnerSignup() {
     setBusy(true);
     let error: Error | null = null;
     let accountCreated = false;
+    let signedIn = false;
 
     if (user) {
       const result = await supabase.from("partners").insert({
@@ -122,6 +123,7 @@ function PartnerSignup() {
       });
       error = result.error;
       accountCreated = !result.error;
+      signedIn = !!result.data.session;
     }
     setBusy(false);
     if (error) {
@@ -129,10 +131,13 @@ function PartnerSignup() {
       return;
     }
     if (accountCreated) {
-      toast.success("Cadastro enviado!", {
-        description: "Confirme seu e-mail e entre para acompanhar a análise.",
-      });
-      void navigate({ to: "/auth", search: { modo: "login" } });
+      if (signedIn) {
+        toast.success("Cadastro enviado!", { description: "Sua empresa está em análise." });
+        void navigate({ to: "/parceiro" });
+      } else {
+        toast.success("Cadastro enviado!", { description: "Entre com sua senha para acompanhar a análise." });
+        void navigate({ to: "/auth", search: { modo: "login" } });
+      }
       return;
     }
     toast.success("Cadastro enviado!", { description: "Sua empresa está em análise." });
