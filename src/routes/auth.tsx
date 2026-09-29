@@ -188,7 +188,7 @@ function AuthPage() {
       return;
     }
     setBusy(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: signup.email.trim(),
       password: signup.password,
       options: {
@@ -202,13 +202,20 @@ function AuthPage() {
         },
       },
     });
-    setBusy(false);
     if (error) {
+      setBusy(false);
       toast.error("Não foi possível criar a conta", { description: error.message });
       return;
     }
-    toast.success("Conta criada!", { description: "Confirme seu e-mail para ativar o acesso." });
-    setTab("login");
+    if (!data.session) {
+      setBusy(false);
+      toast.error("Conta criada, mas não foi possível entrar automaticamente. Tente entrar com sua senha.");
+      setTab("login");
+      return;
+    }
+    toast.success("Conta criada! Você já pode acessar o aplicativo.");
+    await goToAccountHome(data.session.user.id);
+    setBusy(false);
   }
 
   async function handleGoogle() {
