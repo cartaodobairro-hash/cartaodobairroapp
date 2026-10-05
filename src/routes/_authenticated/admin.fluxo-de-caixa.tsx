@@ -35,7 +35,7 @@ import { brl, dateBR } from "@/lib/format";
 import type { Database } from "@/integrations/supabase/types";
 
 export const Route = createFileRoute("/_authenticated/admin/fluxo-de-caixa")({
-  head: () => ({ meta: [{ title: "Fluxo de Caixa | Cartão do Bairro" }] }),
+  head: () => ({ meta: [{ title: "Fluxo de Caixa | Cartão do Bairro" }, { name: "description", content: "Acompanhe receitas, despesas e comissões no Fluxo de Caixa do Cartão do Bairro." }, { property: "og:title", content: "Fluxo de Caixa | Cartão do Bairro" }, { property: "og:description", content: "Acompanhe receitas, despesas e comissões no Fluxo de Caixa do Cartão do Bairro." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: CashFlowPage,
 });
 
@@ -57,6 +57,7 @@ type LedgerRow = {
   date: string;
   status: CashStatus;
   method: string;
+  commissionId?: string;
   editable?: Entry;
 };
 type EntryForm = {
@@ -128,6 +129,9 @@ function CashFlowPage() {
   const [saving, setSaving] = useState(false);
   const [balanceOpen, setBalanceOpen] = useState(false);
   const [balanceValue, setBalanceValue] = useState("");
+  const [commissionToPay, setCommissionToPay] = useState<LedgerRow | null>(null);
+  const [commissionPaymentDate, setCommissionPaymentDate] = useState(today);
+  const [payingCommission, setPayingCommission] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-cash-flow"],
@@ -216,6 +220,7 @@ function CashFlowPage() {
         date: (commission.paid_at ?? commission.due_date ?? today).slice(0, 10),
         status: commission.status === "paga" ? "pago" : commission.status === "cancelada" ? "cancelado" : "previsto",
         method: "—",
+        commissionId: commission.id,
       });
     }
     for (const subscription of data.subscriptions.filter((s) => s.status === "ativo" && s.next_due_date)) {
@@ -336,6 +341,38 @@ function CashFlowPage() {
     queryClient.invalidateQueries({ queryKey: ["admin-cash-flow"] });
   }
 
+  async function payCommission() {
+    if (!commissionToPay?.commissionId || !/^\d{4}-\d{2}-\d{2}$/.test(commissionPaymentDate) || Number.isNaN(new Date(`${commissionPaymentDate}T12:00:00`).getTime())) {
+      toast.error("Informe uma data de pagamento válida");
+      return;
+    }
+    setPayingCommission(true);
+    try {
+      const { data: updated, error } = await supabase.from("seller_commissions")
+        .update({ status: "paga", paid_at: `${commissionPaymentDate}T12:00:00` })
+        .eq("id", commissionToPay.commissionId)
+        .in("status", ["pendente", "aprovada", "liberada"])
+        .select("id");
+      if (error) throw error;
+      if (!updated?.length) {
+        toast.error("Esta comissão já foi alterada. Atualize a lista.");
+        await queryClient.invalidateQueries({ queryKey: ["admin-cash-flow"] });
+        return;
+      }
+      setCommissionToPay(null);
+      toast.success("Comissão marcada como paga");
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["admin-cash-flow"] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-commissions"] }),
+        queryClient.invalidateQueries({ queryKey: ["seller-commissions-detail"] }),
+      ]);
+    } catch (error) {
+      toast.error("Não foi possível dar baixa na comissão", { description: error instanceof Error ? error.message : undefined });
+    } finally {
+      setPayingCommission(false);
+    }
+  }
+
   async function removeEntry(entry: Entry) {
     if (!window.confirm("Excluir este lançamento?")) return;
     const { error } = await supabase.from("cash_flow_entries").delete().eq("id", entry.id);
@@ -453,7 +490,7 @@ function CashFlowPage() {
 
       <section className="rounded-2xl border bg-card shadow-card">
         <div className="border-b p-4"><h2 className="font-bold">{accountType === "receita" ? "Contas a receber" : "Contas a pagar"} — {monthNames[month]}/{year}</h2><div className="mt-3 grid gap-2 sm:grid-cols-3 print:hidden"><Input placeholder="Buscar descrição ou pessoa..." value={search} onChange={(e) => setSearch(e.target.value)} /><select className="h-9 rounded-md border bg-background px-3 text-sm" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}><option value="todos">Todas as situações</option><option value="previsto">Previsto / pendente</option><option value="pago">Pago / recebido</option></select><select className="h-9 rounded-md border bg-background px-3 text-sm" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}><option value="todos">Todas as categorias</option>{data?.categories.filter((c) => c.type === accountType).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div></div>
-        <div className="overflow-x-auto"><table className="w-full text-sm"><thead className="text-left text-xs uppercase text-muted-foreground"><tr><th className="p-3">Data</th><th className="p-3">Descrição</th><th className="p-3">Categoria</th><th className="p-3">Pessoa / empresa</th><th className="p-3">Situação</th><th className="p-3">Valor</th><th className="p-3 print:hidden" /></tr></thead><tbody>{filteredAccounts.sort((a, b) => a.date.localeCompare(b.date)).map((row) => <tr key={row.id} className="border-t"><td className="p-3 whitespace-nowrap">{dateBR(row.date)}</td><td className="p-3"><p className="font-semibold">{row.description}</p><p className="text-xs text-muted-foreground">{row.source === "projection" ? "Projeção automática" : row.method}</p></td><td className="p-3">{row.category}</td><td className="p-3">{row.counterparty}</td><td className="p-3"><span className={`rounded-full px-2 py-1 text-xs font-semibold ${row.status === "pago" ? "bg-emerald-100 text-emerald-700" : row.date < today ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>{row.status === "pago" ? (row.type === "receita" ? "recebido" : "pago") : row.date < today ? "atrasado" : "previsto"}</span></td><td className="p-3 font-bold">{brl(row.amount)}</td><td className="p-3 text-right print:hidden">{row.editable ? <div className="flex justify-end gap-1">{row.status !== "pago" ? <Button size="icon" variant="ghost" title="Confirmar" onClick={() => void settle(row)}><CheckCircle2 /></Button> : null}<Button size="icon" variant="ghost" title="Editar" onClick={() => editEntry(row.editable!)}><Pencil /></Button><Button size="icon" variant="ghost" className="text-destructive" title="Excluir" onClick={() => void removeEntry(row.editable!)}><Trash2 /></Button></div> : <span className="text-xs text-muted-foreground">CRM</span>}</td></tr>)}</tbody></table>{!filteredAccounts.length ? <p className="p-6 text-center text-sm text-muted-foreground">Nenhum lançamento encontrado neste período.</p> : null}</div>
+        <div className="overflow-x-auto"><table className="w-full text-sm"><thead className="text-left text-xs uppercase text-muted-foreground"><tr><th className="p-3">Data</th><th className="p-3">Descrição</th><th className="p-3">Categoria</th><th className="p-3">Pessoa / empresa</th><th className="p-3">Situação</th><th className="p-3">Valor</th><th className="p-3 print:hidden" /></tr></thead><tbody>{filteredAccounts.sort((a, b) => a.date.localeCompare(b.date)).map((row) => <tr key={row.id} className="border-t"><td className="p-3 whitespace-nowrap">{dateBR(row.date)}</td><td className="p-3"><p className="font-semibold">{row.description}</p><p className="text-xs text-muted-foreground">{row.source === "projection" ? "Projeção automática" : row.method}</p></td><td className="p-3">{row.category}</td><td className="p-3">{row.counterparty}</td><td className="p-3"><span className={`rounded-full px-2 py-1 text-xs font-semibold ${row.status === "pago" ? "bg-emerald-100 text-emerald-700" : row.date < today ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>{row.status === "pago" ? (row.type === "receita" ? "recebido" : "pago") : row.date < today ? "atrasado" : "previsto"}</span></td><td className="p-3 font-bold">{brl(row.amount)}</td><td className="p-3 text-right print:hidden">{row.editable ? <div className="flex justify-end gap-1">{row.status !== "pago" ? <Button size="icon" variant="ghost" title="Confirmar" onClick={() => void settle(row)}><CheckCircle2 /></Button> : null}<Button size="icon" variant="ghost" title="Editar" onClick={() => editEntry(row.editable!)}><Pencil /></Button><Button size="icon" variant="ghost" className="text-destructive" title="Excluir" onClick={() => void removeEntry(row.editable!)}><Trash2 /></Button></div> : row.commissionId && row.status !== "pago" ? <Button size="sm" variant="outline" onClick={() => { setCommissionPaymentDate(today); setCommissionToPay(row); }}><CheckCircle2 className="size-4" /> Dar baixa</Button> : <span className="text-xs text-muted-foreground">CRM</span>}</td></tr>)}</tbody></table>{!filteredAccounts.length ? <p className="p-6 text-center text-sm text-muted-foreground">Nenhum lançamento encontrado neste período.</p> : null}</div>
       </section>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -464,6 +501,7 @@ function CashFlowPage() {
       <Dialog open={Boolean(form)} onOpenChange={(open) => !open && setForm(null)}><DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl"><DialogHeader><DialogTitle>{form?.id ? "Editar lançamento" : "Novo lançamento"}</DialogTitle><DialogDescription>Cadastre receitas ou despesas únicas e recorrentes.</DialogDescription></DialogHeader>{form ? <div className="grid gap-3 sm:grid-cols-2"><Field label="Tipo"><select className="h-9 w-full rounded-md border bg-background px-3 text-sm" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as CashType, category_id: "" })}><option value="receita">Receita</option><option value="despesa">Despesa</option></select></Field><Field label="Categoria"><select className="h-9 w-full rounded-md border bg-background px-3 text-sm" value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })}><option value="">Sem categoria</option>{data?.categories.filter((c) => c.type === form.type).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></Field><Field label="Descrição"><Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></Field><Field label="Cliente, empresa ou fornecedor"><Input value={form.counterparty} onChange={(e) => setForm({ ...form, counterparty: e.target.value })} /></Field><Field label="Valor"><Input type="number" min="0.01" step="0.01" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} /></Field><Field label="Vencimento"><Input type="date" value={form.due_date} onChange={(e) => setForm({ ...form, due_date: e.target.value })} /></Field><Field label="Data prevista"><Input type="date" value={form.expected_date} onChange={(e) => setForm({ ...form, expected_date: e.target.value })} /></Field><Field label="Competência"><Input type="date" value={form.competence_date} onChange={(e) => setForm({ ...form, competence_date: e.target.value })} /></Field><Field label="Situação"><select className="h-9 w-full rounded-md border bg-background px-3 text-sm" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as CashStatus })}><option value="previsto">Previsto</option><option value="pago">{form.type === "receita" ? "Recebido" : "Pago"}</option><option value="cancelado">Cancelado</option></select></Field>{form.status === "pago" ? <Field label="Data efetiva"><Input type="date" value={form.settled_date} onChange={(e) => setForm({ ...form, settled_date: e.target.value })} /></Field> : null}<Field label="Forma de pagamento"><Input placeholder="Pix, cartão, boleto..." value={form.payment_method} onChange={(e) => setForm({ ...form, payment_method: e.target.value })} /></Field><Field label="Recorrência"><select className="h-9 w-full rounded-md border bg-background px-3 text-sm" value={form.recurrence} onChange={(e) => setForm({ ...form, recurrence: e.target.value as Recurrence })}><option value="nenhuma">Sem recorrência</option><option value="mensal">Mensal</option><option value="trimestral">Trimestral</option><option value="semestral">Semestral</option><option value="anual">Anual</option></select></Field>{form.recurrence !== "nenhuma" ? <Field label="Repetir até"><Input type="date" value={form.recurrence_end} onChange={(e) => setForm({ ...form, recurrence_end: e.target.value })} /></Field> : null}<div className="sm:col-span-2"><Label>Observações</Label><Textarea className="mt-1" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div></div> : null}<DialogFooter><Button variant="outline" onClick={() => setForm(null)}>Cancelar</Button><Button disabled={saving} onClick={() => void saveEntry()}>{saving ? "Salvando..." : "Salvar lançamento"}</Button></DialogFooter></DialogContent></Dialog>
 
       <Dialog open={balanceOpen} onOpenChange={setBalanceOpen}><DialogContent><DialogHeader><DialogTitle>Saldo inicial de {monthNames[month]}/{year}</DialogTitle><DialogDescription>Informe o saldo disponível no primeiro dia do mês.</DialogDescription></DialogHeader><Field label="Saldo inicial"><Input type="number" step="0.01" value={balanceValue} onChange={(e) => setBalanceValue(e.target.value)} /></Field><DialogFooter><Button variant="outline" onClick={() => setBalanceOpen(false)}>Cancelar</Button><Button onClick={() => void saveBalance()}>Salvar saldo</Button></DialogFooter></DialogContent></Dialog>
+      <Dialog open={Boolean(commissionToPay)} onOpenChange={(open) => { if (!open && !payingCommission) setCommissionToPay(null); }}><DialogContent><DialogHeader><DialogTitle>Dar baixa na comissão</DialogTitle><DialogDescription>Confirme o pagamento de {commissionToPay?.counterparty} no valor de {brl(commissionToPay?.amount)}.</DialogDescription></DialogHeader><Field label="Data do pagamento"><Input type="date" value={commissionPaymentDate} onChange={(event) => setCommissionPaymentDate(event.target.value)} /></Field><DialogFooter><Button variant="outline" disabled={payingCommission} onClick={() => setCommissionToPay(null)}>Cancelar</Button><Button disabled={payingCommission || !commissionPaymentDate} onClick={() => void payCommission()}>{payingCommission ? "Salvando..." : "Confirmar pagamento"}</Button></DialogFooter></DialogContent></Dialog>
     </div>
   );
 }
