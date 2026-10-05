@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Permitir baixa manual de comissão do vendedor em Contas a pagar no Fluxo de Caixa, com data de pagamento e atualização nos painéis
+- [x] Permitir baixa manual de comissão do vendedor em Contas a pagar no Fluxo de Caixa, com data de pagamento e atualização nos painéis
 
 - [x] Permitir entrada imediata do cliente após cadastro por e-mail e senha, sem confirmação de e-mail
 
