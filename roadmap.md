@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Permitir baixa manual de comissão do vendedor em Contas a pagar no Fluxo de Caixa, com data de pagamento e atualização nos painéis
+
 - [x] Permitir entrada imediata do cliente após cadastro por e-mail e senha, sem confirmação de e-mail
 
 - [x] Mostrar a logo cadastrada antes do nome do parceiro nas listas de empresas, destaques e favoritos
