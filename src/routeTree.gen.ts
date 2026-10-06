@@ -26,6 +26,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminAssinaturasRouteImport } from './routes/_authenticated/admin.assinaturas'
 import { Route as AuthenticatedAdminBannersRouteImport } from './routes/_authenticated/admin.banners'
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated/admin.categorias'
+import { Route as AuthenticatedAdminEquipeRouteImport } from './routes/_authenticated/admin.equipe'
 import { Route as AuthenticatedAdminFinanceiroRouteImport } from './routes/_authenticated/admin.financeiro'
 import { Route as AuthenticatedAdminFluxoDeCaixaRouteImport } from './routes/_authenticated/admin.fluxo-de-caixa'
 import { Route as AuthenticatedAdminParceirosRouteImport } from './routes/_authenticated/admin.parceiros'
@@ -149,6 +150,12 @@ const AuthenticatedAdminCategoriasRoute =
   AuthenticatedAdminCategoriasRouteImport.update({
     id: '/categorias',
     path: '/categorias',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminEquipeRoute =
+  AuthenticatedAdminEquipeRouteImport.update({
+    id: '/equipe',
+    path: '/equipe',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminFinanceiroRoute =
@@ -385,6 +392,7 @@ export interface FileRoutesByFullPath {
   '/admin/assinaturas': typeof AuthenticatedAdminAssinaturasRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
+  '/admin/equipe': typeof AuthenticatedAdminEquipeRoute
   '/admin/financeiro': typeof AuthenticatedAdminFinanceiroRoute
   '/admin/fluxo-de-caixa': typeof AuthenticatedAdminFluxoDeCaixaRoute
   '/admin/parceiros': typeof AuthenticatedAdminParceirosRouteWithChildren
@@ -436,6 +444,7 @@ export interface FileRoutesByTo {
   '/admin/assinaturas': typeof AuthenticatedAdminAssinaturasRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
+  '/admin/equipe': typeof AuthenticatedAdminEquipeRoute
   '/admin/financeiro': typeof AuthenticatedAdminFinanceiroRoute
   '/admin/fluxo-de-caixa': typeof AuthenticatedAdminFluxoDeCaixaRoute
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
@@ -492,6 +501,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/assinaturas': typeof AuthenticatedAdminAssinaturasRoute
   '/_authenticated/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
+  '/_authenticated/admin/equipe': typeof AuthenticatedAdminEquipeRoute
   '/_authenticated/admin/financeiro': typeof AuthenticatedAdminFinanceiroRoute
   '/_authenticated/admin/fluxo-de-caixa': typeof AuthenticatedAdminFluxoDeCaixaRoute
   '/_authenticated/admin/parceiros': typeof AuthenticatedAdminParceirosRouteWithChildren
@@ -549,6 +559,7 @@ export interface FileRouteTypes {
     | '/admin/assinaturas'
     | '/admin/banners'
     | '/admin/categorias'
+    | '/admin/equipe'
     | '/admin/financeiro'
     | '/admin/fluxo-de-caixa'
     | '/admin/parceiros'
@@ -600,6 +611,7 @@ export interface FileRouteTypes {
     | '/admin/assinaturas'
     | '/admin/banners'
     | '/admin/categorias'
+    | '/admin/equipe'
     | '/admin/financeiro'
     | '/admin/fluxo-de-caixa'
     | '/admin/planos'
@@ -655,6 +667,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/assinaturas'
     | '/_authenticated/admin/banners'
     | '/_authenticated/admin/categorias'
+    | '/_authenticated/admin/equipe'
     | '/_authenticated/admin/financeiro'
     | '/_authenticated/admin/fluxo-de-caixa'
     | '/_authenticated/admin/parceiros'
@@ -827,6 +840,13 @@ declare module '@tanstack/react-router' {
       path: '/categorias'
       fullPath: '/admin/categorias'
       preLoaderRoute: typeof AuthenticatedAdminCategoriasRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/equipe': {
+      id: '/_authenticated/admin/equipe'
+      path: '/equipe'
+      fullPath: '/admin/equipe'
+      preLoaderRoute: typeof AuthenticatedAdminEquipeRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/financeiro': {
@@ -1112,6 +1132,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAssinaturasRoute: typeof AuthenticatedAdminAssinaturasRoute
   AuthenticatedAdminBannersRoute: typeof AuthenticatedAdminBannersRoute
   AuthenticatedAdminCategoriasRoute: typeof AuthenticatedAdminCategoriasRoute
+  AuthenticatedAdminEquipeRoute: typeof AuthenticatedAdminEquipeRoute
   AuthenticatedAdminFinanceiroRoute: typeof AuthenticatedAdminFinanceiroRoute
   AuthenticatedAdminFluxoDeCaixaRoute: typeof AuthenticatedAdminFluxoDeCaixaRoute
   AuthenticatedAdminParceirosRoute: typeof AuthenticatedAdminParceirosRouteWithChildren
@@ -1127,6 +1148,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAssinaturasRoute: AuthenticatedAdminAssinaturasRoute,
   AuthenticatedAdminBannersRoute: AuthenticatedAdminBannersRoute,
   AuthenticatedAdminCategoriasRoute: AuthenticatedAdminCategoriasRoute,
+  AuthenticatedAdminEquipeRoute: AuthenticatedAdminEquipeRoute,
   AuthenticatedAdminFinanceiroRoute: AuthenticatedAdminFinanceiroRoute,
   AuthenticatedAdminFluxoDeCaixaRoute: AuthenticatedAdminFluxoDeCaixaRoute,
   AuthenticatedAdminParceirosRoute:
