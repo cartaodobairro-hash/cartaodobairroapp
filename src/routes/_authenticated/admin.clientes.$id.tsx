@@ -23,9 +23,9 @@ import { StatusPill } from "./admin.clientes.index";
 
 export const Route = createFileRoute("/_authenticated/admin/clientes/$id")({
   component: AdminCustomerDetail,
-  errorComponent: ({ error }: { error: Error }) => (
+  errorComponent: ({ error }) => (
     <p role="alert" className="text-sm text-destructive">
-      {error.message}
+      {(error as Error).message}
     </p>
   ),
   notFoundComponent: () => <p className="text-sm text-muted-foreground">Cliente não encontrado.</p>,
