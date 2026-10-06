@@ -19,3 +19,4 @@
 - Benefit product images live in the private benefit-images bucket under the owning partner ID; direct storage reads are owner/admin-only, while public pages get short-lived signed links from a server function that checks active benefits and approved partners.
 - InfinitePay webhook URLs carry an order-bound signature; reject unsigned callbacks before provider queries; old orders use authenticated return confirmation.
 - Email/password signups sign in immediately without email confirmation; paid benefits remain gated by payment, separate from account access.
+- Admin collaborators live in staff_members with per-module view/edit permissions; RLS adds staff_can(module, edit) policies alongside is_admin ones, so access is enforced in the database, not just the menu.

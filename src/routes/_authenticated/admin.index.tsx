@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, StatCard } from "@/components/shells";
-import { useRoles, isAdminRole } from "@/lib/auth";
+import { useAdminAccess } from "@/lib/staff-access";
 import { brl } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
@@ -10,10 +10,11 @@ export const Route = createFileRoute("/_authenticated/admin/")({
 });
 
 function AdminHome() {
-  const { data: roles, isLoading: loadingRoles } = useRoles();
+  const access = useAdminAccess();
 
   const { data: stats } = useQuery({
     queryKey: ["admin-stats"],
+    enabled: access.isAdmin,
     queryFn: async () => {
       const [customers, partners, pending, sellers, payments] = await Promise.all([
         supabase.from("customers").select("id", { count: "exact", head: true }),
@@ -33,12 +34,12 @@ function AdminHome() {
     },
   });
 
-  if (loadingRoles) return <p className="text-sm text-muted-foreground">Carregando...</p>;
-  if (!isAdminRole(roles))
+  if (access.loading) return <p className="text-sm text-muted-foreground">Carregando...</p>;
+  if (!access.isAdmin)
     return (
-      <p className="text-sm text-muted-foreground">
-        Você não tem permissão para acessar o painel administrativo.
-      </p>
+      <div>
+        <PageHeader title="Bem-vindo" description="Use o menu para acessar as telas liberadas para você." />
+      </div>
     );
 
   return (

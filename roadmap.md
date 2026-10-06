@@ -38,3 +38,4 @@
 - [x] Adicionar exclusão definitiva de cliente com acesso exclusivo da administração
 - [x] Adicionar edição completa de vendedor com acesso exclusivo da administração
 - [x] Adicionar exclusão definitiva de parceiro com acesso exclusivo da administração
+- [x] Adicionar equipe de colaboradores com permissões por tela (ver/editar) no painel administrativo
