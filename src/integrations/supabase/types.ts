@@ -1377,6 +1377,39 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_members: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          email: string
+          name: string
+          permissions: Json
+          status: Database["public"]["Enums"]["generic_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          email: string
+          name: string
+          permissions?: Json
+          status?: Database["public"]["Enums"]["generic_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          name?: string
+          permissions?: Json
+          status?: Database["public"]["Enums"]["generic_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           amount: number
@@ -1533,6 +1566,7 @@ export type Database = {
       owns_customer: { Args: { _customer_id: string }; Returns: boolean }
       owns_partner: { Args: { _partner_id: string }; Returns: boolean }
       owns_seller: { Args: { _seller_id: string }; Returns: boolean }
+      staff_can: { Args: { _edit: boolean; _module: string }; Returns: boolean }
     }
     Enums: {
       app_role:

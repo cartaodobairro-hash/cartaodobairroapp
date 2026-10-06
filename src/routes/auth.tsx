@@ -75,6 +75,8 @@ function AuthPage() {
     const roles = (data ?? []).map((item) => item.role);
     if (roles.includes("super_admin") || roles.includes("admin") || roles.includes("financeiro")) {
       navigate({ to: "/admin" });
+    } else if ((await supabase.from("staff_members").select("user_id").eq("user_id", userId).eq("status", "ativo").maybeSingle()).data) {
+      navigate({ to: "/admin" });
     } else if (roles.includes("partner")) {
       navigate({ to: "/parceiro" });
     } else if (roles.includes("seller")) {
