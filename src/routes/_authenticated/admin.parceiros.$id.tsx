@@ -20,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/admin/parceiros/$id")({
     ],
   }),
   component: PartnerAnalytics,
-  errorComponent: ({ error }) => <p className="text-sm text-destructive">{error.message}</p>,
+  errorComponent: ({ error }: { error: Error }) => <p className="text-sm text-destructive">{error.message}</p>,
   notFoundComponent: () => <p className="text-sm text-muted-foreground">Parceiro não encontrado.</p>,
 });
 

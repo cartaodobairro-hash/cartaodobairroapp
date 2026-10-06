@@ -23,7 +23,7 @@ import { StatusPill } from "./admin.clientes.index";
 
 export const Route = createFileRoute("/_authenticated/admin/clientes/$id")({
   component: AdminCustomerDetail,
-  errorComponent: ({ error }) => (
+  errorComponent: ({ error }: { error: Error }) => (
     <p role="alert" className="text-sm text-destructive">
       {error.message}
     </p>
