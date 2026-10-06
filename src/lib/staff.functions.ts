@@ -15,7 +15,7 @@ async function assertCanManage(context: { supabase: any; userId: string }) {
       .in("role", ["super_admin", "admin", "financeiro"]).limit(1).maybeSingle(),
     context.supabase.from("staff_members").select("status, permissions").eq("user_id", context.userId).maybeSingle(),
   ]);
-  const ok = !!role || (staff?.status === "ativo" && (staff.permissions as Record<string, string>)?.equipe === "edit");
+  const ok = !!role || (staff?.status === "ativo" && (staff.permissions as Record<string, string>)?.["equipe"] === "edit");
   if (!ok) throw new Error("Você não tem permissão para gerenciar colaboradores.");
 }
 
