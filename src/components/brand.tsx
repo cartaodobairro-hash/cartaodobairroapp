@@ -21,6 +21,6 @@ export function BrandLogo({
   onDark?: boolean;
 }) {
   return (
-    <BrandMark className={className} />
+    <BrandMark className={cn(className)} />
   );
 }
