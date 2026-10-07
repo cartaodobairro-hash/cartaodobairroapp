@@ -1,16 +1,16 @@
-import { Home } from "lucide-react";
+import brandMark from "@/assets/cartao-brand-mark.jpg.asset.json";
 import { cn } from "@/lib/utils";
 
 export function BrandMark({ className }: { className?: string }) {
   return (
-    <span
+    <img
+      src={brandMark.url}
+      alt=""
       className={cn(
-        "inline-flex size-9 items-center justify-center rounded-xl surface-brand shadow-glow",
+        "size-9 shrink-0 rounded-lg object-contain",
         className,
       )}
-    >
-      <Home className="size-5" strokeWidth={2.5} />
-    </span>
+    />
   );
 }
 
