@@ -1,6 +1,6 @@
 # Roadmap
 
-- [x] Substituir o símbolo da marca pela logo enviada e adicionar ícones para a tela inicial do celular
+- [x] Usar a arte completa enviada, sem isolar o símbolo da família, na logo e nos ícones da tela inicial do celular
 
 - [x] Permitir baixa manual de comissão do vendedor em Contas a pagar no Fluxo de Caixa, com data de pagamento e atualização nos painéis
 
