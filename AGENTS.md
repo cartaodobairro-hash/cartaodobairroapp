@@ -20,3 +20,4 @@
 - InfinitePay webhook URLs carry an order-bound signature; reject unsigned callbacks before provider queries; old orders use authenticated return confirmation.
 - Email/password signups sign in immediately without email confirmation; paid benefits remain gated by payment, separate from account access.
 - Admin collaborators live in staff_members with per-module view/edit permissions; RLS adds staff_can(module, edit) policies alongside is_admin ones, so access is enforced in the database, not just the menu.
+- Keep home-screen support manifest-only and derive favicon and mobile icons from the shared brand asset; no offline service worker is needed for app-icon support.
