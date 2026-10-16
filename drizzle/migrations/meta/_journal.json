@@ -8,6 +8,13 @@
       "when": 1792192463961,
       "tag": "0000_account_identity_uniqueness_and_trusted_provisioning",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792192735526,
+      "tag": "0001_trusted_account_provisioning_before_auth_insert",
+      "breakpoints": true
     }
   ]
 }
