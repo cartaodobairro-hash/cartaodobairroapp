@@ -34,7 +34,7 @@ export const createStaffMember = createServerFn({ method: "POST" })
     await assertCanManage(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const email = normalizeEmail(data.email);
-    const { data: exists, error: emailError } = await supabaseAdmin.rpc("account_email_exists" as never, { _email: email } as never);
+    const { data: exists, error: emailError } = await supabaseAdmin.rpc("account_email_exists", { _email: email });
     if (emailError) throw new Error("Não foi possível verificar o e-mail.");
     if (exists) throw new Error(EMAIL_ALREADY_REGISTERED);
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({

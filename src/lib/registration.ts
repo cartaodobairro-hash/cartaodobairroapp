@@ -4,7 +4,7 @@ export function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
 
-export function registrationError(error: { code?: string; message: string }) {
+export function registrationError(error: { code?: string | undefined; message: string }) {
   return error.code === "email_exists" || error.code === "user_already_exists" ||
     /already.*registered|already.*exists|e-mail já está cadastrado/i.test(error.message)
     ? EMAIL_ALREADY_REGISTERED : error.message;
