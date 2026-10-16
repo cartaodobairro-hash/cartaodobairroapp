@@ -13,6 +13,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { maskCnpj, maskPhone, onlyDigits } from "@/lib/format";
 import { useAuth } from "@/lib/auth";
+import { useServerFn } from "@tanstack/react-start";
+import { checkRegistrationEmail } from "@/lib/registration.functions";
+import { normalizeEmail, registrationError } from "@/lib/registration";
 
 export const Route = createFileRoute("/parceria")({
   head: () => ({
@@ -25,12 +28,15 @@ export const Route = createFileRoute("/parceria")({
       },
       { property: "og:title", content: "Seja parceiro — Cartão do Bairro" },
       { property: "og:description", content: "Cadastre sua empresa e receba clientes do bairro." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: PartnerSignup,
 });
 
 function PartnerSignup() {
+  const checkEmail = useServerFn(checkRegistrationEmail);
   const { user } = useAuth();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
@@ -99,8 +105,16 @@ function PartnerSignup() {
       });
       error = result.error;
     } else {
+      try {
+        await checkEmail({ data: { email: access.email } });
+      } catch (error) {
+        setBusy(false);
+        setTab("acesso");
+        toast.error(error instanceof Error ? error.message : "Não foi possível verificar o e-mail.");
+        return;
+      }
       const result = await supabase.auth.signUp({
-        email: access.email.trim(),
+        email: normalizeEmail(access.email),
         password: access.password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth?modo=login`,
@@ -127,7 +141,7 @@ function PartnerSignup() {
     }
     setBusy(false);
     if (error) {
-      toast.error("Não foi possível enviar", { description: error.message });
+      toast.error("Não foi possível enviar", { description: registrationError(error) });
       return;
     }
     if (accountCreated) {

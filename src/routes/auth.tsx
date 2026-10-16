@@ -14,6 +14,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { maskCpf, maskPhone, onlyDigits } from "@/lib/format";
 import { signInWithIdentifier } from "@/lib/account.functions";
 import { claimSellerReferral } from "@/lib/seller.functions";
+import { useServerFn } from "@tanstack/react-start";
+import { checkRegistrationEmail } from "@/lib/registration.functions";
+import { normalizeEmail, registrationError } from "@/lib/registration";
 import {
   biometricAvailable,
   biometricEnroll,
@@ -46,6 +49,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
+  const checkEmail = useServerFn(checkRegistrationEmail);
   const { modo, vendedor, proposta } = Route.useSearch();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
@@ -190,8 +194,15 @@ function AuthPage() {
       return;
     }
     setBusy(true);
+    try {
+      await checkEmail({ data: { email: signup.email } });
+    } catch (error) {
+      setBusy(false);
+      toast.error(error instanceof Error ? error.message : "Não foi possível verificar o e-mail.");
+      return;
+    }
     const { data, error } = await supabase.auth.signUp({
-      email: signup.email.trim(),
+      email: normalizeEmail(signup.email),
       password: signup.password,
       options: {
         emailRedirectTo: window.location.origin,
@@ -206,7 +217,7 @@ function AuthPage() {
     });
     if (error) {
       setBusy(false);
-      toast.error("Não foi possível criar a conta", { description: error.message });
+      toast.error("Não foi possível criar a conta", { description: registrationError(error) });
       return;
     }
     if (!data.session) {
