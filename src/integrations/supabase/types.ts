@@ -1523,6 +1523,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      account_email_exists: {
+        Args: { _email: string; _exclude_user?: string }
+        Returns: boolean
+      }
       activate_subscription_by_email: {
         Args: { _amount?: number; _email: string; _transaction_id?: string }
         Returns: boolean
