@@ -147,6 +147,10 @@ export const createSellerAccount = createServerFn({ method: "POST" })
     if (exists) throw new Error(EMAIL_ALREADY_REGISTERED);
     const password = data.password?.trim() || `Vnd${crypto.randomUUID().replace(/-/g, "").slice(0, 8)}!`;
     const sellerCode = cleanOptional(data.sellerCode) || `VND-${crypto.randomUUID().replace(/-/g, "").slice(0, 6).toUpperCase()}`;
+    const provisioningToken = crypto.randomUUID();
+    const { error: provisioningError } = await supabaseAdmin.from("account_provisioning")
+      .upsert({ email, role: "seller", token: provisioningToken, created_at: new Date().toISOString() });
+    if (provisioningError) throw new Error("Não foi possível preparar o cadastro do vendedor.");
 
     const { data: created, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email,
@@ -154,6 +158,7 @@ export const createSellerAccount = createServerFn({ method: "POST" })
       email_confirm: true,
       app_metadata: { provisioned_role: "seller" },
       user_metadata: {
+        provisioning_token: provisioningToken,
         name: data.name.trim(),
         phone: cleanOptional(data.phone),
         cpf: cleanOptional(data.cpf),
@@ -161,6 +166,7 @@ export const createSellerAccount = createServerFn({ method: "POST" })
       },
     });
     if (createError || !created.user) {
+      await supabaseAdmin.from("account_provisioning").delete().eq("email", email).eq("token", provisioningToken);
       throw new Error(createError ? registrationError(createError) : "Não foi possível criar a conta do vendedor.");
     }
 
@@ -245,6 +251,13 @@ export const updateSellerAccount = createServerFn({ method: "POST" })
     if (!seller) throw new Error("Vendedor não encontrado.");
 
     const email = cleanOptional(data.email)?.toLowerCase() ?? null;
+    if (email) {
+      const { data: exists, error: emailError } = await supabaseAdmin.rpc("account_email_exists", {
+        _email: email, ...(seller.user_id ? { _exclude_user: seller.user_id } : {}),
+      });
+      if (emailError) throw new Error("Não foi possível verificar o e-mail.");
+      if (exists) throw new Error(EMAIL_ALREADY_REGISTERED);
+    }
     const { error: updateError } = await supabaseAdmin
       .from("sellers")
       .update({
