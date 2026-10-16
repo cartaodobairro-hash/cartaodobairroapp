@@ -13,7 +13,8 @@
 - Seller attribution occurs at signup or authenticated OAuth login; proposal email and CPF must match before linking, without exposing leads publicly.
 - Use the shared PasswordInput for password entry screens so show/hide behavior remains consistent without altering authentication logic.
 - InfinitePay checkout orders identify a specific pending payment; verification and activation must match that payment and its amount before extending a subscription, so renewals cannot double-count or credit the wrong installment.
-- Create a pending customer record at registration, independently of plan/payment; seller client lists merge registered customers with unconverted proposals so both panels show unpaid signups.
+- Create pending customer records only for customer signups, independently of plan/payment; trusted app_metadata provisioning distinguishes seller/staff/admin accounts without trusting user-editable roles. Seller client lists merge registered customers with unconverted proposals so both panels show unpaid signups.
+- Registration checks canonical identity emails against Auth and profiles through a service-only function; profile constraints and the signup lifecycle trigger enforce uniqueness under concurrency, so UI checks cannot bypass the rule.
 - Partner logos live in the private partner-logos bucket under the owning partner ID; storage access is owner-scoped so one partner cannot browse another's uploads.
 - Customer-facing partner lists obtain signed logos through an authenticated function that checks approved partner records; this preserves owner-only storage browsing while showing approved brands.
 - Benefit product images live in the private benefit-images bucket under the owning partner ID; direct storage reads are owner/admin-only, while public pages get short-lived signed links from a server function that checks active benefits and approved partners.

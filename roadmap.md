@@ -1,5 +1,8 @@
 # Roadmap
 
+- [ ] Corrigir vendedores e contas administrativas criados indevidamente como clientes, preservando seus perfis
+- [ ] Impedir e-mails repetidos em todos os cadastros e mostrar aviso claro
+
 - [x] Usar a arte completa enviada, sem isolar o símbolo da família, na logo e nos ícones da tela inicial do celular
 
 - [x] Permitir baixa manual de comissão do vendedor em Contas a pagar no Fluxo de Caixa, com data de pagamento e atualização nos painéis

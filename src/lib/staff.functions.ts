@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { EMAIL_ALREADY_REGISTERED, normalizeEmail, registrationError } from "./registration";
 
 export const STAFF_MODULES = [
   "planos", "parceiros", "clientes", "assinaturas", "vendedores", "categorias",
@@ -32,12 +33,16 @@ export const createStaffMember = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertCanManage(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const email = data.email.toLowerCase();
+    const email = normalizeEmail(data.email);
+    const { data: exists, error: emailError } = await supabaseAdmin.rpc("account_email_exists", { _email: email });
+    if (emailError) throw new Error("Não foi possível verificar o e-mail.");
+    if (exists) throw new Error(EMAIL_ALREADY_REGISTERED);
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
       email, password: data.password, email_confirm: true,
+      app_metadata: { provisioned_role: "staff" },
       user_metadata: { name: data.name, role: "staff" },
     });
-    if (error || !created.user) throw new Error(error?.message?.includes("registered") ? "Este e-mail já está cadastrado." : "Não foi possível criar o acesso.");
+    if (error || !created.user) throw new Error(error ? registrationError(error) : "Não foi possível criar o acesso.");
     const uid = created.user.id;
     await supabaseAdmin.from("user_roles").delete().eq("user_id", uid).eq("role", "customer");
     await supabaseAdmin.from("customers").delete().eq("user_id", uid);

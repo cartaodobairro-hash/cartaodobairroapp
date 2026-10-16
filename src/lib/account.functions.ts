@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { EMAIL_ALREADY_REGISTERED, normalizeEmail, registrationError } from "./registration";
 
 type Identifier = { identifier: string; password: string };
 
@@ -130,8 +131,7 @@ export const createSellerAccount = createServerFn({ method: "POST" })
     return input;
   })
   .handler(async ({ data, context }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: role, error: roleError } = await supabaseAdmin
+    const { data: role, error: roleError } = await context.supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", context.userId)
@@ -140,7 +140,11 @@ export const createSellerAccount = createServerFn({ method: "POST" })
       .maybeSingle();
     if (roleError || !role) throw new Error("Você não tem permissão para cadastrar vendedores.");
 
-    const email = data.email.trim().toLowerCase();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const email = normalizeEmail(data.email);
+    const { data: exists, error: emailError } = await supabaseAdmin.rpc("account_email_exists", { _email: email });
+    if (emailError) throw new Error("Não foi possível verificar o e-mail.");
+    if (exists) throw new Error(EMAIL_ALREADY_REGISTERED);
     const password = data.password?.trim() || `Vnd${crypto.randomUUID().replace(/-/g, "").slice(0, 8)}!`;
     const sellerCode = cleanOptional(data.sellerCode) || `VND-${crypto.randomUUID().replace(/-/g, "").slice(0, 6).toUpperCase()}`;
 
@@ -148,6 +152,7 @@ export const createSellerAccount = createServerFn({ method: "POST" })
       email,
       password,
       email_confirm: true,
+      app_metadata: { provisioned_role: "seller" },
       user_metadata: {
         name: data.name.trim(),
         phone: cleanOptional(data.phone),
@@ -156,7 +161,7 @@ export const createSellerAccount = createServerFn({ method: "POST" })
       },
     });
     if (createError || !created.user) {
-      throw new Error(createError?.message || "Não foi possível criar a conta do vendedor.");
+      throw new Error(createError ? registrationError(createError) : "Não foi possível criar a conta do vendedor.");
     }
 
     const { error: sellerError } = await supabaseAdmin.from("sellers").insert({
@@ -180,10 +185,10 @@ export const createSellerAccount = createServerFn({ method: "POST" })
       throw new Error(sellerError.message || "Não foi possível salvar o cadastro do vendedor.");
     }
 
-    const { error: sellerRoleError } = await supabaseAdmin.from("user_roles").insert({
+    const { error: sellerRoleError } = await supabaseAdmin.from("user_roles").upsert({
       user_id: created.user.id,
       role: "seller",
-    });
+    }, { onConflict: "user_id,role" });
 
     if (sellerRoleError) {
       await supabaseAdmin.from("sellers").delete().eq("user_id", created.user.id);
