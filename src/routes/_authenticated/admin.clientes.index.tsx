@@ -182,6 +182,20 @@ function AdminCustomers() {
                   <td className="p-3 text-muted-foreground">{dateBR(c.created_at)}</td>
                   <td className="p-3 text-right">
                     <div className="flex items-center justify-end gap-1">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant={c.status === "bloqueado" ? "default" : "outline"}
+                        onClick={async () => {
+                          const next = c.status === "bloqueado" ? "ativo" : "bloqueado";
+                          const { error } = await supabase.from("customers").update({ status: next }).eq("id", c.id);
+                          if (error) return void toast.error("Erro", { description: error.message });
+                          toast.success(next === "bloqueado" ? "Acesso bloqueado" : "Acesso liberado");
+                          void queryClient.invalidateQueries({ queryKey: ["admin-customers"] });
+                        }}
+                      >
+                        {c.status === "bloqueado" ? "Liberar" : "Bloquear"}
+                      </Button>
                       <Link
                         to="/admin/clientes/$id"
                         params={{ id: c.id }}
