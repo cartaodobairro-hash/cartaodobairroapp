@@ -37,12 +37,19 @@ export const createStaffMember = createServerFn({ method: "POST" })
     const { data: exists, error: emailError } = await supabaseAdmin.rpc("account_email_exists", { _email: email });
     if (emailError) throw new Error("Não foi possível verificar o e-mail.");
     if (exists) throw new Error(EMAIL_ALREADY_REGISTERED);
+    const provisioningToken = crypto.randomUUID();
+    const { error: provisioningError } = await supabaseAdmin.from("account_provisioning")
+      .upsert({ email, role: "staff", token: provisioningToken, created_at: new Date().toISOString() });
+    if (provisioningError) throw new Error("Não foi possível preparar o cadastro do colaborador.");
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
       email, password: data.password, email_confirm: true,
       app_metadata: { provisioned_role: "staff" },
-      user_metadata: { name: data.name, role: "staff" },
+      user_metadata: { name: data.name, role: "staff", provisioning_token: provisioningToken },
     });
-    if (error || !created.user) throw new Error(error ? registrationError(error) : "Não foi possível criar o acesso.");
+    if (error || !created.user) {
+      await supabaseAdmin.from("account_provisioning").delete().eq("email", email).eq("token", provisioningToken);
+      throw new Error(error ? registrationError(error) : "Não foi possível criar o acesso.");
+    }
     const uid = created.user.id;
     await supabaseAdmin.from("user_roles").delete().eq("user_id", uid).eq("role", "customer");
     await supabaseAdmin.from("customers").delete().eq("user_id", uid);

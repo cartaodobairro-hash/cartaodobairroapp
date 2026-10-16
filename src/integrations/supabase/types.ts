@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_provisioning: {
+        Row: {
+          created_at: string
+          email: string
+          role: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          role: string
+          token?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          role?: string
+          token?: string
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           key: string
