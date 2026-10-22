@@ -22,7 +22,7 @@ function PartnerDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("card_usage")
-        .select("id, customer_id, used_at, purchase_amount, amount_saved, benefits(title)")
+        .select("id, customer_id, used_at, purchase_amount, amount_saved, product_description, benefits(title)")
         .eq("partner_id", partner!.id)
         .order("used_at", { ascending: false })
         .limit(20);
@@ -98,7 +98,7 @@ function PartnerDashboard() {
             key={u.id}
             className="flex items-center justify-between rounded-xl border border-border bg-card p-3 text-sm shadow-card"
           >
-            <span>{u.benefits?.title ?? "Benefício"}</span>
+            <span>{u.benefits?.title ?? u.product_description ?? "Benefício"}</span>
             <span className="text-muted-foreground">{dateTimeBR(u.used_at)}</span>
             <span className="font-semibold">{u.purchase_amount === null ? "Compra não informada" : brl(u.purchase_amount)}</span>
             <span className="text-primary">-{brl(u.amount_saved)}</span>

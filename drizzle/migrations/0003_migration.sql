@@ -1,0 +1,1 @@
+ALTER TABLE public.card_usage ADD COLUMN IF NOT EXISTS product_description text CHECK (product_description IS NULL OR char_length(product_description) <= 200);
