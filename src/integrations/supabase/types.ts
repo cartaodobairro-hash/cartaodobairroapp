@@ -214,6 +214,7 @@ export type Database = {
           employee_id: string | null
           id: string
           partner_id: string
+          product_description: string | null
           purchase_amount: number | null
           used_at: string
         }
@@ -226,6 +227,7 @@ export type Database = {
           employee_id?: string | null
           id?: string
           partner_id: string
+          product_description?: string | null
           purchase_amount?: number | null
           used_at?: string
         }
@@ -238,6 +240,7 @@ export type Database = {
           employee_id?: string | null
           id?: string
           partner_id?: string
+          product_description?: string | null
           purchase_amount?: number | null
           used_at?: string
         }
