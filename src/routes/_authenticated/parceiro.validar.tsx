@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { Camera, CheckCircle2, XCircle } from "lucide-react";
+import { QrScanner } from "@/components/qr-scanner";
 import { supabase } from "@/integrations/supabase/client";
 import { usePartner } from "@/lib/auth";
 import { PageHeader } from "@/components/shells";
@@ -31,6 +32,7 @@ function ValidateCard() {
   const [amount, setAmount] = useState("");
   const [card, setCard] = useState<Found | null>(null);
   const [busy, setBusy] = useState(false);
+  const [scanning, setScanning] = useState(false);
 
   const { data: benefits } = useQuery({
     queryKey: ["partner-benefits", partner?.id],
@@ -46,9 +48,16 @@ function ValidateCard() {
     },
   });
 
-  async function search() {
+  const handleScan = useCallback((text: string) => {
+    setScanning(false);
+    setCode(text);
+    void search(text);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function search(override?: string) {
     setBusy(true);
-    const value = code.trim();
+    const value = (override ?? code).trim();
     const { data, error } = await supabase.rpc("lookup_card_for_validation", { _code: value });
     setBusy(false);
     if (error) {
@@ -107,9 +116,13 @@ function ValidateCard() {
 
       <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
         <Label>Código do cartão</Label>
-        <div className="mt-1 flex gap-2">
+        <Button className="mt-2 w-full" variant="secondary" onClick={() => setScanning((v) => !v)}>
+          <Camera className="size-4" /> {scanning ? "Fechar câmera" : "Ler QR Code com a câmera"}
+        </Button>
+        {scanning ? <QrScanner onResult={handleScan} onClose={() => setScanning(false)} /> : null}
+        <div className="mt-3 flex gap-2">
           <Input value={code} onChange={(e) => setCode(e.target.value)} placeholder="QR ou número" />
-          <Button onClick={search} disabled={busy || !code}>
+          <Button onClick={() => search()} disabled={busy || !code}>
             Buscar
           </Button>
         </div>
