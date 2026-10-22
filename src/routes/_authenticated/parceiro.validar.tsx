@@ -30,6 +30,7 @@ function ValidateCard() {
   const [benefitId, setBenefitId] = useState("");
   const [purchaseAmount, setPurchaseAmount] = useState("");
   const [amount, setAmount] = useState("");
+  const [product, setProduct] = useState("");
   const [card, setCard] = useState<Found | null>(null);
   const [busy, setBusy] = useState(false);
   const [scanning, setScanning] = useState(false);
@@ -85,12 +86,17 @@ function ValidateCard() {
       toast.error("O desconto deve ser menor ou igual ao valor da compra");
       return;
     }
+    if (!benefitId && !product.trim()) {
+      toast.error("Selecione o benefício ou digite o produto comprado");
+      return;
+    }
     setBusy(true);
     const { error } = await supabase.from("card_usage").insert({
       card_id: card.id,
       customer_id: card.customer_id,
       partner_id: partner.id,
       benefit_id: benefitId || null,
+      product_description: product.trim() || null,
       purchase_amount: purchase,
       amount_saved: discount,
     });
@@ -104,6 +110,8 @@ function ValidateCard() {
     setCode("");
     setPurchaseAmount("");
     setAmount("");
+    setProduct("");
+    setBenefitId("");
   }
 
   if (!partner) return <p className="text-sm text-muted-foreground">Cadastre sua empresa primeiro.</p>;
@@ -160,6 +168,16 @@ function ValidateCard() {
                     </option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <Label>Produto comprado {benefitId ? "(opcional)" : ""}</Label>
+                <Input
+                  className="mt-1"
+                  maxLength={200}
+                  value={product}
+                  onChange={(e) => setProduct(e.target.value)}
+                  placeholder="Digite o produto caso não esteja cadastrado"
+                />
               </div>
               <div>
                 <Label>Valor total da compra ({brl(0).replace(/[\d.,\s]/g, "")})</Label>
