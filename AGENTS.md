@@ -23,3 +23,4 @@
 - Admin collaborators live in staff_members with per-module view/edit permissions; RLS adds staff_can(module, edit) policies alongside is_admin ones, so access is enforced in the database, not just the menu.
 - Keep home-screen support manifest-only and derive favicon and mobile icons from the shared brand asset; no offline service worker is needed for app-icon support.
 - Card usage INSERT checks associations through the authenticated boolean-only can_register_card_usage function, so card SELECT policies do not hide first-use cards or grant partners general card browsing.
+- Partner usage cache keys distinguish recent attendances from reports because their projections and row limits differ; invalidate the shared partner-usage prefix after attendance changes.

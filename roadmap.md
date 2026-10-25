@@ -1,5 +1,9 @@
 # Roadmap
 
+- [x] Revisar páginas públicas e painéis administrativo e parceiro, corrigir consulta de cartão e relatórios, executar testes de regressão
+- [ ] Validar operações como cliente, vendedor e colaborador — aguarda sessões dessas contas; telas administrativas e do parceiro verificadas
+- [ ] Verificar pagamento real e leitura pela câmera do celular — aguarda transação de teste e aparelho físico
+
 - [x] Corrigir vendedores e contas administrativas criados indevidamente como clientes, preservando seus perfis
 - [x] Impedir e-mails repetidos em todos os cadastros e mostrar aviso claro
 

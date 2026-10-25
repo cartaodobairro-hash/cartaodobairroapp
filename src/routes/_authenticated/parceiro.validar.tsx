@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Camera, CheckCircle2, XCircle } from "lucide-react";
@@ -44,6 +44,7 @@ function ValidateCard() {
   const [card, setCard] = useState<Found | null>(null);
   const [busy, setBusy] = useState(false);
   const [scanning, setScanning] = useState(false);
+  const lookupSequence = useRef(0);
 
   const { data: benefits } = useQuery({
     queryKey: ["partner-benefits", partner?.id],
@@ -68,21 +69,25 @@ function ValidateCard() {
   }, []);
 
   async function search(override?: string) {
+    const sequence = ++lookupSequence.current;
+    setCard(null);
     setBusy(true);
     const value = (override ?? code).trim();
-    const { data, error } = await supabase.rpc("lookup_card_for_validation", { _code: value });
-    setBusy(false);
-    if (error) {
-      toast.error("Erro na consulta", { description: error.message });
-      return;
+    try {
+      const { data, error } = await supabase.rpc("lookup_card_for_validation", { _code: value });
+      if (sequence !== lookupSequence.current) return;
+      if (error) throw error;
+      const found = (data ?? [])[0];
+      if (!found) {
+        toast.error("Cartão não encontrado");
+        return;
+      }
+      setCard(found as Found);
+    } catch {
+      if (sequence === lookupSequence.current) toast.error("Não foi possível consultar o cartão. Tente novamente.");
+    } finally {
+      if (sequence === lookupSequence.current) setBusy(false);
     }
-    const found = (data ?? [])[0];
-    if (!found) {
-      setCard(null);
-      toast.error("Cartão não encontrado");
-      return;
-    }
-    setCard(found as Found);
   }
 
   async function confirm() {
@@ -135,12 +140,12 @@ function ValidateCard() {
 
       <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
         <Label>Código do cartão</Label>
-        <Button className="mt-2 w-full" variant="secondary" onClick={() => setScanning((v) => !v)}>
+        <Button className="mt-2 w-full" variant="secondary" disabled={busy} onClick={() => setScanning((v) => !v)}>
           <Camera className="size-4" /> {scanning ? "Fechar câmera" : "Ler QR Code com a câmera"}
         </Button>
         {scanning ? <QrScanner onResult={handleScan} onClose={() => setScanning(false)} /> : null}
         <div className="mt-3 flex gap-2">
-          <Input value={code} onChange={(e) => setCode(e.target.value)} placeholder="QR ou número" />
+          <Input value={code} disabled={busy} onChange={(e) => { setCode(e.target.value); setCard(null); }} placeholder="QR ou número" />
           <Button onClick={() => search()} disabled={busy || !code}>
             Buscar
           </Button>

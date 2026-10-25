@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 
 type Props = { onResult: (text: string) => void; onClose: () => void };
 
@@ -7,6 +8,7 @@ export function QrScanner({ onResult, onClose }: Props) {
   const doneRef = useRef(false);
 
   useEffect(() => {
+    doneRef.current = false;
     let scanner: { stop: () => Promise<void>; isScanning: boolean } | null = null;
     let cancelled = false;
     (async () => {
@@ -19,14 +21,15 @@ export function QrScanner({ onResult, onClose }: Props) {
           { facingMode: "environment" },
           { fps: 10, qrbox: { width: 240, height: 240 } },
           (text) => {
-            if (doneRef.current) return;
+            if (cancelled || doneRef.current) return;
             doneRef.current = true;
-            s.stop().catch(() => {}).finally(() => onResult(text));
+            s.stop().catch(() => {}).finally(() => { if (!cancelled) onResult(text); });
           },
           () => {},
         );
+        if (cancelled && s.isScanning) await s.stop().catch(() => {});
       } catch {
-        setError("Não foi possível abrir a câmera. Permita o acesso à câmera no navegador.");
+        if (!cancelled) setError("Não foi possível abrir a câmera. Permita o acesso à câmera no navegador.");
       }
     })();
     return () => {
@@ -39,9 +42,9 @@ export function QrScanner({ onResult, onClose }: Props) {
     <div className="mt-3 space-y-2">
       <div id="qr-reader" className="w-full overflow-hidden rounded-xl bg-muted" />
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
-      <button type="button" onClick={onClose} className="text-sm font-semibold text-muted-foreground underline">
+      <Button type="button" variant="link" onClick={onClose} className="text-muted-foreground">
         Fechar câmera
-      </button>
+      </Button>
     </div>
   );
 }
