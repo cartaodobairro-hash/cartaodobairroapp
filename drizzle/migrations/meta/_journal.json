@@ -29,6 +29,13 @@
       "when": 1792704549935,
       "tag": "0003_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792893159522,
+      "tag": "0004_fix_first_partner_card_usage_validation",
+      "breakpoints": true
     }
   ]
 }

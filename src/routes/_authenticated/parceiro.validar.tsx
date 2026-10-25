@@ -21,6 +21,16 @@ type Found = {
 };
 
 export const Route = createFileRoute("/_authenticated/parceiro/validar")({
+  head: () => ({
+    meta: [
+      { title: "Validar cartão | Cartão do Bairro" },
+      { name: "description", content: "Validação de cartões e registro de compras no parceiro Cartão do Bairro." },
+      { property: "og:title", content: "Validar cartão | Cartão do Bairro" },
+      { property: "og:description", content: "Validação de cartões e registro de compras no parceiro Cartão do Bairro." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: ValidateCard,
 });
 
@@ -39,10 +49,11 @@ function ValidateCard() {
     queryKey: ["partner-benefits", partner?.id],
     enabled: !!partner?.id,
     queryFn: async () => {
+      if (!partner) return [];
       const { data, error } = await supabase
         .from("benefits")
         .select("id, title")
-        .eq("partner_id", partner!.id)
+        .eq("partner_id", partner.id)
         .eq("status", "ativo");
       if (error) throw error;
       return data;
