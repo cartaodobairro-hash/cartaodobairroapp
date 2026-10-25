@@ -1564,6 +1564,17 @@ export type Database = {
         }
         Returns: boolean
       }
+      can_register_card_usage: {
+        Args: {
+          _benefit_id: string
+          _card_id: string
+          _customer_id: string
+          _dependent_id: string
+          _employee_id: string
+          _partner_id: string
+        }
+        Returns: boolean
+      }
       claim_seller_proposal: {
         Args: { _proposal_token?: string; _seller_code?: string }
         Returns: string
