@@ -742,33 +742,54 @@ export type Database = {
       }
       notifications: {
         Row: {
+          card_usage_id: string | null
           created_at: string
           id: string
           message: string | null
+          partner_id: string | null
           read_at: string | null
           title: string
           type: string
           user_id: string
         }
         Insert: {
+          card_usage_id?: string | null
           created_at?: string
           id?: string
           message?: string | null
+          partner_id?: string | null
           read_at?: string | null
           title: string
           type?: string
           user_id: string
         }
         Update: {
+          card_usage_id?: string | null
           created_at?: string
           id?: string
           message?: string | null
+          partner_id?: string | null
           read_at?: string | null
           title?: string
           type?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notifications_card_usage_id_fkey"
+            columns: ["card_usage_id"]
+            isOneToOne: false
+            referencedRelation: "card_usage"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       partners: {
         Row: {
@@ -1030,6 +1051,7 @@ export type Database = {
       }
       reviews: {
         Row: {
+          card_usage_id: string | null
           comment: string | null
           created_at: string
           id: string
@@ -1039,6 +1061,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          card_usage_id?: string | null
           comment?: string | null
           created_at?: string
           id?: string
@@ -1048,6 +1071,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          card_usage_id?: string | null
           comment?: string | null
           created_at?: string
           id?: string
@@ -1057,6 +1081,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "reviews_card_usage_id_fkey"
+            columns: ["card_usage_id"]
+            isOneToOne: false
+            referencedRelation: "card_usage"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "reviews_partner_id_fkey"
             columns: ["partner_id"]
@@ -1606,6 +1637,10 @@ export type Database = {
       owns_partner: { Args: { _partner_id: string }; Returns: boolean }
       owns_seller: { Args: { _seller_id: string }; Returns: boolean }
       staff_can: { Args: { _edit: boolean; _module: string }; Returns: boolean }
+      submit_attendance_review: {
+        Args: { _comment?: string; _rating: number; _usage_id: string }
+        Returns: string
+      }
     }
     Enums: {
       app_role:

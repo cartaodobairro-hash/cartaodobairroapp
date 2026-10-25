@@ -11,6 +11,7 @@ import { useRealtimeCard } from "@/lib/realtime";
 import { getActiveBannerMedia } from "@/lib/banner-media.functions";
 import { Button } from "@/components/ui/button";
 import { PartnerLogo, useApprovedPartnerLogos } from "@/components/partner-logo";
+import { NotificationBell } from "@/components/notification-bell";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   head: () => ({ meta: [
@@ -121,7 +122,7 @@ function ClientHome() {
     <div className="space-y-6 px-4 pt-5">
       <div className="flex items-center justify-between">
         <BrandLogo />
-        <span className="text-xs text-muted-foreground">Olá, {firstName}</span>
+        <div className="flex items-center gap-2"><span className="text-xs text-muted-foreground">Olá, {firstName}</span><NotificationBell /></div>
       </div>
 
       <Link to="/app/cartao" className="block">

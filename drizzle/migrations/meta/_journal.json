@@ -36,6 +36,13 @@
       "when": 1792893159522,
       "tag": "0004_fix_first_partner_card_usage_validation",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792937773688,
+      "tag": "0005_attendance_review_notifications",
+      "breakpoints": true
     }
   ]
 }

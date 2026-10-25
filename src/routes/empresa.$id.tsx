@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { brl, mapsDirectionsUrl, mapsEmbedUrl, partnerAddress } from "@/lib/format";
 import { getActiveBenefitImages } from "@/lib/benefit-image.functions";
+import { AttendanceReview } from "@/components/attendance-review";
 
 type PartnerView = Pick<
   Database["public"]["Tables"]["partners"]["Row"],
@@ -82,6 +83,28 @@ function PartnerPage() {
         .maybeSingle();
       if (error) throw error;
       return data;
+    },
+  });
+
+  const { data: reviews } = useQuery({
+    queryKey: ["partner-reviews", id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("reviews").select("id, rating, comment, created_at").eq("partner_id", id).eq("status", "ativo").order("created_at", { ascending: false }).limit(50);
+      if (error) throw error;
+      return data;
+    },
+  });
+  const { data: pendingAttendance } = useQuery({
+    queryKey: ["my-reviews", user?.id, id],
+    enabled: !!user,
+    queryFn: async () => {
+      if (!user) return null;
+      const [{ data: notifications, error }, { data: ownReviews, error: reviewError }] = await Promise.all([
+        supabase.from("notifications").select("card_usage_id").eq("user_id", user.id).eq("partner_id", id).eq("type", "avaliacao").order("created_at", { ascending: false }),
+        supabase.from("reviews").select("card_usage_id").eq("user_id", user.id).eq("partner_id", id),
+      ]);
+      if (error || reviewError) throw error ?? reviewError;
+      return notifications?.find((n) => n.card_usage_id && !ownReviews?.some((r) => r.card_usage_id === n.card_usage_id))?.card_usage_id ?? null;
     },
   });
 
@@ -173,6 +196,17 @@ function PartnerPage() {
             <p className="text-sm text-muted-foreground">Benefícios em cadastro.</p>
           ) : null}
         </div>
+      </section>
+
+      <section className="mt-6 space-y-4 px-4">
+        <h2 className="text-sm font-bold uppercase text-muted-foreground">Avaliações</h2>
+        {pendingAttendance ? <AttendanceReview key={pendingAttendance} usageId={pendingAttendance} onSuccess={() => {}} /> : null}
+        {!user ? <Button asChild variant="outline"><Link to="/auth">Entrar para avaliar</Link></Button> : null}
+        {reviews?.map((review) => <div key={review.id} className="rounded-lg border border-border bg-card p-4">
+          <div className="flex items-center gap-1" aria-label={`${review.rating} de 5 estrelas`}>{[1,2,3,4,5].map((note) => <Star key={note} className={`size-4 ${note <= review.rating ? "fill-primary text-primary" : "text-muted-foreground"}`} />)}</div>
+          {review.comment ? <p className="mt-2 break-words text-sm">{review.comment}</p> : null}
+        </div>)}
+        {reviews?.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma avaliação ainda.</p> : null}
       </section>
 
       <section className="mt-6 px-4">
