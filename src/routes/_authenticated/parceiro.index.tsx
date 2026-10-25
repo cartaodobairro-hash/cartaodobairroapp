@@ -9,6 +9,14 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated/parceiro/")({
+  head: () => ({ meta: [
+    { title: "Resumo do parceiro | Cartão do Bairro" },
+    { name: "description", content: "Atendimentos, compras e descontos do parceiro Cartão do Bairro." },
+    { property: "og:title", content: "Resumo do parceiro | Cartão do Bairro" },
+    { property: "og:description", content: "Atendimentos, compras e descontos do parceiro Cartão do Bairro." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: PartnerDashboard,
 });
 
@@ -17,13 +25,14 @@ function PartnerDashboard() {
   const queryClient = useQueryClient();
 
   const { data: usage } = useQuery({
-    queryKey: ["partner-usage", partner?.id],
+    queryKey: ["partner-usage", partner?.id, "recent"],
     enabled: !!partner?.id,
     queryFn: async () => {
+      if (!partner) return [];
       const { data, error } = await supabase
         .from("card_usage")
         .select("id, customer_id, used_at, purchase_amount, amount_saved, product_description, benefits(title)")
-        .eq("partner_id", partner!.id)
+        .eq("partner_id", partner.id)
         .order("used_at", { ascending: false })
         .limit(20);
       if (error) throw error;

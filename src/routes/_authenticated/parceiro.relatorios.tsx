@@ -6,6 +6,14 @@ import { PageHeader, StatCard } from "@/components/shells";
 import { brl, dateTimeBR } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/parceiro/relatorios")({
+  head: () => ({ meta: [
+    { title: "Relatórios do parceiro | Cartão do Bairro" },
+    { name: "description", content: "Compras e descontos registrados no parceiro Cartão do Bairro." },
+    { property: "og:title", content: "Relatórios do parceiro | Cartão do Bairro" },
+    { property: "og:description", content: "Compras e descontos registrados no parceiro Cartão do Bairro." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: PartnerReports,
 });
 
@@ -13,13 +21,14 @@ function PartnerReports() {
   const { data: partner } = usePartner();
 
   const { data: usage } = useQuery({
-    queryKey: ["partner-usage", partner?.id],
+    queryKey: ["partner-usage", partner?.id, "reports"],
     enabled: !!partner?.id,
     queryFn: async () => {
+      if (!partner) return [];
       const { data, error } = await supabase
         .from("card_usage")
-        .select("id, customer_id, used_at, purchase_amount, amount_saved, benefits(title)")
-        .eq("partner_id", partner!.id)
+        .select("id, customer_id, used_at, purchase_amount, amount_saved, product_description, benefits(title)")
+        .eq("partner_id", partner.id)
         .order("used_at", { ascending: false })
         .limit(200);
       if (error) throw error;
@@ -63,7 +72,7 @@ function PartnerReports() {
             {rows.map((r) => (
               <tr key={r.id} className="border-b border-border/60 last:border-0">
                 <td className="p-3 text-muted-foreground">{dateTimeBR(r.used_at)}</td>
-                <td className="p-3">{r.benefits?.title ?? "—"}</td>
+                <td className="p-3">{r.product_description ?? r.benefits?.title ?? "—"}</td>
                 <td className="p-3 font-semibold">{r.purchase_amount === null ? "Não informado" : brl(r.purchase_amount)}</td>
                 <td className="p-3 text-primary">{brl(r.amount_saved)}</td>
                 <td className="p-3 font-semibold">{r.purchase_amount === null ? "—" : brl(Math.max(0, Number(r.purchase_amount) - Number(r.amount_saved)))}</td>
