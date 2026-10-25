@@ -1,5 +1,8 @@
 # Roadmap
 
+- [ ] Revisar os caminhos públicos e os painéis da conta disponível, corrigir falhas comprovadas e executar testes de regressão
+- [ ] Verificar pagamento real e leitura pela câmera do celular — aguarda transação de teste e aparelho físico
+
 - [x] Corrigir vendedores e contas administrativas criados indevidamente como clientes, preservando seus perfis
 - [x] Impedir e-mails repetidos em todos os cadastros e mostrar aviso claro
 
