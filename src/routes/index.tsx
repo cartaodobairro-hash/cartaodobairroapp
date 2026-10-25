@@ -142,7 +142,7 @@ function Landing() {
       <section className="mx-auto w-full max-w-6xl px-4 py-14">
         <h2 className="text-center text-3xl font-extrabold tracking-tight">Escolha seu plano</h2>
         <p className="mt-2 text-center text-sm text-muted-foreground">
-          Sem carência. Cancele quando quiser.
+          Sem carência. Uso imediato.
         </p>
         <div className="mx-auto mt-8 grid max-w-3xl gap-5 md:grid-cols-2">
           {(plans ?? []).map((plan, index) => (
