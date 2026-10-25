@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Ativar notificações de atendimento e avaliação do parceiro pelo cliente, com nota atualizada
+- [x] Ativar notificações de atendimento e avaliação do parceiro pelo cliente, com nota atualizada; teste autenticado concluído
 
 - [x] Revisar páginas públicas e painéis administrativo e parceiro, corrigir consulta de cartão e relatórios, executar testes de regressão
 - [ ] Validar operações como cliente, vendedor e colaborador — aguarda sessões dessas contas; telas administrativas e do parceiro verificadas
