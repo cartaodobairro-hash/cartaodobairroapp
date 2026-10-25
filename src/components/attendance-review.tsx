@@ -14,7 +14,7 @@ export function AttendanceReview({ usageId, onSuccess }: { usageId: string; onSu
   const save = useMutation({
     mutationFn: async () => {
       if (rating < 1 || rating > 5) throw new Error("Escolha uma nota de 1 a 5");
-      const { error } = await supabase.rpc("submit_attendance_review", { _usage_id: usageId, _rating: rating, _comment: comment.trim() || null });
+      const { error } = await supabase.rpc("submit_attendance_review", { _usage_id: usageId, _rating: rating, _comment: comment.trim() });
       if (error) throw error;
     },
     onSuccess: async () => {
