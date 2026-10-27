@@ -16,6 +16,7 @@ const items: NavItem[] = [
 ];
 
 export const Route = createFileRoute("/_authenticated/vendedor")({
+  staticData: { sitemap: false },
   component: () => (
     <PanelShell title="Vendedor" items={items}>
       <Outlet />

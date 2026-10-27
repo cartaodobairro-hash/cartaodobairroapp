@@ -14,6 +14,7 @@ import { PartnerLogo, useApprovedPartnerLogos } from "@/components/partner-logo"
 import { NotificationBell } from "@/components/notification-bell";
 
 export const Route = createFileRoute("/_authenticated/app/")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [
     { title: "Início — Cartão do Bairro" },
     { name: "description", content: "Seu cartão digital e empresas parceiras em destaque." },

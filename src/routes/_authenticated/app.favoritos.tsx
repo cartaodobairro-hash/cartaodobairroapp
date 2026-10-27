@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { PartnerLogo, useApprovedPartnerLogos } from "@/components/partner-logo";
 
 export const Route = createFileRoute("/_authenticated/app/favoritos")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [
     { title: "Favoritos — Cartão do Bairro" },
     { name: "description", content: "Veja as empresas parceiras que você salvou." },

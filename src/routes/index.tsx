@@ -16,6 +16,7 @@ import { brl } from "@/lib/format";
 import logo from "@/assets/cartao-bairro-logo.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "Cartão do Bairro — Desconto de verdade, perto de você" },

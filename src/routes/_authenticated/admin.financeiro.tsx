@@ -5,6 +5,7 @@ import { PageHeader, StatCard } from "@/components/shells";
 import { brl, dateBR } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/admin/financeiro")({
+  staticData: { sitemap: false },
   component: AdminFinance,
 });
 

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/_authenticated/admin/planos")({
+  staticData: { sitemap: false },
   component: AdminPlans,
 });
 

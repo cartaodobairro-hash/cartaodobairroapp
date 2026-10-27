@@ -9,6 +9,7 @@ import { PartnerLogo, useApprovedPartnerLogos } from "@/components/partner-logo"
 type Search = { q: string; categoria: string };
 
 export const Route = createFileRoute("/_authenticated/app/explorar")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [
     { title: "Explorar empresas — Cartão do Bairro" },
     { name: "description", content: "Encontre empresas parceiras e benefícios perto de você." },

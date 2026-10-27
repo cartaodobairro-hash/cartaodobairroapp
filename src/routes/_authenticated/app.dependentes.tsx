@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { dateBR, maskCpf } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/app/dependentes")({
+  staticData: { sitemap: false },
   component: Dependents,
 });
 

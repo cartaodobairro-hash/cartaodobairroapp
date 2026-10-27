@@ -6,6 +6,7 @@ import { useAdminAccess } from "@/lib/staff-access";
 import { brl } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
+  staticData: { sitemap: false },
   component: AdminHome,
 });
 

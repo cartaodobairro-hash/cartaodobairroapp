@@ -9,6 +9,7 @@ import { PageHeader, StatCard } from "@/components/shells";
 import { brl, dateBR, dateTimeBR, maskCnpj, maskPhone, partnerAddress } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/admin/parceiros/$id")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Dashboard do Parceiro — Cartão do Bairro" },

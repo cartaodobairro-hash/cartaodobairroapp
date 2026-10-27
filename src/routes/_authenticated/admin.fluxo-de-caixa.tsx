@@ -35,6 +35,7 @@ import { brl, dateBR } from "@/lib/format";
 import type { Database } from "@/integrations/supabase/types";
 
 export const Route = createFileRoute("/_authenticated/admin/fluxo-de-caixa")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [{ title: "Fluxo de Caixa | Cartão do Bairro" }, { name: "description", content: "Acompanhe receitas, despesas e comissões no Fluxo de Caixa do Cartão do Bairro." }, { property: "og:title", content: "Fluxo de Caixa | Cartão do Bairro" }, { property: "og:description", content: "Acompanhe receitas, despesas e comissões no Fluxo de Caixa do Cartão do Bairro." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: CashFlowPage,
 });

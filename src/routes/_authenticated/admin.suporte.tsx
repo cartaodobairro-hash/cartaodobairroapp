@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { dateTimeBR } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/admin/suporte")({
+  staticData: { sitemap: false },
   component: AdminSupport,
 });
 

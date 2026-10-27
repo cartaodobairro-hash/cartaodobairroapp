@@ -12,6 +12,7 @@ import { AttendanceReview } from "@/components/attendance-review";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_authenticated/app/notificacoes")({
+  staticData: { sitemap: false },
   component: Notifications,
   head: () => ({
     meta: [

@@ -16,6 +16,7 @@ import { Route as ParceriaRouteImport } from './routes/parceria'
 import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
@@ -97,6 +98,11 @@ const PrivacidadeRoute = PrivacidadeRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermosRoute = TermosRouteImport.update({
@@ -383,6 +389,7 @@ export interface FileRoutesByFullPath {
   '/planos': typeof PlanosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/app': typeof AuthenticatedAppRouteWithChildren
@@ -439,6 +446,7 @@ export interface FileRoutesByTo {
   '/planos': typeof PlanosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/empresa/$id': typeof EmpresaIdRoute
   '/admin/assinaturas': typeof AuthenticatedAdminAssinaturasRoute
@@ -492,6 +500,7 @@ export interface FileRoutesById {
   '/planos': typeof PlanosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
@@ -550,6 +559,7 @@ export interface FileRouteTypes {
     | '/planos'
     | '/privacidade'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/termos'
     | '/admin'
     | '/app'
@@ -606,6 +616,7 @@ export interface FileRouteTypes {
     | '/planos'
     | '/privacidade'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/termos'
     | '/empresa/$id'
     | '/admin/assinaturas'
@@ -658,6 +669,7 @@ export interface FileRouteTypes {
     | '/planos'
     | '/privacidade'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/termos'
     | '/_authenticated/admin'
     | '/_authenticated/app'
@@ -716,6 +728,7 @@ export interface RootRouteChildren {
   PlanosRoute: typeof PlanosRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermosRoute: typeof TermosRoute
   EmpresaIdRoute: typeof EmpresaIdRoute
   ApiPublicWebhooksInfinitepayRoute: typeof ApiPublicWebhooksInfinitepayRoute
@@ -770,6 +783,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/termos': {
@@ -1273,6 +1293,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlanosRoute: PlanosRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermosRoute: TermosRoute,
   EmpresaIdRoute: EmpresaIdRoute,
   ApiPublicWebhooksInfinitepayRoute: ApiPublicWebhooksInfinitepayRoute,

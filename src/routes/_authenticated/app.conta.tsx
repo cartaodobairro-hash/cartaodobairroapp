@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { brl, dateBR, maskPhone } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/app/conta")({
+  staticData: { sitemap: false },
   component: Account,
 });
 

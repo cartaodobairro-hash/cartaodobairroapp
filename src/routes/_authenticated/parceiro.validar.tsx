@@ -21,6 +21,7 @@ type Found = {
 };
 
 export const Route = createFileRoute("/_authenticated/parceiro/validar")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Validar cartão | Cartão do Bairro" },

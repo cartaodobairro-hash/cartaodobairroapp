@@ -18,6 +18,7 @@ import { checkRegistrationEmail } from "@/lib/registration.functions";
 import { normalizeEmail, registrationError } from "@/lib/registration";
 
 export const Route = createFileRoute("/parceria")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "Seja parceiro — Cartão do Bairro" },

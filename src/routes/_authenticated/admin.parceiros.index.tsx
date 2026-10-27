@@ -26,6 +26,7 @@ import type { Database } from "@/integrations/supabase/types";
 type PartnerStatus = Database["public"]["Enums"]["partner_status"];
 
 export const Route = createFileRoute("/_authenticated/admin/parceiros/")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Análise de Parceiros — Cartão do Bairro" },

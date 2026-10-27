@@ -33,6 +33,7 @@ type PartnerView = Pick<
 };
 
 export const Route = createFileRoute("/empresa/$id")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Empresa parceira — Cartão do Bairro" },

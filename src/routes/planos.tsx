@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { PlanCard, PlanComparison, PlanSteps, type PlanRow } from "@/components/plans";
 
 export const Route = createFileRoute("/planos")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "Planos do Cartão do Bairro — Individual e Família" },

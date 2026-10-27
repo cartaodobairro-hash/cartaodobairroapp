@@ -13,6 +13,7 @@ import { confirmInfinitePayReturn, createInfinitePayCheckout } from "@/lib/infin
 import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/_authenticated/app/pagamento")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [
     { title: "Pagamento do plano | Cartão do Bairro" },
     { name: "description", content: "Pague ou renove seu plano do Cartão do Bairro com segurança." },

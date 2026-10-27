@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated/parceiro/")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [
     { title: "Resumo do parceiro | Cartão do Bairro" },
     { name: "description", content: "Atendimentos, compras e descontos do parceiro Cartão do Bairro." },

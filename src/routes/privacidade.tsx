@@ -2,8 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage } from "./termos";
 
 export const Route = createFileRoute("/privacidade")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "Política de privacidade — Cartão do Bairro" },
       {
         name: "description",

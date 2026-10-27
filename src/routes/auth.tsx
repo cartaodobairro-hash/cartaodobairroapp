@@ -30,6 +30,7 @@ import {
 type Search = { modo?: "login" | "cadastro"; vendedor?: string; proposta?: string };
 
 export const Route = createFileRoute("/auth")({
+  staticData: { sitemap: false },
   validateSearch: (search: Record<string, unknown>): Search => ({
     modo: search["modo"] === "cadastro" ? "cadastro" : "login",
     ...(typeof search["vendedor"] === "string" ? { vendedor: search["vendedor"] } : {}),
