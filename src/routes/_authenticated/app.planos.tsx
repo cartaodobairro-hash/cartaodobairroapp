@@ -13,6 +13,7 @@ import { brl, dateBR } from "@/lib/format";
 import { claimSellerReferral } from "@/lib/seller.functions";
 
 export const Route = createFileRoute("/_authenticated/app/planos")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [
     { title: "Escolher plano | Cartão do Bairro" },
     { name: "description", content: "Escolha ou renove seu plano Individual ou Família do Cartão do Bairro." },

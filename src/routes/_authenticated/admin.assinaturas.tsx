@@ -22,6 +22,7 @@ import { isAdminRole, useRoles } from "@/lib/auth";
 import { StatusPill } from "./admin.clientes.index";
 
 export const Route = createFileRoute("/_authenticated/admin/assinaturas")({
+  staticData: { sitemap: false },
   component: AdminSubscriptions,
   errorComponent: ({ error }) => (
     <p role="alert" className="text-sm text-destructive">

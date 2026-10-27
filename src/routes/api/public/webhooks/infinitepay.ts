@@ -20,6 +20,7 @@ function pick(obj: unknown, keys: string[]): string | null {
 }
 
 export const Route = createFileRoute("/api/public/webhooks/infinitepay")({
+  staticData: { sitemap: false },
   server: {
     handlers: {
       POST: async ({ request }) => {

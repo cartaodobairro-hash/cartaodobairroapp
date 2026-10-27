@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/_authenticated/vendedor/nova-venda")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [
     { title: "Nova venda | Cartão do Bairro" },
     { name: "description", content: "Cadastre uma proposta e envie a adesão ao cliente." },

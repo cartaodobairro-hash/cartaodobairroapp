@@ -22,6 +22,7 @@ const funnel: { status: LeadStatus; label: string; color: string }[] = [
 ];
 
 export const Route = createFileRoute("/_authenticated/vendedor/")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [
     { title: "Dashboard do vendedor | Cartão do Bairro" },
     { name: "description", content: "Indicadores, vendas, clientes e metas do vendedor." },

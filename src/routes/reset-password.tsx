@@ -8,8 +8,12 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/reset-password")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
       { title: "Nova senha — Cartão do Bairro" },
       { name: "description", content: "Defina uma nova senha para sua conta do Cartão do Bairro." },
       { property: "og:title", content: "Nova senha — Cartão do Bairro" },

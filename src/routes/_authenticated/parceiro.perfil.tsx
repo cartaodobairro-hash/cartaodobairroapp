@@ -16,6 +16,7 @@ import { useMediaUrls } from "@/lib/media";
 const MAX_LOGO_SIZE = 5 * 1024 * 1024;
 
 export const Route = createFileRoute("/_authenticated/parceiro/perfil")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [
     { title: "Perfil da empresa — Cartão do Bairro" },
     { name: "description", content: "Atualize os dados e a logo da sua empresa parceira." },

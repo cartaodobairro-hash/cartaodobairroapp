@@ -76,9 +76,11 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { charSet: "utf-8" },
+      { name: "google-site-verification", content: "o0B2BN0f_xP-gjisll3BMiLSi3aW6CALH10Sqf9ZdFQ" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "theme-color", content: "#ff7300" },
       { name: "apple-mobile-web-app-title", content: "Cartão do Bairro" },

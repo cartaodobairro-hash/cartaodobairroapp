@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { maskCpf, maskPhone } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/parceiro/equipe")({
+  staticData: { sitemap: false },
   component: PartnerTeam,
 });
 

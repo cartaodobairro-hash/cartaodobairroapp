@@ -16,6 +16,7 @@ import { useMediaUrls } from "@/lib/media";
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
 export const Route = createFileRoute("/_authenticated/parceiro/beneficios")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [
     { title: "Benefícios do parceiro — Cartão do Bairro" },
     { name: "description", content: "Cadastre descontos e imagens de produtos da sua empresa parceira." },

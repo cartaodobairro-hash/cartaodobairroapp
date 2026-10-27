@@ -25,3 +25,5 @@
 - Card usage INSERT checks associations through the authenticated boolean-only can_register_card_usage function, so card SELECT policies do not hide first-use cards or grant partners general card browsing.
 - Partner usage cache keys distinguish recent attendances from reports because their projections and row limits differ; invalidate the shared partner-usage prefix after attendance changes.
 - Attendance notifications are created atomically by the card_usage trigger; reviews use an ownership-checked RPC with one rating per attendance and database-managed partner aggregates, preventing spoofed reviews or missing invitations.
+
+- Derive sitemap URLs from required staticData.sitemap route decisions; exclude authenticated subtrees and omit company records until their public visibility is explicitly confirmed, so private pages never enter search discovery.

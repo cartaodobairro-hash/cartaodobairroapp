@@ -37,6 +37,7 @@ const items: (NavItem & { module?: StaffModule })[] = [
 ];
 
 export const Route = createFileRoute("/_authenticated/admin")({
+  staticData: { sitemap: false },
   component: AdminLayout,
 });
 

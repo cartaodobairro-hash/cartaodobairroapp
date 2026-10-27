@@ -6,6 +6,7 @@ import { PageHeader, StatCard } from "@/components/shells";
 import { brl, dateTimeBR } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/parceiro/relatorios")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [
     { title: "Relatórios do parceiro | Cartão do Bairro" },
     { name: "description", content: "Compras e descontos registrados no parceiro Cartão do Bairro." },

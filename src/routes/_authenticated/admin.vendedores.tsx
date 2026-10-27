@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { Tables } from "@/integrations/supabase/types";
 
 export const Route = createFileRoute("/_authenticated/admin/vendedores")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [
     { title: "Vendedores e ranking | Cartão do Bairro" },
     { name: "description", content: "Equipe comercial, ranking, comissões e acessos." },

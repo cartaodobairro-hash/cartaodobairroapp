@@ -16,6 +16,7 @@ import { MODULE_LABELS, useAdminAccess, type StaffModule } from "@/lib/staff-acc
 import { createStaffMember, deleteStaffMember, updateStaffMember } from "@/lib/staff.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/equipe")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Equipe | Cartão do Bairro" },

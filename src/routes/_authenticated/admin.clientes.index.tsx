@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_authenticated/admin/clientes/")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [
     { title: "Clientes | Cartão do Bairro" },
     { name: "description", content: "Gestão administrativa de clientes, planos e cobranças." },

@@ -2,8 +2,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { BrandLogo } from "@/components/brand";
 
 export const Route = createFileRoute("/termos")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "Termos de uso — Cartão do Bairro" },
       { name: "description", content: "Regras de uso do clube de benefícios Cartão do Bairro." },
       { property: "og:title", content: "Termos de uso — Cartão do Bairro" },

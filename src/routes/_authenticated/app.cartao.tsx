@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import cardArtwork from "@/assets/cartao-do-bairro-cliente.jpeg.asset.json";
 
 export const Route = createFileRoute("/_authenticated/app/cartao")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Meu cartão digital — Cartão do Bairro" },
