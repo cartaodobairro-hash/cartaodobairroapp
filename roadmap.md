@@ -51,4 +51,4 @@
 - [x] Adicionar exclusão definitiva de parceiro com acesso exclusivo da administração
 - [x] Adicionar equipe de colaboradores com permissões por tela (ver/editar) no painel administrativo
 
-- [ ] Concluir Google Search Console: identificação e sitemap preparados; aguarda publicação aprovada, verificação Google e envio
+- [ ] Concluir Google Search Console: identificação e sitemap publicados e conferidos; verificação Google não autorizada, envio aguarda essa aprovação
