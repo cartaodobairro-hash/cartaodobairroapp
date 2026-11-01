@@ -490,6 +490,7 @@ function AdminCustomerDetail() {
             </Button>
           ))}
         </div>
+        {isAdmin ? <ResetPasswordBox customerId={id} /> : null}
       </Section>
 
       <Section title="Financeiro / mensalidade">
