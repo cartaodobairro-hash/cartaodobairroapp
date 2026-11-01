@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowLeft, Copy, KeyRound, Pencil, Printer, Trash2 } from "lucide-react";
+import { ArrowLeft, Copy, KeyRound, MessageCircle, Pencil, Printer, Trash2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { resetCustomerPassword } from "@/lib/account.functions";
 import {
@@ -18,7 +18,7 @@ import { PageHeader } from "@/components/shells";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { brl, dateBR, dateTimeBR, firstOf, maskCpf, maskPhone } from "@/lib/format";
+import { brl, dateBR, dateTimeBR, firstOf, maskCpf, maskPhone, waLink } from "@/lib/format";
 import { isAdminRole, useRoles } from "@/lib/auth";
 import { StatusPill } from "./admin.clientes.index";
 
@@ -136,6 +136,7 @@ function AdminCustomerDetail() {
     phone: profileForm?.phone ?? profile?.phone ?? "",
     birth_date: profileForm?.birth_date ?? profile?.birth_date ?? "",
   };
+  const whatsappPhone = profile?.whatsapp || profile?.phone || "";
 
   const sv = {
     amount: subForm?.amount ?? String(subscription?.amount ?? customer.plans?.price ?? ""),
