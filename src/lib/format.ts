@@ -87,3 +87,17 @@ export function firstOf<T>(value: T | T[] | null | undefined): T | undefined {
   if (Array.isArray(value)) return value[0];
   return value ?? undefined;
 }
+
+/** Normaliza telefone brasileiro para o formato internacional do wa.me (55 + DDD + número). */
+export function waNumber(value: string | null | undefined) {
+  const digits = onlyDigits(value ?? "");
+  if (!digits) return "";
+  return /^55\d{10,11}$/.test(digits) ? digits : `55${digits}`;
+}
+
+/** Link wa.me pronto para abrir a conversa; vazio quando não há telefone. */
+export function waLink(phone: string | null | undefined, text?: string) {
+  const number = waNumber(phone);
+  if (!number) return "";
+  return `https://wa.me/${number}${text ? `?text=${encodeURIComponent(text)}` : ""}`;
+}

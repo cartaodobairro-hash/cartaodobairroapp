@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { isAdminRole, useAuth, useRoles } from "@/lib/auth";
 import { customerAccess, OPEN_APP_PATHS } from "@/lib/customer-access";
 import { Button } from "@/components/ui/button";
+import { supportWhatsappLink } from "@/lib/support";
 
 const items: NavItem[] = [
   { to: "/app", label: "Início", icon: <Home className="size-5" />, exact: true },
@@ -73,9 +74,12 @@ function Suspended() {
             <Link to="/app/pagamento">Regularizar pagamento</Link>
           </Button>
           <Button asChild variant="outline" className="w-full">
-            <Link to="/app/suporte">
-              <MessageCircle className="mr-2 size-4" /> Falar com o suporte
-            </Link>
+            <a href={supportWhatsappLink()} target="_blank" rel="noopener noreferrer">
+              <MessageCircle className="mr-2 size-4" /> WhatsApp do suporte
+            </a>
+          </Button>
+          <Button asChild variant="ghost" className="w-full">
+            <Link to="/app/suporte">Abrir chamado no app</Link>
           </Button>
         </div>
       </div>

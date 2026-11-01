@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { PageHeader } from "@/components/shells";
@@ -10,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { dateTimeBR } from "@/lib/format";
+import { SUPPORT_WHATSAPP_DISPLAY, supportWhatsappLink } from "@/lib/support";
 
 export const Route = createFileRoute("/_authenticated/app/suporte")({
   staticData: { sitemap: false },
@@ -68,6 +70,23 @@ function Support() {
   return (
     <div className="px-4 pt-5">
       <PageHeader title="Suporte" description="Tire dúvidas e acompanhe seus chamados" />
+
+      <a
+        href={supportWhatsappLink()}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mb-3 flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card transition-colors hover:border-primary"
+      >
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+          <MessageCircle className="size-5" />
+        </span>
+        <span>
+          <span className="block text-sm font-bold">Atendimento pelo WhatsApp</span>
+          <span className="block text-xs text-muted-foreground">
+            {SUPPORT_WHATSAPP_DISPLAY} • fale direto com a equipe
+          </span>
+        </span>
+      </a>
 
       <div className="space-y-3 rounded-2xl border border-border bg-card p-4 shadow-card">
         <div>

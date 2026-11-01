@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { LogOut } from "lucide-react";
+import { LogOut, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useCustomer, useProfile, useRoles, useSeller, isAdminRole } from "@/lib/auth";
 import { PageHeader, useSignOut } from "@/components/shells";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { brl, dateBR, maskPhone } from "@/lib/format";
+import { SUPPORT_WHATSAPP_DISPLAY, supportWhatsappLink } from "@/lib/support";
 
 export const Route = createFileRoute("/_authenticated/app/conta")({
   staticData: { sitemap: false },
@@ -137,6 +138,11 @@ function Account() {
         </Button>
         <Button asChild variant="outline">
           <Link to="/app/suporte">Suporte</Link>
+        </Button>
+        <Button asChild variant="outline">
+          <a href={supportWhatsappLink()} target="_blank" rel="noopener noreferrer">
+            <MessageCircle className="mr-2 size-4" /> WhatsApp {SUPPORT_WHATSAPP_DISPLAY}
+          </a>
         </Button>
         {isAdminRole(roles) ? (
           <Button asChild variant="outline">

@@ -1,13 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronRight, Search, Trash2 } from "lucide-react";
+import { ChevronRight, MessageCircle, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/shells";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { brl, dateBR, firstOf, maskCpf } from "@/lib/format";
+import { brl, dateBR, firstOf, maskCpf, waLink } from "@/lib/format";
 import { isAdminRole, useRoles } from "@/lib/auth";
 import { deleteCustomerAccount } from "@/lib/account.functions";
 import {
@@ -95,7 +95,7 @@ function AdminCustomers() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, name, cpf, email, phone")
+        .select("id, name, cpf, email, phone, whatsapp")
         .in("id", userIds);
       if (error) throw error;
       return data;
@@ -197,6 +197,20 @@ function AdminCustomers() {
                       >
                         {c.status === "bloqueado" ? "Liberar" : "Bloquear"}
                       </Button>
+                      {(p?.whatsapp || p?.phone) ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label={`Conversar no WhatsApp com ${p?.name || "cliente"}`}
+                          title="Conversar no WhatsApp"
+                          onClick={() =>
+                            window.open(waLink(p?.whatsapp || p?.phone), "_blank", "noopener,noreferrer")
+                          }
+                        >
+                          <MessageCircle className="size-4" />
+                        </Button>
+                      ) : null}
                       <Link
                         to="/admin/clientes/$id"
                         params={{ id: c.id }}
