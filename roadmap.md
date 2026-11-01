@@ -54,4 +54,4 @@
 - [ ] Concluir Google Search Console: identificação e sitemap publicados e conferidos; verificação Google não autorizada, envio aguarda essa aprovação
 
 - [x] Adicionar botão "Conversar no WhatsApp" na ficha e na lista administrativa de clientes
-- [ ] Configurar WhatsApp oficial de suporte 5591980609281 nos pontos de contato do cliente — em andamento
+- [x] Configurar WhatsApp oficial de suporte 5591980609281 no suporte do app, tela de acesso suspenso e Conta
