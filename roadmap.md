@@ -52,3 +52,6 @@
 - [x] Adicionar equipe de colaboradores com permissões por tela (ver/editar) no painel administrativo
 
 - [ ] Concluir Google Search Console: identificação e sitemap publicados e conferidos; verificação Google não autorizada, envio aguarda essa aprovação
+
+- [x] Adicionar botão "Conversar no WhatsApp" na ficha e na lista administrativa de clientes
+- [ ] Configurar WhatsApp oficial de suporte 5591980609281 nos pontos de contato do cliente — em andamento
