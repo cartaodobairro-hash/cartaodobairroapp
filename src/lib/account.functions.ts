@@ -438,3 +438,95 @@ export const deletePartnerAccount = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+
+/** Administrador redefine a senha de um cliente diretamente. */
+export const resetCustomerPassword = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { customerId: string; password: string }) => {
+    if (!input?.customerId?.trim()) throw new Error("Cliente inválido.");
+    if (typeof input.password !== "string" || input.password.length < 6 || input.password.length > 72) {
+      throw new Error("A senha deve ter entre 6 e 72 caracteres.");
+    }
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    const { data: role, error: roleError } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .in("role", ["super_admin", "admin", "financeiro"])
+      .limit(1)
+      .maybeSingle();
+    if (roleError || !role) throw new Error("Você não tem permissão para redefinir senhas.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: customer, error } = await supabaseAdmin
+      .from("customers")
+      .select("user_id")
+      .eq("id", data.customerId)
+      .maybeSingle();
+    if (error || !customer) throw new Error("Cliente não encontrado.");
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(customer.user_id, {
+      password: data.password,
+    });
+    if (updateError) {
+      console.error("resetCustomerPassword", updateError);
+      throw new Error("Não foi possível redefinir a senha.");
+    }
+    return { ok: true };
+  });
+
+/**
+ * Recuperação de senha por e-mail, CPF ou telefone. Sempre responde da mesma
+ * forma para não revelar se a conta existe.
+ */
+export const requestPasswordReset = createServerFn({ method: "POST" })
+  .inputValidator((input: { identifier: string; origin: string }) => {
+    const identifier = String(input?.identifier ?? "").trim();
+    if (!identifier) throw new Error("Informe seu e-mail, CPF ou telefone.");
+    let origin = "";
+    try {
+      const u = new URL(String(input?.origin ?? ""));
+      if (u.protocol === "https:" || u.hostname === "localhost") origin = u.origin;
+    } catch {
+      /* ignore */
+    }
+    if (!origin) throw new Error("Endereço inválido.");
+    return { identifier, origin };
+  })
+  .handler(async ({ data }) => {
+    let email = data.identifier.includes("@") ? normalizeEmail(data.identifier) : "";
+    if (!email) {
+      const only = digits(data.identifier);
+      if (only.length < 10) throw new Error("Informe um e-mail, CPF ou telefone válido.");
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: rows } = await supabaseAdmin
+        .from("profiles")
+        .select("email")
+        .or(`cpf.eq.${only},phone.eq.${only},whatsapp.eq.${only}`)
+        .limit(2);
+      email = ((rows ?? []).find((r) => r.email)?.email ?? "").toLowerCase().trim();
+    }
+    if (email) {
+      const url = process.env["SUPABASE_URL"]!;
+      const publishable = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
+      const client = createClient<Database>(url, publishable, {
+        auth: { persistSession: false, autoRefreshToken: false },
+        global: {
+          fetch: (input, init) => {
+            const headers = new Headers(init?.headers);
+            if (publishable.startsWith("sb_") && headers.get("Authorization") === `Bearer ${publishable}`) {
+              headers.delete("Authorization");
+            }
+            headers.set("apikey", publishable);
+            return fetch(input, { ...init, headers });
+          },
+        },
+      });
+      const { error } = await client.auth.resetPasswordForEmail(email, {
+        redirectTo: `${data.origin}/reset-password`,
+      });
+      if (error) console.error("requestPasswordReset", error.message);
+    }
+    return { ok: true };
+  });

@@ -12,7 +12,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { maskCpf, maskPhone, onlyDigits } from "@/lib/format";
-import { signInWithIdentifier } from "@/lib/account.functions";
+import { requestPasswordReset, signInWithIdentifier } from "@/lib/account.functions";
 import { claimSellerReferral } from "@/lib/seller.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { checkRegistrationEmail } from "@/lib/registration.functions";
@@ -340,18 +340,21 @@ function AuthPage() {
                 type="button"
                 className="w-full text-center text-xs text-muted-foreground underline"
                 onClick={async () => {
-                  if (!login.identifier.includes("@")) {
-                    toast.error("Informe seu e-mail para recuperar a senha");
+                  const identifier = login.identifier.trim();
+                  if (!identifier) {
+                    toast.error("Informe seu e-mail, CPF ou telefone para recuperar a senha");
                     return;
                   }
-                  const { error } = await supabase.auth.resetPasswordForEmail(login.identifier, {
-                    redirectTo: `${window.location.origin}/reset-password`,
-                  });
-                  if (error) {
-                    toast.error(error.message);
-                    return;
+                  try {
+                    await requestPasswordReset({
+                      data: { identifier, origin: window.location.origin },
+                    });
+                    toast.success(
+                      "Se houver uma conta com esses dados, enviamos um link de recuperação para o e-mail cadastrado",
+                    );
+                  } catch (err) {
+                    toast.error((err as Error).message || "Não foi possível enviar a recuperação");
                   }
-                  toast.success("Enviamos um link de recuperação para seu e-mail");
                 }}
               >
                 Esqueci minha senha

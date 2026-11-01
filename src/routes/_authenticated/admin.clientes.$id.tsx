@@ -2,7 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowLeft, Pencil, Printer, Trash2 } from "lucide-react";
+import { ArrowLeft, Copy, KeyRound, Pencil, Printer, Trash2 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { resetCustomerPassword } from "@/lib/account.functions";
 import {
   Dialog,
   DialogContent,
@@ -490,6 +492,7 @@ function AdminCustomerDetail() {
             </Button>
           ))}
         </div>
+        {isAdmin ? <ResetPasswordBox customerId={id} /> : null}
       </Section>
 
       <Section title="Financeiro / mensalidade">
@@ -761,6 +764,70 @@ function AdminCustomerDetail() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function generateTempPassword() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+  const bytes = new Uint32Array(10);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => chars[b % chars.length]).join("");
+}
+
+function ResetPasswordBox({ customerId }: { customerId: string }) {
+  const reset = useServerFn(resetCustomerPassword);
+  const [password, setPassword] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState<string | null>(null);
+
+  async function save() {
+    if (password.length < 6) {
+      toast.error("A senha deve ter pelo menos 6 caracteres.");
+      return;
+    }
+    setSaving(true);
+    try {
+      await reset({ data: { customerId, password } });
+      setSaved(password);
+      toast.success("Senha redefinida.");
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function copy() {
+    if (!saved) return;
+    await navigator.clipboard.writeText(`Sua nova senha do Cartão do Bairro é: ${saved}`);
+    toast.success("Senha copiada para enviar pelo WhatsApp.");
+  }
+
+  return (
+    <div className="mt-4 space-y-2 border-t border-border pt-4">
+      <Label htmlFor="admin-new-password">Redefinir senha do cliente</Label>
+      <div className="flex flex-wrap gap-2">
+        <Input
+          id="admin-new-password"
+          className="max-w-xs"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Nova senha"
+          autoComplete="new-password"
+        />
+        <Button type="button" variant="outline" onClick={() => setPassword(generateTempPassword())}>
+          <KeyRound className="size-4" /> Gerar temporária
+        </Button>
+        <Button type="button" disabled={saving} onClick={() => void save()}>
+          {saving ? "Salvando..." : "Salvar nova senha"}
+        </Button>
+        {saved ? (
+          <Button type="button" variant="outline" onClick={() => void copy()}>
+            <Copy className="size-4" /> Copiar para WhatsApp
+          </Button>
+        ) : null}
+      </div>
     </div>
   );
 }
