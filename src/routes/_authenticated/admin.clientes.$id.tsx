@@ -492,6 +492,15 @@ function AdminCustomerDetail() {
               {s}
             </Button>
           ))}
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={!whatsappPhone}
+            title={whatsappPhone ? "Abrir conversa no WhatsApp" : "Cliente sem WhatsApp cadastrado"}
+            onClick={() => window.open(waLink(whatsappPhone), "_blank", "noopener,noreferrer")}
+          >
+            <MessageCircle className="size-4" /> Conversar no WhatsApp
+          </Button>
         </div>
         {isAdmin ? <ResetPasswordBox customerId={id} /> : null}
       </Section>
@@ -754,10 +763,7 @@ function AdminCustomerDetail() {
           <DialogFooter className="gap-2 sm:justify-between">
             <Button
               variant="outline"
-              onClick={() => {
-                const phone = (profile?.whatsapp || profile?.phone || "").replace(/\D/g, "");
-                window.open(`https://wa.me/${phone ? `55${phone}` : ""}?text=${encodeURIComponent(receiptText())}`, "_blank", "noopener,noreferrer");
-              }}
+              onClick={() => window.open(waLink(profile?.whatsapp || profile?.phone, receiptText()), "_blank", "noopener,noreferrer")}
             >
               Enviar por WhatsApp
             </Button>
