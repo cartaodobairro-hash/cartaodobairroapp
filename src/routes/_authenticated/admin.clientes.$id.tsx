@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ArrowLeft, Copy, KeyRound, MessageCircle, Pencil, Printer, Trash2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { resetCustomerPassword } from "@/lib/account.functions";
+import { grantImmediateAccess, resetCustomerPassword } from "@/lib/account.functions";
 import {
   Dialog,
   DialogContent,
@@ -62,6 +62,7 @@ function AdminCustomerDetail() {
   const queryClient = useQueryClient();
   const { data: roles } = useRoles();
   const isAdmin = isAdminRole(roles);
+  const [granting, setGranting] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingSub, setSavingSub] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -501,6 +502,27 @@ function AdminCustomerDetail() {
           >
             <MessageCircle className="size-4" /> Conversar no WhatsApp
           </Button>
+          {isAdmin ? (
+            <Button
+              size="sm"
+              disabled={granting}
+              onClick={async () => {
+                setGranting(true);
+                try {
+                  const r = await grantImmediateAccess({ data: { customerId: id } });
+                  toast.success("Acesso liberado por 30 dias", { description: `Vence em ${dateBR(r.due)}` });
+                  queryClient.invalidateQueries({ queryKey: ["admin-customer", id] });
+                  queryClient.invalidateQueries({ queryKey: ["admin-customers"] });
+                } catch (e) {
+                  toast.error("Não foi possível liberar", { description: (e as Error).message });
+                } finally {
+                  setGranting(false);
+                }
+              }}
+            >
+              {granting ? "Liberando..." : "Liberar acesso imediato (30 dias)"}
+            </Button>
+          ) : null}
         </div>
         {isAdmin ? <ResetPasswordBox customerId={id} /> : null}
       </Section>
