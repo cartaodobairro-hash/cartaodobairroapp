@@ -43,6 +43,13 @@
       "when": 1792937773688,
       "tag": "0005_attendance_review_notifications",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793648962191,
+      "tag": "0006_issue_card_on_customer_active",
+      "breakpoints": true
     }
   ]
 }
