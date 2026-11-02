@@ -530,3 +530,87 @@ export const requestPasswordReset = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+/**
+ * Liberação manual de 1 clique: cliente ativo, assinatura ativa por 30 dias e
+ * mensalidade registrada como paga (método "manual"). Restrito à administração.
+ */
+export const grantImmediateAccess = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { customerId: string }) => {
+    if (!input?.customerId?.trim()) throw new Error("Cliente inválido.");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    const { data: role, error: roleError } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .in("role", ["super_admin", "admin", "financeiro"])
+      .limit(1)
+      .maybeSingle();
+    if (roleError || !role) throw new Error("Você não tem permissão para liberar acesso.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: customer, error } = await supabaseAdmin
+      .from("customers")
+      .select("id, plan_id, plans(price)")
+      .eq("id", data.customerId)
+      .maybeSingle();
+    if (error || !customer) throw new Error("Cliente não encontrado.");
+
+    const { data: sub } = await supabaseAdmin
+      .from("subscriptions")
+      .select("id, plan_id, amount")
+      .eq("customer_id", customer.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const due = new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+    const today = new Date().toISOString().slice(0, 10);
+    const planId = sub?.plan_id ?? customer.plan_id;
+    if (!planId) throw new Error("O cliente ainda não escolheu um plano.");
+    const plan = Array.isArray(customer.plans) ? customer.plans[0] : customer.plans;
+    const amount = Number(sub?.amount ?? plan?.price ?? 0);
+
+    const { error: custErr } = await supabaseAdmin
+      .from("customers")
+      .update({ status: "ativo", plan_id: planId, updated_at: new Date().toISOString() })
+      .eq("id", customer.id);
+    if (custErr) throw new Error("Não foi possível ativar o cliente.");
+
+    let subscriptionId = sub?.id;
+    if (subscriptionId) {
+      const { error: e } = await supabaseAdmin
+        .from("subscriptions")
+        .update({ status: "ativo", next_due_date: due, payment_method: "manual", updated_at: new Date().toISOString() })
+        .eq("id", subscriptionId);
+      if (e) throw new Error("Não foi possível ativar a assinatura.");
+    } else {
+      const { data: created, error: e } = await supabaseAdmin
+        .from("subscriptions")
+        .insert({ customer_id: customer.id, plan_id: planId, amount, status: "ativo", start_date: today, next_due_date: due, payment_method: "manual" })
+        .select("id")
+        .single();
+      if (e || !created) throw new Error("Não foi possível criar a assinatura.");
+      subscriptionId = created.id;
+    }
+
+    const now = new Date().toISOString();
+    const { data: pending } = await supabaseAdmin
+      .from("payments")
+      .select("id")
+      .eq("subscription_id", subscriptionId)
+      .eq("status", "pendente")
+      .order("created_at")
+      .limit(1)
+      .maybeSingle();
+    const payErr = pending
+      ? (await supabaseAdmin.from("payments").update({ status: "pago", paid_at: now, method: "manual" }).eq("id", pending.id)).error
+      : (await supabaseAdmin.from("payments").insert({ customer_id: customer.id, subscription_id: subscriptionId, amount, method: "manual", status: "pago", paid_at: now })).error;
+    if (payErr) throw new Error("Acesso liberado, mas não foi possível registrar o pagamento.");
+
+    await supabaseAdmin.from("audit_logs").insert({ user_id: context.userId, action: "liberar_acesso_30_dias", module: "clientes", detail: customer.id });
+    return { ok: true, due };
+  });
