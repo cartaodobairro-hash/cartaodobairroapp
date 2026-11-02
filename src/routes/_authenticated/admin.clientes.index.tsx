@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { brl, dateBR, firstOf, maskCpf, waLink } from "@/lib/format";
 import { isAdminRole, useRoles } from "@/lib/auth";
-import { deleteCustomerAccount } from "@/lib/account.functions";
+import { deleteCustomerAccount, grantImmediateAccess } from "@/lib/account.functions";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -70,6 +70,16 @@ function AdminCustomers() {
       toast.success("Cliente excluído definitivamente");
     },
     onError: (error: Error) => toast.error("Não foi possível excluir o cliente", { description: error.message }),
+  });
+
+  const grantMutation = useMutation({
+    mutationFn: (customerId: string) => grantImmediateAccess({ data: { customerId } }),
+    onSuccess: (r) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-customers"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-customer"] });
+      toast.success("Acesso liberado por 30 dias", { description: `Vence em ${dateBR(r.due)}` });
+    },
+    onError: (error: Error) => toast.error("Não foi possível liberar", { description: error.message }),
   });
 
   const { data: customers } = useQuery({
@@ -197,6 +207,16 @@ function AdminCustomers() {
                       >
                         {c.status === "bloqueado" ? "Liberar" : "Bloquear"}
                       </Button>
+                      {canDeleteCustomers ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          disabled={grantMutation.isPending}
+                          onClick={() => grantMutation.mutate(c.id)}
+                        >
+                          Liberar acesso imediato (30 dias)
+                        </Button>
+                      ) : null}
                       {(p?.whatsapp || p?.phone) ? (
                         <Button
                           type="button"
