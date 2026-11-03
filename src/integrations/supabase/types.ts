@@ -1578,6 +1578,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      account_cpf_exists: {
+        Args: { _cpf: string; _exclude_user?: string }
+        Returns: boolean
+      }
       account_email_exists: {
         Args: { _email: string; _exclude_user?: string }
         Returns: boolean
