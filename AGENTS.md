@@ -27,3 +27,4 @@
 - Attendance notifications are created atomically by the card_usage trigger; reviews use an ownership-checked RPC with one rating per attendance and database-managed partner aggregates, preventing spoofed reviews or missing invitations.
 
 - Derive sitemap URLs from required staticData.sitemap route decisions; exclude authenticated subtrees and omit company records until their public visibility is explicitly confirmed, so private pages never enter search discovery.
+- Partner profile views are written only through the record_partner_view RPC (skips owner, dedupes 30 min) and read through get_partner_view_stats (owner/admin/staff), so the raw views table stays unreadable to clients.
