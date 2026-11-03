@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, Heart, MapPin, Phone, Star } from "lucide-react";
@@ -54,6 +55,10 @@ function PartnerPage() {
   const { id } = Route.useParams();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    void supabase.rpc("record_partner_view", { _partner_id: id });
+  }, [id, user?.id]);
 
   const { data: partner, isLoading } = useQuery({
     queryKey: ["partner", id, user?.id ?? "public"],

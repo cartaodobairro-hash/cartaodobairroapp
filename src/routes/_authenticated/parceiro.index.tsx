@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { usePartner } from "@/lib/auth";
 import { PageHeader, StatCard } from "@/components/shells";
+import { PartnerViewStats } from "@/components/partner-views";
 import { brl, dateTimeBR } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
@@ -98,6 +99,7 @@ function PartnerDashboard() {
         <StatCard label="Compras registradas" value={brl(purchases)} />
         <StatCard label="Descontos concedidos" value={brl(total)} tone="ink" />
       </div>
+      <PartnerViewStats partnerId={partner?.id} />
 
       <h2 className="mb-2 mt-6 text-sm font-bold uppercase tracking-wide text-muted-foreground">
         Últimas validações

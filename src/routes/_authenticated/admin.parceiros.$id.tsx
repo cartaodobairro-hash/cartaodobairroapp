@@ -6,6 +6,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { PageHeader, StatCard } from "@/components/shells";
+import { PartnerViewStats } from "@/components/partner-views";
 import { brl, dateBR, dateTimeBR, maskCnpj, maskPhone, partnerAddress } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/admin/parceiros/$id")({
@@ -139,6 +140,7 @@ function PartnerAnalytics() {
         <StatCard label="Descontos concedidos" value={brl(discounts)} tone="ink" />
         <StatCard label="Compras no mês" value={brl(monthPurchases)} hint={`${monthRows.length} atendimentos`} />
       </div>
+      <PartnerViewStats partnerId={id} />
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
         <section className="rounded-2xl border border-border bg-card p-4 shadow-card">
