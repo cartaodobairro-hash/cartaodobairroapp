@@ -50,6 +50,13 @@
       "when": 1793648962191,
       "tag": "0006_issue_card_on_customer_active",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793707306257,
+      "tag": "0007_unique_customer_cpf",
+      "breakpoints": true
     }
   ]
 }

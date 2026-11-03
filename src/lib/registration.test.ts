@@ -15,3 +15,9 @@ describe("global account email", () => {
     expect(registrationError({ message: "Connection failed" })).toBe("Connection failed");
   });
 });
+import { CPF_ALREADY_REGISTERED } from "./registration";
+describe("cpf duplicado", () => {
+  it("mostra mensagem de CPF já cadastrado", () => {
+    expect(registrationError({ message: "Este CPF já está cadastrado." })).toBe(CPF_ALREADY_REGISTERED);
+  });
+});

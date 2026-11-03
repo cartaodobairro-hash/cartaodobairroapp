@@ -196,7 +196,7 @@ function AuthPage() {
     }
     setBusy(true);
     try {
-      await checkEmail({ data: { email: signup.email } });
+      await checkEmail({ data: { email: signup.email, cpf: onlyDigits(signup.cpf) } });
     } catch (error) {
       setBusy(false);
       toast.error(error instanceof Error ? error.message : "Não foi possível verificar o e-mail.");
