@@ -21,3 +21,10 @@ describe("cpf duplicado", () => {
     expect(registrationError({ message: "Este CPF já está cadastrado." })).toBe(CPF_ALREADY_REGISTERED);
   });
 });
+
+import { PHONE_ALREADY_REGISTERED } from "./registration";
+describe("telefone duplicado", () => {
+  it("mostra mensagem de telefone já cadastrado", () => {
+    expect(registrationError({ message: "Este telefone já está cadastrado." })).toBe(PHONE_ALREADY_REGISTERED);
+  });
+});
