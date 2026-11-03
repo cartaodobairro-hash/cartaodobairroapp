@@ -64,6 +64,13 @@
       "when": 1793707378413,
       "tag": "0008_unique_customer_phone",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793739711771,
+      "tag": "0009_partner_profile_views",
+      "breakpoints": true
     }
   ]
 }

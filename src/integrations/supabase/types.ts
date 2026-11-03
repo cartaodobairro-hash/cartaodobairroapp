@@ -791,6 +791,35 @@ export type Database = {
           },
         ]
       }
+      partner_profile_views: {
+        Row: {
+          id: string
+          partner_id: string
+          viewed_at: string
+          viewer_id: string | null
+        }
+        Insert: {
+          id?: string
+          partner_id: string
+          viewed_at?: string
+          viewer_id?: string | null
+        }
+        Update: {
+          id?: string
+          partner_id?: string
+          viewed_at?: string
+          viewer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_profile_views_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partners: {
         Row: {
           category_id: string | null
@@ -1623,6 +1652,15 @@ export type Database = {
         Returns: boolean
       }
       generate_card_number: { Args: never; Returns: string }
+      get_partner_view_stats: {
+        Args: { _partner_id: string }
+        Returns: {
+          last_30_days: number
+          last_7_days: number
+          total: number
+          unique_viewers: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1644,6 +1682,7 @@ export type Database = {
       owns_customer: { Args: { _customer_id: string }; Returns: boolean }
       owns_partner: { Args: { _partner_id: string }; Returns: boolean }
       owns_seller: { Args: { _seller_id: string }; Returns: boolean }
+      record_partner_view: { Args: { _partner_id: string }; Returns: undefined }
       staff_can: { Args: { _edit: boolean; _module: string }; Returns: boolean }
       submit_attendance_review: {
         Args: { _comment?: string; _rating: number; _usage_id: string }
