@@ -1586,6 +1586,10 @@ export type Database = {
         Args: { _email: string; _exclude_user?: string }
         Returns: boolean
       }
+      account_phone_exists: {
+        Args: { _exclude_user?: string; _phone: string }
+        Returns: boolean
+      }
       activate_subscription_by_email: {
         Args: { _amount?: number; _email: string; _transaction_id?: string }
         Returns: boolean
