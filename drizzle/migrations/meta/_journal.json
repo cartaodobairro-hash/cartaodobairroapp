@@ -71,6 +71,13 @@
       "when": 1793739711771,
       "tag": "0009_partner_profile_views",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793796253176,
+      "tag": "0010_fix_issue_card_token",
+      "breakpoints": true
     }
   ]
 }
