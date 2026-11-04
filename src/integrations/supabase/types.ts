@@ -833,6 +833,7 @@ export type Database = {
           description: string | null
           email: string | null
           id: string
+          initial_views: number
           instagram: string | null
           latitude: number | null
           logo_url: string | null
@@ -866,6 +867,7 @@ export type Database = {
           description?: string | null
           email?: string | null
           id?: string
+          initial_views?: number
           instagram?: string | null
           latitude?: number | null
           logo_url?: string | null
@@ -899,6 +901,7 @@ export type Database = {
           description?: string | null
           email?: string | null
           id?: string
+          initial_views?: number
           instagram?: string | null
           latitude?: number | null
           logo_url?: string | null
