@@ -78,6 +78,13 @@
       "when": 1793796253176,
       "tag": "0010_fix_issue_card_token",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793806085204,
+      "tag": "0011_partner_initial_views",
+      "breakpoints": true
     }
   ]
 }
