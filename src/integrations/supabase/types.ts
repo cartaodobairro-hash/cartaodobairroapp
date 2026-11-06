@@ -1686,6 +1686,7 @@ export type Database = {
       owns_partner: { Args: { _partner_id: string }; Returns: boolean }
       owns_seller: { Args: { _seller_id: string }; Returns: boolean }
       record_partner_view: { Args: { _partner_id: string }; Returns: undefined }
+      send_payment_reminders: { Args: never; Returns: number }
       staff_can: { Args: { _edit: boolean; _module: string }; Returns: boolean }
       submit_attendance_review: {
         Args: { _comment?: string; _rating: number; _usage_id: string }
