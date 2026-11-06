@@ -248,7 +248,7 @@ function AdminSubscriptions() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <StatusPill status={late ? "bloqueado" : s.status} />
+                  <StatusPill status={late && s.status === "ativo" ? "em atraso" : s.status} />
                   {s.customers?.id ? (
                     <Link
                       to="/admin/clientes/$id"

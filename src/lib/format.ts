@@ -2,7 +2,11 @@ export const brl = (value: number | string | null | undefined) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(value ?? 0));
 
 export const dateBR = (value: string | Date | null | undefined) =>
-  value ? new Date(value).toLocaleDateString("pt-BR") : "—";
+  value
+    ? typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)
+      ? value.split("-").reverse().join("/")
+      : new Date(value).toLocaleDateString("pt-BR")
+    : "—";
 
 export const dateTimeBR = (value: string | Date | null | undefined) =>
   value ? new Date(value).toLocaleString("pt-BR") : "—";
