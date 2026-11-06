@@ -92,6 +92,13 @@
       "when": 1793984924333,
       "tag": "0012_payment_reminders",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793984941208,
+      "tag": "0013_enable_pg_cron",
+      "breakpoints": true
     }
   ]
 }
