@@ -85,6 +85,13 @@
       "when": 1793806085204,
       "tag": "0011_partner_initial_views",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793984924333,
+      "tag": "0012_payment_reminders",
+      "breakpoints": true
     }
   ]
 }
