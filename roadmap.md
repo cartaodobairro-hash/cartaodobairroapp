@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Avisar cliente e administradores quando o parceiro registrar uso do cartão; validar os avisos nos dois painéis
+
 - [x] Cancelar a troca solicitada dos links de pagamento; links existentes e liberação automática preservados, sem alterações no pagamento
 
 - [x] Ativar notificações de atendimento e avaliação do parceiro pelo cliente, com nota atualizada; teste autenticado concluído
