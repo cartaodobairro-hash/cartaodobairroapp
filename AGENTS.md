@@ -24,7 +24,7 @@
 - Keep home-screen support manifest-only and derive favicon and mobile icons from the shared brand asset; no offline service worker is needed for app-icon support.
 - Card usage INSERT checks associations through the authenticated boolean-only can_register_card_usage function, so card SELECT policies do not hide first-use cards or grant partners general card browsing.
 - Partner usage cache keys distinguish recent attendances from reports because their projections and row limits differ; invalidate the shared partner-usage prefix after attendance changes.
-- Attendance notifications are created atomically by the card_usage trigger; reviews use an ownership-checked RPC with one rating per attendance and database-managed partner aggregates, preventing spoofed reviews or missing invitations.
+- Attendance notifications are created atomically by the card_usage trigger for the customer and active administrators, with one admin notification per recipient/attendance; dashboards read only recipient-scoped notifications. Reviews use an ownership-checked RPC with one rating per attendance and database-managed partner aggregates, preventing spoofed reviews or missing invitations.
 
 - Derive sitemap URLs from required staticData.sitemap route decisions; exclude authenticated subtrees and omit company records until their public visibility is explicitly confirmed, so private pages never enter search discovery.
 - Partner profile views are written only through the record_partner_view RPC (skips owner, dedupes 30 min) and read through get_partner_view_stats (owner/admin/staff), so the raw views table stays unreadable to clients.
