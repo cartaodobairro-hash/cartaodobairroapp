@@ -4,10 +4,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, StatCard } from "@/components/shells";
 import { useAdminAccess } from "@/lib/staff-access";
 import { brl } from "@/lib/format";
+import { AdminAttendanceNotifications } from "@/components/admin-attendance-notifications";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   staticData: { sitemap: false },
   component: AdminHome,
+  head: () => ({ meta: [
+    { title: "Visão geral administrativa | Cartão do Bairro" },
+    { name: "description", content: "Indicadores e avisos de uso do cartão nos parceiros do Cartão do Bairro." },
+    { property: "og:title", content: "Visão geral administrativa | Cartão do Bairro" },
+    { property: "og:description", content: "Indicadores e avisos de atendimentos do Cartão do Bairro." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
 });
 
 function AdminHome() {
@@ -53,6 +62,7 @@ function AdminHome() {
         <StatCard label="Vendedores" value={stats?.sellers ?? 0} />
         <StatCard label="Receita confirmada" value={brl(stats?.revenue ?? 0)} tone="ink" />
       </div>
+      <AdminAttendanceNotifications />
     </div>
   );
 }
