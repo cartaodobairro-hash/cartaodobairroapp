@@ -471,7 +471,6 @@ export const resetCustomerPassword = createServerFn({ method: "POST" })
     });
     if (updateError) {
       console.error("resetCustomerPassword", updateError);
-      const { registrationError } = await import("@/lib/registration");
       throw new Error(registrationError(updateError));
     }
     return { ok: true };
