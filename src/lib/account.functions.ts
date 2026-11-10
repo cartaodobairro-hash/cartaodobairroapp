@@ -471,7 +471,8 @@ export const resetCustomerPassword = createServerFn({ method: "POST" })
     });
     if (updateError) {
       console.error("resetCustomerPassword", updateError);
-      throw new Error("Não foi possível redefinir a senha.");
+      const { registrationError } = await import("@/lib/registration");
+      throw new Error(registrationError(updateError));
     }
     return { ok: true };
   });
@@ -500,12 +501,25 @@ export const requestPasswordReset = createServerFn({ method: "POST" })
       const only = digits(data.identifier);
       if (only.length < 10) throw new Error("Informe um e-mail, CPF ou telefone válido.");
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const local = only.length > 11 && only.startsWith("55") ? only.slice(2) : only;
       const { data: rows } = await supabaseAdmin
         .from("profiles")
         .select("email")
-        .or(`cpf.eq.${only},phone.eq.${only},whatsapp.eq.${only}`)
+        .or(`cpf.eq.${local},phone.eq.${local},whatsapp.eq.${local},phone.eq.55${local},whatsapp.eq.55${local}`)
         .limit(2);
       email = ((rows ?? []).find((r) => r.email)?.email ?? "").toLowerCase().trim();
+      if (!email && local.length >= 10) {
+        // telefones antigos salvos com máscara: compara só os dígitos
+        const { data: all } = await supabaseAdmin
+          .from("profiles")
+          .select("email, phone, whatsapp")
+          .or("phone.not.is.null,whatsapp.not.is.null")
+          .limit(5000);
+        const hit = (all ?? []).find((r) =>
+          [r.phone, r.whatsapp].some((v) => v && digits(v).slice(-11) === local.slice(-11)),
+        );
+        email = (hit?.email ?? "").toLowerCase().trim();
+      }
     }
     if (email) {
       const url = process.env["SUPABASE_URL"]!;
