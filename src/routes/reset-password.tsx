@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { registrationError } from "@/lib/registration";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { BrandLogo } from "@/components/brand";
@@ -28,6 +29,22 @@ function ResetPassword() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
+  const [hasSession, setHasSession] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (session) setHasSession(true);
+    });
+    // dá tempo para o link de recuperação criar a sessão
+    const t = setTimeout(async () => {
+      const { data } = await supabase.auth.getSession();
+      setHasSession(!!data.session);
+    }, 1500);
+    return () => {
+      sub.subscription.unsubscribe();
+      clearTimeout(t);
+    };
+  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -43,7 +60,13 @@ function ResetPassword() {
     const { error } = await supabase.auth.updateUser({ password });
     setBusy(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(
+        /session|jwt|auth/i.test(error.message) && !/password/i.test(error.message)
+          ? "Seu link expirou. Peça um novo link em \"Esqueci minha senha\"."
+          : error.code === "same_password"
+            ? "A nova senha precisa ser diferente da anterior."
+            : registrationError(error),
+      );
       return;
     }
     toast.success("Senha atualizada!");
@@ -55,6 +78,11 @@ function ResetPassword() {
       <form onSubmit={submit} className="w-full max-w-sm space-y-4">
         <BrandLogo className="mb-4" />
         <h1 className="text-2xl font-extrabold tracking-tight">Definir nova senha</h1>
+        {hasSession === false && (
+          <p className="rounded-md border border-border bg-muted p-3 text-sm text-muted-foreground">
+            Link inválido ou expirado. Volte ao login, toque em "Esqueci minha senha" e abra o link mais recente enviado ao seu e-mail.
+          </p>
+        )}
         <div>
           <Label htmlFor="p1">Nova senha</Label>
           <PasswordInput id="p1" value={password} onChange={(e) => setPassword(e.target.value)} required />
