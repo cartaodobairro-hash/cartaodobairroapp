@@ -113,6 +113,20 @@
       "when": 1794091572430,
       "tag": "0015_attendance_notifications_for_admins",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1795109927304,
+      "tag": "0016_harden_roles_sellers_partner_status",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1795109940021,
+      "tag": "0017_partner_moderation_allow_rating_trigger",
+      "breakpoints": true
     }
   ]
 }

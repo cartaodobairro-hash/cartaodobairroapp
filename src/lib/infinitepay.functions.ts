@@ -6,6 +6,11 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const INFINITEPAY_HANDLE = "cartao-do-bairro";
 const PUBLISHED_ORIGIN = "https://cartaodobairroapp.lovable.app";
+const ALLOWED_ORIGINS = new Set([
+  PUBLISHED_ORIGIN,
+  "https://cartaodobairro.online",
+  "https://www.cartaodobairro.online",
+]);
 
 const checkoutInput = z.object({
   subscriptionId: z.string().uuid(),
@@ -76,9 +81,13 @@ export const createInfinitePayCheckout = createServerFn({ method: "POST" })
       payment = created;
     }
 
+    // Cobra sempre o valor da assinatura (alterável só pela administração).
+    if (Math.round(Number(payment.amount) * 100) !== Math.round(Number(subscription.amount) * 100)) {
+      throw new Error("O valor da mensalidade não confere com a assinatura. Fale com o suporte.");
+    }
     const request = getRequest();
     const requestOrigin = request ? new URL(request.url).origin : PUBLISHED_ORIGIN;
-    const publicOrigin = requestOrigin.includes("localhost") ? PUBLISHED_ORIGIN : requestOrigin;
+    const publicOrigin = ALLOWED_ORIGINS.has(requestOrigin) ? requestOrigin : PUBLISHED_ORIGIN;
     const webhookSecret = process.env["INFINITEPAY_WEBHOOK_SECRET"];
     if (!webhookSecret) throw new Error("A confirmação automática do pagamento está indisponível.");
     const webhookSignature = createHmac("sha256", webhookSecret).update(payment.id).digest("hex");
@@ -99,7 +108,7 @@ export const createInfinitePayCheckout = createServerFn({ method: "POST" })
         items: [
           {
             quantity: 1,
-            price: Math.round(Number(payment.amount) * 100),
+            price: Math.round(Number(subscription.amount) * 100),
             description: `Cartão do Bairro — ${subscription.plans?.name ?? "Plano"}`,
           },
         ],

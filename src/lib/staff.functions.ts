@@ -78,6 +78,11 @@ export const updateStaffMember = createServerFn({ method: "POST" })
     await assertCanManage(context);
     if (data.userId === context.userId) throw new Error("Você não pode alterar as próprias permissões.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: target } = await supabaseAdmin.from("staff_members").select("user_id").eq("user_id", data.userId).maybeSingle();
+    if (!target) throw new Error("Colaborador não encontrado.");
+    const { data: privileged } = await supabaseAdmin.from("user_roles").select("role").eq("user_id", data.userId)
+      .in("role", ["super_admin", "admin", "financeiro", "partner", "seller", "employee"]).limit(1).maybeSingle();
+    if (data.password && privileged) throw new Error("A senha desta conta só pode ser alterada pelo próprio titular.");
     const { error } = await supabaseAdmin.from("staff_members")
       .update({ name: data.name, status: data.status, permissions: data.permissions })
       .eq("user_id", data.userId);
