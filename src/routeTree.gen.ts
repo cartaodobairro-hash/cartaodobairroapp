@@ -50,6 +50,7 @@ import { Route as AuthenticatedParceiroEquipeRouteImport } from './routes/_authe
 import { Route as AuthenticatedParceiroPerfilRouteImport } from './routes/_authenticated/parceiro.perfil'
 import { Route as AuthenticatedParceiroRelatoriosRouteImport } from './routes/_authenticated/parceiro.relatorios'
 import { Route as AuthenticatedParceiroValidarRouteImport } from './routes/_authenticated/parceiro.validar'
+import { Route as AuthenticatedParceiroVendasRouteImport } from './routes/_authenticated/parceiro.vendas'
 import { Route as AuthenticatedVendedorIndexRouteImport } from './routes/_authenticated/vendedor.index'
 import { Route as AuthenticatedVendedorComissoesRouteImport } from './routes/_authenticated/vendedor.comissoes'
 import { Route as AuthenticatedVendedorLeadsRouteImport } from './routes/_authenticated/vendedor.leads'
@@ -291,6 +292,12 @@ const AuthenticatedParceiroValidarRoute =
     path: '/validar',
     getParentRoute: () => AuthenticatedParceiroRoute,
   } as any)
+const AuthenticatedParceiroVendasRoute =
+  AuthenticatedParceiroVendasRouteImport.update({
+    id: '/vendas',
+    path: '/vendas',
+    getParentRoute: () => AuthenticatedParceiroRoute,
+  } as any)
 const AuthenticatedVendedorIndexRoute =
   AuthenticatedVendedorIndexRouteImport.update({
     id: '/',
@@ -420,6 +427,7 @@ export interface FileRoutesByFullPath {
   '/parceiro/perfil': typeof AuthenticatedParceiroPerfilRoute
   '/parceiro/relatorios': typeof AuthenticatedParceiroRelatoriosRoute
   '/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
+  '/parceiro/vendas': typeof AuthenticatedParceiroVendasRoute
   '/vendedor/comissoes': typeof AuthenticatedVendedorComissoesRoute
   '/vendedor/leads': typeof AuthenticatedVendedorLeadsRoute
   '/vendedor/link': typeof AuthenticatedVendedorLinkRoute
@@ -472,6 +480,7 @@ export interface FileRoutesByTo {
   '/parceiro/perfil': typeof AuthenticatedParceiroPerfilRoute
   '/parceiro/relatorios': typeof AuthenticatedParceiroRelatoriosRoute
   '/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
+  '/parceiro/vendas': typeof AuthenticatedParceiroVendasRoute
   '/vendedor/comissoes': typeof AuthenticatedVendedorComissoesRoute
   '/vendedor/leads': typeof AuthenticatedVendedorLeadsRoute
   '/vendedor/link': typeof AuthenticatedVendedorLinkRoute
@@ -531,6 +540,7 @@ export interface FileRoutesById {
   '/_authenticated/parceiro/perfil': typeof AuthenticatedParceiroPerfilRoute
   '/_authenticated/parceiro/relatorios': typeof AuthenticatedParceiroRelatoriosRoute
   '/_authenticated/parceiro/validar': typeof AuthenticatedParceiroValidarRoute
+  '/_authenticated/parceiro/vendas': typeof AuthenticatedParceiroVendasRoute
   '/_authenticated/vendedor/comissoes': typeof AuthenticatedVendedorComissoesRoute
   '/_authenticated/vendedor/leads': typeof AuthenticatedVendedorLeadsRoute
   '/_authenticated/vendedor/link': typeof AuthenticatedVendedorLinkRoute
@@ -590,6 +600,7 @@ export interface FileRouteTypes {
     | '/parceiro/perfil'
     | '/parceiro/relatorios'
     | '/parceiro/validar'
+    | '/parceiro/vendas'
     | '/vendedor/comissoes'
     | '/vendedor/leads'
     | '/vendedor/link'
@@ -642,6 +653,7 @@ export interface FileRouteTypes {
     | '/parceiro/perfil'
     | '/parceiro/relatorios'
     | '/parceiro/validar'
+    | '/parceiro/vendas'
     | '/vendedor/comissoes'
     | '/vendedor/leads'
     | '/vendedor/link'
@@ -700,6 +712,7 @@ export interface FileRouteTypes {
     | '/_authenticated/parceiro/perfil'
     | '/_authenticated/parceiro/relatorios'
     | '/_authenticated/parceiro/validar'
+    | '/_authenticated/parceiro/vendas'
     | '/_authenticated/vendedor/comissoes'
     | '/_authenticated/vendedor/leads'
     | '/_authenticated/vendedor/link'
@@ -1023,6 +1036,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedParceiroValidarRouteImport
       parentRoute: typeof AuthenticatedParceiroRoute
     }
+    '/_authenticated/parceiro/vendas': {
+      id: '/_authenticated/parceiro/vendas'
+      path: '/vendas'
+      fullPath: '/parceiro/vendas'
+      preLoaderRoute: typeof AuthenticatedParceiroVendasRouteImport
+      parentRoute: typeof AuthenticatedParceiroRoute
+    }
     '/_authenticated/vendedor/': {
       id: '/_authenticated/vendedor/'
       path: '/'
@@ -1219,6 +1239,7 @@ interface AuthenticatedParceiroRouteChildren {
   AuthenticatedParceiroPerfilRoute: typeof AuthenticatedParceiroPerfilRoute
   AuthenticatedParceiroRelatoriosRoute: typeof AuthenticatedParceiroRelatoriosRoute
   AuthenticatedParceiroValidarRoute: typeof AuthenticatedParceiroValidarRoute
+  AuthenticatedParceiroVendasRoute: typeof AuthenticatedParceiroVendasRoute
   AuthenticatedParceiroIndexRoute: typeof AuthenticatedParceiroIndexRoute
 }
 
@@ -1228,6 +1249,7 @@ const AuthenticatedParceiroRouteChildren: AuthenticatedParceiroRouteChildren = {
   AuthenticatedParceiroPerfilRoute: AuthenticatedParceiroPerfilRoute,
   AuthenticatedParceiroRelatoriosRoute: AuthenticatedParceiroRelatoriosRoute,
   AuthenticatedParceiroValidarRoute: AuthenticatedParceiroValidarRoute,
+  AuthenticatedParceiroVendasRoute: AuthenticatedParceiroVendasRoute,
   AuthenticatedParceiroIndexRoute: AuthenticatedParceiroIndexRoute,
 }
 
