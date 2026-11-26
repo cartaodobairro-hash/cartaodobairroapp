@@ -88,8 +88,9 @@ function AdminCustomers() {
       const { data, error } = await supabase
         .from("customers")
         .select(
-          "id, user_id, seller_id, city, neighborhood, status, created_at, sellers(name, seller_code), plans(name, price, period, max_dependents), cards(card_number, status), dependents(id, removed_at, status), subscriptions(id, status, amount, next_due_date, created_at)",
+          "id, user_id, seller_id, city, neighborhood, status, created_at, sellers(name, seller_code), plans(name, price, period, max_dependents), cards(card_number, status), dependents(id, removed_at, status), subscriptions(id, status, amount, next_due_date, created_at), payments(count)",
         )
+        .eq("payments.status", "pago")
         .order("created_at", { ascending: false })
         .limit(200);
       if (error) throw error;
@@ -150,8 +151,9 @@ function AdminCustomers() {
               <th className="p-3">CPF</th>
               <th className="p-3">Cartão</th>
               <th className="p-3">Plano</th>
-              <th className="p-3">Dependentes</th>
-              <th className="p-3">Mensalidade</th>
+              <th className="p-3" title="Dependentes ativos / máximo do plano">Dependentes ativos</th>
+              <th className="p-3" title="Valor da mensalidade do plano">Mensalidade (valor)</th>
+              <th className="p-3" title="Quantidade de mensalidades já pagas">Mensalidades pagas</th>
               <th className="p-3">Vencimento</th>
               <th className="p-3">Status</th>
               <th className="p-3">Desde</th>
@@ -167,6 +169,7 @@ function AdminCustomers() {
               const actives = (c.dependents ?? []).filter(
                 (d) => !d.removed_at && d.status === "ativo",
               ).length;
+              const paidCount = Number(firstOf(c.payments)?.count ?? 0);
               return (
                 <tr key={c.id} className="border-b border-border/60 last:border-0">
                   <td className="p-3">
@@ -180,10 +183,13 @@ function AdminCustomers() {
                   </td>
                   <td className="p-3">{c.plans?.name ?? "—"}</td>
                   <td className="p-3 text-xs text-muted-foreground">
-                    {actives}
+                    {actives} ativo{actives === 1 ? "" : "s"}
                     {c.plans?.max_dependents ? ` / ${c.plans.max_dependents}` : ""}
                   </td>
                   <td className="p-3">{sub ? brl(sub.amount) : "—"}</td>
+                  <td className="p-3 text-xs font-semibold">
+                    {paidCount} paga{paidCount === 1 ? "" : "s"}
+                  </td>
                   <td className="p-3 text-muted-foreground">
                     {sub?.next_due_date ? dateBR(sub.next_due_date) : "—"}
                   </td>
