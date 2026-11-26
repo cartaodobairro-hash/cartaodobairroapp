@@ -12,6 +12,7 @@ import { PlanCard, PlanComparison, PlanSteps, type PlanRow } from "@/components/
 import { brl, dateBR } from "@/lib/format";
 import { claimSellerReferral } from "@/lib/seller.functions";
 import { supportWhatsappLink } from "@/lib/support";
+import { planSwitchBlocked } from "@/lib/plan-change";
 
 export const Route = createFileRoute("/_authenticated/app/planos")({
   staticData: { sitemap: false },
@@ -69,7 +70,7 @@ function AppPlans() {
       toast.error("Aceite os termos para continuar");
       return;
     }
-    if (subscription?.status === "ativo" && subscription.plan_id !== plan.id) {
+    if (planSwitchBlocked(subscription, plan.id)) {
       toast.error("Você já tem um plano ativo", {
         description: "Para mudar de plano, fale com o suporte pelo WhatsApp.",
       });
@@ -210,7 +211,7 @@ function AppPlans() {
             featured={plan.max_dependents > 0}
             current={currentPlanId === plan.id && subscription?.status === "ativo"}
             action={
-              subscription?.status === "ativo" && currentPlanId !== plan.id ? (
+              planSwitchBlocked(subscription, plan.id) ? (
                 <Button asChild variant="outline" className="w-full">
                   <a href={supportWhatsappLink()} target="_blank" rel="noopener noreferrer">
                     Falar com o suporte
