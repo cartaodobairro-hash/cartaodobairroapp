@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { PlanCard, PlanComparison, PlanSteps, type PlanRow } from "@/components/plans";
 import { brl, dateBR } from "@/lib/format";
 import { claimSellerReferral } from "@/lib/seller.functions";
+import { supportWhatsappLink } from "@/lib/support";
 
 export const Route = createFileRoute("/_authenticated/app/planos")({
   staticData: { sitemap: false },
@@ -66,6 +67,12 @@ function AppPlans() {
     if (!user) return;
     if (!accepted) {
       toast.error("Aceite os termos para continuar");
+      return;
+    }
+    if (subscription?.status === "ativo" && subscription.plan_id !== plan.id) {
+      toast.error("Você já tem um plano ativo", {
+        description: "Para mudar de plano, fale com o suporte pelo WhatsApp.",
+      });
       return;
     }
     setBusyId(plan.id);
@@ -180,6 +187,21 @@ function AppPlans() {
         </div>
       ) : null}
 
+      {subscription?.status === "ativo" ? (
+        <p className="mb-4 rounded-xl border border-border bg-card p-3 text-xs text-muted-foreground shadow-card">
+          Você já tem um plano ativo. Para mudar de plano, fale com o suporte pelo{" "}
+          <a
+            href={supportWhatsappLink()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold underline"
+          >
+            WhatsApp
+          </a>
+          .
+        </p>
+      ) : null}
+
       <div className="grid gap-4 sm:grid-cols-2">
         {(plans ?? []).map((plan) => (
           <PlanCard
@@ -188,13 +210,21 @@ function AppPlans() {
             featured={plan.max_dependents > 0}
             current={currentPlanId === plan.id && subscription?.status === "ativo"}
             action={
-              <Button
-                className="w-full"
-                disabled={busyId !== null}
-                onClick={() => void contract(plan)}
-              >
-                {busyId === plan.id ? "Processando..." : "Escolher plano"}
-              </Button>
+              subscription?.status === "ativo" && currentPlanId !== plan.id ? (
+                <Button asChild variant="outline" className="w-full">
+                  <a href={supportWhatsappLink()} target="_blank" rel="noopener noreferrer">
+                    Falar com o suporte
+                  </a>
+                </Button>
+              ) : (
+                <Button
+                  className="w-full"
+                  disabled={busyId !== null}
+                  onClick={() => void contract(plan)}
+                >
+                  {busyId === plan.id ? "Processando..." : "Escolher plano"}
+                </Button>
+              )
             }
           />
         ))}

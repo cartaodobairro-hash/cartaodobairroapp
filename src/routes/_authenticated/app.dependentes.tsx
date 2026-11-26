@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { dateBR, maskCpf } from "@/lib/format";
+import { supportWhatsappLink } from "@/lib/support";
 
 export const Route = createFileRoute("/_authenticated/app/dependentes")({
   staticData: { sitemap: false },
@@ -117,8 +118,10 @@ function Dependents() {
           <p className="mt-1 text-sm text-muted-foreground">
             O plano Família permite até 10 dependentes, sem exigência de grau de parentesco.
           </p>
-          <Button asChild className="mt-4">
-            <Link to="/app/planos">Ver plano Família</Link>
+          <Button asChild variant="outline" className="mt-4">
+            <a href={supportWhatsappLink()} target="_blank" rel="noopener noreferrer">
+              Falar com o suporte
+            </a>
           </Button>
         </div>
       ) : (

@@ -102,9 +102,11 @@ function Account() {
             : "Nenhum plano ativo no momento."}
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Button asChild size="sm" variant="outline">
-            <Link to="/app/planos">{customer?.plans ? "Trocar de plano" : "Escolher plano"}</Link>
-          </Button>
+          {!customer?.plans ? (
+            <Button asChild size="sm" variant="outline">
+              <Link to="/app/planos">Escolher plano</Link>
+            </Button>
+          ) : null}
           {customer?.plan_id ? (
             <Button asChild size="sm"><Link to="/app/pagamento">Pagar mensalidade</Link></Button>
           ) : null}
