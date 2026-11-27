@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { BadgePercent, BarChart3, LayoutDashboard, QrCode, ShoppingBag, Store, Users } from "lucide-react";
+import { BadgePercent, CreditCard, Sparkles, BarChart3, LayoutDashboard, QrCode, ShoppingBag, Store, Users } from "lucide-react";
 import { PanelShell, type NavItem } from "@/components/shells";
 
 const items: NavItem[] = [
@@ -10,6 +10,8 @@ const items: NavItem[] = [
   { to: "/parceiro/relatorios", label: "Relatórios", icon: <BarChart3 className="size-4" /> },
   { to: "/parceiro/equipe", label: "Equipe", icon: <Users className="size-4" /> },
   { to: "/parceiro/perfil", label: "Perfil", icon: <Store className="size-4" /> },
+  { to: "/app/planos", label: "Meu plano", icon: <Sparkles className="size-4" /> },
+  { to: "/app/cartao", label: "Minha carteirinha", icon: <CreditCard className="size-4" /> },
 ];
 
 export const Route = createFileRoute("/_authenticated/parceiro")({
