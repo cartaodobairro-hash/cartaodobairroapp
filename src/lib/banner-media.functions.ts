@@ -27,7 +27,7 @@ export const getActiveBannerMedia = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error: signError } = await supabaseAdmin.storage
       .from("banners")
-      .createSignedUrls(allowed, 60 * 60);
+      .createSignedUrls(allowed, 60 * 60 * 24);
     if (signError) throw new Error("Não foi possível carregar as imagens dos banners.");
 
     return Object.fromEntries(

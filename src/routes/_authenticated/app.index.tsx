@@ -52,7 +52,7 @@ function ClientHome() {
   const { data: bannerMedia } = useQuery({
     queryKey: ["active-banner-media", mediaPaths.slice().sort().join("|")],
     enabled: mediaPaths.length > 0,
-    staleTime: 1000 * 60 * 30,
+    staleTime: 23 * 60 * 60 * 1000,
     queryFn: async () => {
       const external = Object.fromEntries(mediaPaths.filter((path) => /^https?:\/\//i.test(path)).map((path) => [path, path]));
       return { ...external, ...await fetchBannerMedia({ data: mediaPaths.filter((path) => !/^https?:\/\//i.test(path)) }) };
@@ -170,6 +170,9 @@ function ClientHome() {
                       src={url}
                       alt={b.title}
                       loading="lazy"
+                      decoding="async"
+                      width={1200}
+                      height={600}
                       className="aspect-[2/1] w-full object-cover"
                     />
                   )

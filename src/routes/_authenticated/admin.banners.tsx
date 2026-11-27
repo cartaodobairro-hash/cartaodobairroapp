@@ -167,7 +167,7 @@ function AdminBanners() {
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
           <p className="mt-1 text-xs text-muted-foreground">
-            Até 50 MB. Recomendado 1200x600 px para imagens.
+            Até 50 MB. Imagens são reduzidas e comprimidas automaticamente antes do envio.
           </p>
         </div>
         <div className="md:col-span-2">
@@ -194,7 +194,7 @@ function AdminBanners() {
                 {url && b.media_type === "video" ? (
                   <video src={url} className="size-full object-cover" muted loop controls playsInline />
                 ) : url ? (
-                  <img src={url} alt={b.title} className="size-full object-cover" />
+                  <img src={url} alt={b.title} loading="lazy" decoding="async" width={1200} height={600} className="size-full object-cover" />
                 ) : null}
               </div>
               <div className="space-y-2 p-4">

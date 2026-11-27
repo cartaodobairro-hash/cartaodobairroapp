@@ -119,7 +119,7 @@ function PartnerPage() {
   const { data: benefitImages } = useQuery({
     queryKey: ["active-benefit-images", imagePaths.slice().sort().join("|")],
     enabled: imagePaths.length > 0,
-    staleTime: 30 * 60 * 1000,
+    staleTime: 23 * 60 * 60 * 1000,
     queryFn: () => fetchBenefitImages({ data: imagePaths }),
   });
 
@@ -178,7 +178,7 @@ function PartnerPage() {
           {activeBenefits.map((b) => (
             <div key={b.id} className="rounded-2xl border border-border bg-card p-4 shadow-card">
               {b.image_url && benefitImages?.[b.image_url] ? (
-                <img src={benefitImages[b.image_url]} alt={b.title} className="mb-3 aspect-[16/9] w-full rounded-md object-cover" />
+                <img src={benefitImages[b.image_url]} alt={b.title} loading="lazy" decoding="async" width={1280} height={720} className="mb-3 aspect-[16/9] w-full rounded-md object-cover" />
               ) : null}
               <div className="flex items-start justify-between gap-3">
                 <p className="font-bold">{b.title}</p>

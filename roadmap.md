@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Otimizar uploads de imagens, carregamento sob demanda e cache de mídia; compressão medida no navegador e imagem pública real validada
+
 - [x] Configurar infraestrutura e modelos de e-mail para cartaodobairro.online; seis modelos renderizados e rotas verificadas, envio aguarda verificação de DNS
 
 - [x] Avisar cliente e administradores após uso do cartão; criação dos dois avisos validada, painel administrativo e leitura conferidos em computador/celular; tela do cliente preservada, sem novo teste autenticado

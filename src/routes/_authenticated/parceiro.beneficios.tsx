@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { brl } from "@/lib/format";
-import { useMediaUrls } from "@/lib/media";
+import { removeMedia, uploadMedia, useMediaUrls } from "@/lib/media";
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
@@ -70,10 +70,7 @@ function PartnerBenefits() {
       if (!partner) throw new Error("Empresa não encontrada");
       let imagePath: string | null = null;
       if (imageFile) {
-        const ext = imageFile.type === "image/png" ? "png" : "jpg";
-        imagePath = `${partner.id}/${crypto.randomUUID()}.${ext}`;
-        const { error } = await supabase.storage.from("benefit-images").upload(imagePath, imageFile, { contentType: imageFile.type, upsert: false });
-        if (error) throw error;
+        imagePath = await uploadMedia("benefit-images", imageFile, `${partner.id}/`, "benefit");
       }
       const { error } = await supabase.from("benefits").insert({
         partner_id: partner!.id,
@@ -87,7 +84,7 @@ function PartnerBenefits() {
         status: "ativo",
       });
       if (error) {
-        if (imagePath) await supabase.storage.from("benefit-images").remove([imagePath]);
+        if (imagePath) await removeMedia("benefit-images", imagePath);
         throw error;
       }
     },
@@ -104,7 +101,7 @@ function PartnerBenefits() {
     mutationFn: async ({ id, imagePath }: { id: string; imagePath: string | null }) => {
       const { error } = await supabase.from("benefits").delete().eq("id", id);
       if (error) throw error;
-      if (imagePath) await supabase.storage.from("benefit-images").remove([imagePath]);
+      if (imagePath) await removeMedia("benefit-images", imagePath);
     },
     onSuccess: () => {
       toast.success("Benefício removido");
@@ -212,7 +209,8 @@ function PartnerBenefits() {
               setImageFile(file);
             }}
           />
-          {preview ? <img src={preview} alt="Prévia da imagem do produto" className="mt-3 h-28 w-28 rounded-md border border-border object-cover" /> : null}
+          <p className="mt-1 text-xs text-muted-foreground">A imagem será otimizada automaticamente antes do envio.</p>
+          {preview ? <img src={preview} alt="Prévia da imagem do produto" decoding="async" className="mt-3 h-28 w-28 rounded-md border border-border object-cover" /> : null}
         </div>
         <div className="md:col-span-2">
           <Button disabled={create.isPending}>
@@ -229,7 +227,7 @@ function PartnerBenefits() {
           >
             <div className="flex min-w-0 items-start gap-3">
               {b.image_url && imageUrls?.[b.image_url] ? (
-                <img src={imageUrls[b.image_url]} alt={b.title} className="size-20 shrink-0 rounded-md object-cover" />
+                <img src={imageUrls[b.image_url]} alt={b.title} loading="lazy" decoding="async" width={80} height={80} className="size-20 shrink-0 rounded-md object-cover" />
               ) : null}
               <div className="min-w-0">
               <p className="font-semibold">{b.title}</p>

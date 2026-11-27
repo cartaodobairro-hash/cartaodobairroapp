@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { maskCep, maskPhone } from "@/lib/format";
-import { useMediaUrls } from "@/lib/media";
+import { removeMedia, uploadMedia, useMediaUrls } from "@/lib/media";
 
 const MAX_LOGO_SIZE = 5 * 1024 * 1024;
 
@@ -58,21 +58,17 @@ function PartnerProfile() {
       if (!partner) throw new Error("Empresa não encontrada");
       let newLogoPath: string | null = null;
       if (logoFile) {
-        const ext = logoFile.type === "image/png" ? "png" : "jpg";
-        newLogoPath = `${partner.id}/${crypto.randomUUID()}.${ext}`;
-        const { error: uploadError } = await supabase.storage.from("partner-logos")
-          .upload(newLogoPath, logoFile, { contentType: logoFile.type, upsert: false });
-        if (uploadError) throw uploadError;
+        newLogoPath = await uploadMedia("partner-logos", logoFile, `${partner.id}/`, "logo");
       }
       const { error } = await supabase.from("partners")
         .update({ ...form, ...(newLogoPath ? { logo_url: newLogoPath } : {}) } as TablesUpdate<"partners">)
         .eq("id", partner.id);
       if (error) {
-        if (newLogoPath) await supabase.storage.from("partner-logos").remove([newLogoPath]);
+        if (newLogoPath) await removeMedia("partner-logos", newLogoPath);
         throw error;
       }
       if (newLogoPath && partner.logo_url?.startsWith(`${partner.id}/`)) {
-        await supabase.storage.from("partner-logos").remove([partner.logo_url]);
+        await removeMedia("partner-logos", partner.logo_url);
       }
     },
     onSuccess: () => {
@@ -168,9 +164,10 @@ function PartnerProfile() {
                setLogoFile(file);
              }}
            />
+           <p className="mt-1 text-xs text-muted-foreground">A logo será otimizada automaticamente antes do envio.</p>
            {logoFile ? <p className="mt-1 text-xs text-muted-foreground">Nova logo: {logoFile.name}</p> : null}
            {partner.logo_url && logoUrls?.[partner.logo_url] ? (
-             <img src={logoUrls[partner.logo_url]} alt={`Logo de ${partner.trade_name}`} className="mt-3 h-20 max-w-40 object-contain" />
+             <img src={logoUrls[partner.logo_url]} alt={`Logo de ${partner.trade_name}`} loading="lazy" decoding="async" width={160} height={80} className="mt-3 h-20 max-w-40 object-contain" />
            ) : null}
          </div>
         {field("cover_url", "URL da capa")}

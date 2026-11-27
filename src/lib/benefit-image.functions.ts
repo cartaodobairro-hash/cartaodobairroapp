@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 
-const pathsSchema = z.array(z.string().min(1).max(512).regex(/^[a-zA-Z0-9/_-]+\.(jpg|jpeg|png)$/i)).max(50);
+const pathsSchema = z.array(z.string().min(1).max(512).regex(/^[a-zA-Z0-9/_-]+\.(jpg|jpeg|png|webp)$/i)).max(50);
 
 // Public pages can display only images attached to active benefits of approved partners.
 export const getActiveBenefitImages = createServerFn({ method: "POST" })
@@ -40,7 +40,7 @@ export const getActiveBenefitImages = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error: signError } = await supabaseAdmin.storage.from("benefit-images")
-      .createSignedUrls(allowed, 60 * 60);
+      .createSignedUrls(allowed, 60 * 60 * 24);
     if (signError) throw new Error("Não foi possível carregar as imagens dos benefícios.");
 
     return Object.fromEntries((data ?? []).flatMap((item) =>

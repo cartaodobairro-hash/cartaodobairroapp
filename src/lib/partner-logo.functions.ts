@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const pathsSchema = z.array(z.string().min(1).max(512).regex(/^[a-zA-Z0-9/_-]+\.(jpg|jpeg|png)$/i)).max(50);
+const pathsSchema = z.array(z.string().min(1).max(512).regex(/^[a-zA-Z0-9/_-]+\.(jpg|jpeg|png|webp)$/i)).max(50);
 
 // Sign only logos attached to approved partners; private bucket browsing remains owner-scoped.
 export const getApprovedPartnerLogos = createServerFn({ method: "POST" })
@@ -27,7 +27,7 @@ export const getApprovedPartnerLogos = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error: signError } = await supabaseAdmin.storage
       .from("partner-logos")
-      .createSignedUrls(allowed, 60 * 60);
+      .createSignedUrls(allowed, 60 * 60 * 24);
     if (signError) throw new Error("Não foi possível carregar as logos dos parceiros.");
 
     return Object.fromEntries(
