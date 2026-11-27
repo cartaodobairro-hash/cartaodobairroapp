@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Configurar infraestrutura e modelos de e-mail para cartaodobairro.online; seis modelos renderizados e rotas verificadas, envio aguarda verificação de DNS
+
 - [x] Avisar cliente e administradores após uso do cartão; criação dos dois avisos validada, painel administrativo e leitura conferidos em computador/celular; tela do cliente preservada, sem novo teste autenticado
 
 - [x] Cancelar a troca solicitada dos links de pagamento; links existentes e liberação automática preservados, sem alterações no pagamento
@@ -29,7 +31,7 @@
 
 - [x] Registrar imediatamente clientes indicados pelo link ou QR Code para acompanhamento administrativo antes do pagamento
 - [x] Vincular proposta ao cadastro pelo e-mail e CPF e mostrar vendedor na lista administrativa
-- [ ] Enviar aviso adicional de cadastro por e-mail — aguarda domínio de envio próprio; validação de e-mail usa o envio padrão
+- [ ] Enviar aviso adicional de cadastro por e-mail — domínio em verificação de DNS; acionamento desse aviso ainda não configurado
 
 - [x] Integrar retorno e confirmação automática do pagamento InfinitePay
 - [x] Dar baixa na mensalidade e ativar cliente, assinatura e cartão automaticamente
